@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Battle Arena</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section id="dashboard" class="screen active">
+      <h1>⚔️ BATTLE ARENA</h1>
+      <p class="sub">Online team battle prototype</p>
+      <div class="card">
+        <input id="playerName" maxlength="18" placeholder="Your player name">
+        <button onclick="showServers()">PLAY ONLINE</button>
+        <button class="secondary" onclick="alert('Account system is represented by your player name in this prototype.')">LOGIN / ACCOUNT</button>
+        <button class="secondary" onclick="alert('Settings can be added here later.')">SETTINGS</button>
+      </div>
+    </section>
+
+    <section id="servers" class="screen">
+      <h2>SERVER BROWSER</h2>
+      <div class="row">
+        <button onclick="createServer()">+ CREATE SERVER</button>
+        <button class="secondary" onclick="show('dashboard')">BACK</button>
+      </div>
+      <div id="serverList" class="list"></div>
+      <div class="card join">
+        <h3>Join by code</h3>
+        <input id="roomCode" placeholder="ABCDE" maxlength="5">
+        <button onclick="joinByCode()">JOIN</button>
+      </div>
+    </section>
+
+    <section id="lobby" class="screen">
+      <div class="row between">
+        <div><h2>SERVER <span id="lobbyCode"></span></h2><p id="lobbyStatus"></p></div>
+        <button class="secondary" onclick="location.reload()">LEAVE</button>
+      </div>
+
+      <div id="countdown" class="countdown hidden"></div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>PLAYERS</h3>
+          <div id="players"></div>
+        </div>
+
+        <div class="card">
+          <h3>TEAM</h3>
+          <div class="teams">
+            <button onclick="chooseTeam(0)">🔵 Team Blue</button>
+            <button onclick="chooseTeam(1)">🔴 Team Red</button>
+            <button onclick="chooseTeam(2)">🟢 Team Green</button>
+            <button onclick="chooseTeam(3)">🟡 Team Yellow</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>VOTE — GAME MODE</h3>
+          <div id="modeVotes"></div>
+        </div>
+
+        <div class="card">
+          <h3>VOTE — MAP</h3>
+          <div id="mapVotes"></div>
+        </div>
+      </div>
+
+      <button id="readyBtn" class="ready" onclick="toggleReady()">READY</button>
+    </section>
+
+    <section id="game" class="screen">
+      <div class="row between">
+        <h2 id="matchTitle">MATCH</h2>
+        <div id="scores"></div>
+      </div>
+      <canvas id="arena" width="800" height="500"></canvas>
+      <p class="help">WASD / Arrow keys to move. Click to score a tag against an opponent.</p>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
