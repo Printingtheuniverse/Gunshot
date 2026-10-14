@@ -160,23 +160,74 @@ function loop() {
 }
 
 function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const w = canvas.width;
+  const h = canvas.height;
+  const t = Date.now() / 1000;
 
-  ctx.strokeStyle = "#263344";
-  for(let x=0;x<800;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,500);ctx.stroke()}
-  for(let y=0;y<500;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(800,y);ctx.stroke()}
+  // Dark neon arena
+  ctx.fillStyle = "#080d1c";
+  ctx.fillRect(0, 0, w, h);
 
-  for (const p of players) {
-    ctx.fillStyle = teamColors[p.team];
+  // Glowing grid
+  ctx.strokeStyle = "rgba(50, 220, 255, 0.16)";
+  ctx.lineWidth = 1;
+
+  for (let x = 0; x < w; x += 40) {
     ctx.beginPath();
-    ctx.arc(p.x,p.y,15,0,Math.PI*2);
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+
+  for (let y = 0; y < h; y += 40) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  // Glowing players
+  for (const p of players) {
+    const color = teamColors[p.team] || "#ffffff";
+
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 22;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 19 + Math.sin(t * 4) * 2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "white";
-    ctx.font = "12px system-ui";
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(p.x - 3, p.y - 3, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Player name
+    ctx.font = "bold 12px system-ui";
     ctx.textAlign = "center";
-    ctx.fillText(p.name,p.x,p.y-21);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#080d1c";
+    ctx.strokeText(p.name, p.x, p.y - 27);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(p.name, p.x, p.y - 27);
+
+    ctx.restore();
   }
+
+  // Controls
+  ctx.fillStyle = "rgba(235,245,255,0.8)";
+  ctx.font = "11px system-ui";
+  ctx.textAlign = "left";
+  ctx.fillText("MOVE: WASD / ARROWS | CLICK: TAG", 18, h - 17);
 }
 
 setInterval(() => {
