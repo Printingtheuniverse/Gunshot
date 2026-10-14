@@ -112,11 +112,11 @@ function toggleReady() {
 }
 
 socket.on("matchStarted", data => {
+  currentState = "playing";
   $("matchTitle").textContent = `${data.mode} — ${data.map}`;
   show("game");
   requestAnimationFrame(loop);
 });
-
 socket.on("players", data => {
   players = data;
 });
