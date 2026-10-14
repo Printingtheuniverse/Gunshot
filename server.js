@@ -80,11 +80,11 @@ function startMatch(room) {
   const mapEntries = Object.entries(room.mapVotes);
 
   room.mode = modeEntries.length
-    ? modeEntries.sort((a,b) => b[1]-a[1])[0][0]
+    ? modeEntries.sort((a, b) => b[1] - a[1])[0][0]
     : modes[0];
 
   room.map = mapEntries.length
-    ? mapEntries.sort((a,b) => b[1]-a[1])[0][0]
+    ? mapEntries.sort((a, b) => b[1] - a[1])[0][0]
     : maps[0];
 
   room.state = "countdown";
@@ -93,14 +93,26 @@ function startMatch(room) {
 
   const timer = setInterval(() => {
     room.countdown--;
+
     if (room.countdown <= 0) {
       clearInterval(timer);
       room.state = "playing";
       room.countdown = 0;
       sendLobby(room);
+
       io.to(room.id).emit("matchStarted", {
-        mode: room.mode, map: room.map
+        mode: room.mode,
+        map: room.map
       });
+
+      io.to(room.id).emit("players", room.players.map(p => ({
+        id: p.id,
+        name: p.name,
+        team: p.team,
+        x: p.x,
+        y: p.y,
+        hp: p.hp
+      })));
     } else {
       sendLobby(room);
     }
