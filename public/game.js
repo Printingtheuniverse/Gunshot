@@ -329,10 +329,12 @@ renderer.domElement.addEventListener("click", event => {
 });
 
 document.addEventListener("keydown", e => {
+  if (!e.key) return;
   keys[e.key.toLowerCase()] = true;
 });
 
 document.addEventListener("keyup", e => {
+  if (!e.key) return;
   keys[e.key.toLowerCase()] = false;
 });
 
