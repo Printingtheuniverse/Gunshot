@@ -118,14 +118,14 @@ scene.background = new THREE.Color(0x070b16);
 scene.fog = new THREE.Fog(0x070b16, 35, 100);
 
 const camera = new THREE.PerspectiveCamera(65, 800 / 500, 0.1, 200);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// Reuse the canvas already present in index.html. Do not nest a canvas
+// inside another canvas; that creates an invisible/zero-sized render surface.
+const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-renderer.setSize(800, 500);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.domElement.style.cssText =
   "display:block;width:100%;height:auto;border-radius:10px;cursor:crosshair";
-arena.replaceChildren(renderer.domElement);
 
 scene.add(new THREE.HemisphereLight(0x9bbcff, 0x151525, 2));
 
