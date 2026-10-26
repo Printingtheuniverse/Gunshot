@@ -9,14 +9,65 @@
 <body>
   <main class="app">
     <section id="dashboard" class="screen active">
-      <h1>⚔️ BATTLE ARENA</h1>
-      <p class="sub">Online team battle prototype</p>
-      <div class="card">
-        <input id="playerName" maxlength="18" placeholder="Your player name">
-        <button onclick="showServers()">PLAY ONLINE</button>
-        <button class="secondary" onclick="alert('Account system is represented by your player name in this prototype.')">LOGIN / ACCOUNT</button>
-        <button class="secondary" onclick="alert('Settings can be added here later.')">SETTINGS</button>
+      <header class="topbar">
+        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark">A</span><span>ARENA<span class="brand-light">VERSE</span><small>PLAY • EXPLORE • TEAM UP</small></span></a>
+        <nav class="topnav" aria-label="Main navigation">
+          <button class="nav-button selected" onclick="show('dashboard')">⌂ <span>HOME</span></button>
+          <button class="nav-button" onclick="document.getElementById('customizer').scrollIntoView({behavior:'smooth'})">✦ <span>CHARACTERS</span></button>
+          <button class="nav-button" onclick="showServers()">◎ <span>PLAY ONLINE</span></button>
+        </nav>
+        <div class="profile-chip"><span class="online-dot"></span><span>PLAYER PROFILE<small>Guest session</small></span></div>
+      </header>
+
+      <div class="welcome-row">
+        <div><p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p><h1>ENTER THE <span>ARENA.</span></h1><p class="sub">Team up, outplay your rivals, and make the arena yours.</p></div>
+        <div class="season-chip"><span>✦</span><div>SEASON 01<small>THE FIRST FRONTIER</small></div></div>
       </div>
+
+      <div class="lobby-layout">
+        <aside class="side-panel">
+          <div class="panel-heading"><span class="mini-icon">◈</span><div><h3>YOUR PROFILE</h3><small>Make yourself known</small></div></div>
+          <label class="field-label" for="playerName">PLAYER NAME</label>
+          <input id="playerName" maxlength="18" placeholder="Choose a name">
+          <div class="profile-preview"><div class="avatar-mini" id="miniAvatar">A</div><div><strong id="profileNamePreview">ARENA EXPLORER</strong><small>Rookie • Level 1</small></div></div>
+          <div class="divider-line"></div>
+          <div class="panel-heading"><span class="mini-icon">✧</span><div><h3>QUICK LINKS</h3><small>Jump right in</small></div></div>
+          <button class="quick-link" onclick="showServers()"><span>◎</span> Find a match <b>›</b></button>
+          <button class="quick-link" onclick="document.getElementById('customizer').scrollIntoView({behavior:'smooth'})"><span>✦</span> Customize look <b>›</b></button>
+          <p class="fine-print">Cosmetics are for style only. More ways to personalize your character can be added as the game grows.</p>
+        </aside>
+
+        <section class="hero-panel" aria-label="Character preview">
+          <div class="hero-glow"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="hero-badge"><span class="online-dot"></span> LOBBY READY</div>
+          <div class="hero-copy"><p class="eyebrow">MEET YOUR AVATAR</p><h2 id="characterName">NOVA</h2><p id="characterDescription">Fast feet. Big energy. Ready to explore.</p></div>
+          <div class="character-stage" id="characterStage"><div class="stage-shadow"></div><div class="avatar-figure avatar-nova" id="avatarFigure"><div class="avatar-ear left"></div><div class="avatar-ear right"></div><div class="avatar-head"><div class="visor"></div><div class="face-light"></div></div><div class="avatar-body"><div class="body-panel"></div><div class="body-core"></div></div><div class="avatar-arm left"></div><div class="avatar-arm right"></div><div class="avatar-leg left"></div><div class="avatar-leg right"></div><div class="avatar-scarf"></div></div></div>
+          <button class="character-arrow arrow-left" aria-label="Previous character" onclick="changeCharacter(-1)">‹</button><button class="character-arrow arrow-right" aria-label="Next character" onclick="changeCharacter(1)">›</button>
+          <div class="character-footer"><div class="character-dots" id="characterDots"><button class="dot active" aria-label="Nova" onclick="selectCharacter(0)"></button><button class="dot" aria-label="Bolt" onclick="selectCharacter(1)"></button><button class="dot" aria-label="Moss" onclick="selectCharacter(2)"></button></div><span id="characterCount">01 / 03</span></div>
+        </section>
+
+        <aside class="side-panel right-panel" id="customizer">
+          <div class="panel-heading"><span class="mini-icon">✧</span><div><h3>STYLE STUDIO</h3><small>Your look, your choice</small></div></div>
+          <p class="style-label">CHOOSE A COLOR</p>
+          <div class="swatches" role="group" aria-label="Avatar color">
+            <button class="swatch active" style="--swatch:#63e6ff" aria-label="Cyan" onclick="setAvatarColor('#63e6ff',this)"></button>
+            <button class="swatch" style="--swatch:#a78bfa" aria-label="Violet" onclick="setAvatarColor('#a78bfa',this)"></button>
+            <button class="swatch" style="--swatch:#ffad66" aria-label="Orange" onclick="setAvatarColor('#ffad66',this)"></button>
+            <button class="swatch" style="--swatch:#8be0a2" aria-label="Mint" onclick="setAvatarColor('#8be0a2',this)"></button>
+          </div>
+          <div class="divider-line"></div>
+          <p class="style-label">YOUR AVATAR</p>
+          <div class="cosmetic-card"><div class="cosmetic-icon">✦</div><div><strong id="styleSummary">Neon cyan</strong><small>Equipped style</small></div><span class="equipped">EQUIPPED</span></div>
+          <p class="fine-print">More outfits and effects could be earned through play or offered as optional cosmetics later.</p>
+        </aside>
+      </div>
+
+      <section class="play-dock">
+        <div class="play-dock-copy"><span class="live-pip"></span><div><strong>THE ARENA IS WAITING</strong><small>Play with friends or find an open room</small></div></div>
+        <button class="play-cta" onclick="showServers()">PLAY ONLINE <span>→</span></button>
+        <button class="create-cta" onclick="createServer()">+ CREATE ROOM</button>
+      </section>
+      <footer class="dashboard-footer"><span>ARENA VERSE <span class="footer-muted">• COMMUNITY PLAYGROUND</span></span><span>BE KIND. PLAY FAIR. HAVE FUN.</span></footer>
     </section>
 
     <section id="servers" class="screen">
