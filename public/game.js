@@ -14,6 +14,46 @@ function name() {
   return ($("playerName").value.trim() || "Player").slice(0,18);
 }
 
+
+const characters = [
+  { name: "NOVA", description: "Fast feet. Big energy. Ready to explore.", className: "avatar-nova" },
+  { name: "BOLT", description: "Bright ideas. Bold moves. Always curious.", className: "avatar-bolt" },
+  { name: "MOSS", description: "Calm under pressure. A friend to every team.", className: "avatar-moss" }
+];
+let selectedCharacter = 0;
+let selectedAvatarColor = "#63e6ff";
+
+function selectCharacter(index) {
+  selectedCharacter = (index + characters.length) % characters.length;
+  const character = characters[selectedCharacter];
+  $("characterName").textContent = character.name;
+  $("characterDescription").textContent = character.description;
+  $("characterCount").textContent = String(selectedCharacter + 1).padStart(2, "0") + " / " + String(characters.length).padStart(2, "0");
+  $("avatarFigure").className = "avatar-figure " + character.className;
+  document.querySelectorAll(".character-dots .dot").forEach((dot, i) => dot.classList.toggle("active", i === selectedCharacter));
+  $("miniAvatar").textContent = character.name.charAt(0);
+}
+
+function changeCharacter(direction) {
+  selectCharacter(selectedCharacter + direction);
+}
+
+function setAvatarColor(color, button) {
+  selectedAvatarColor = color;
+  document.documentElement.style.setProperty("--avatar-accent", color);
+  document.querySelectorAll(".swatch").forEach(swatch => swatch.classList.toggle("active", swatch === button));
+  const names = { "#63e6ff": "Neon cyan", "#a78bfa": "Violet pulse", "#ffad66": "Solar orange", "#8be0a2": "Mint glow" };
+  $("styleSummary").textContent = names[color] || "Custom color";
+}
+
+document.addEventListener("input", event => {
+  if (event.target && event.target.id === "playerName") {
+    const value = event.target.value.trim();
+    $("profileNamePreview").textContent = (value || "ARENA EXPLORER").toUpperCase().slice(0, 18);
+    $("miniAvatar").textContent = (value || "A").charAt(0).toUpperCase();
+  }
+});
+
 function showServers() {
   if (!name()) return;
   show("servers");
