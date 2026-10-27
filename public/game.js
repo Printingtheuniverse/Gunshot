@@ -459,3 +459,97 @@ function resizeArena() {
 window.addEventListener("resize", resizeArena);
 resizeArena();
 start3DLoop();
+
+/* Cosmetic loadout studio: browser-local saves, no server or gameplay changes. */
+let selectedGear = "AURORA";
+let loadoutColor = "#63e6ff";
+const LOADOUT_STORAGE_KEY = "arenaverse.cosmeticLoadouts.v1";
+function openLoadoutStudio() {
+  const panel = $("loadoutStudio");
+  if (!panel) return;
+  panel.classList.remove("hidden");
+  panel.scrollIntoView({behavior:"smooth", block:"start"});
+  renderSavedLoadouts();
+}
+function closeLoadoutStudio() {
+  $("loadoutStudio")?.classList.add("hidden");
+}
+function chooseGear(gear, button) {
+  selectedGear = gear;
+  document.querySelectorAll(".gear-card").forEach(card => {
+    const active = card.dataset.gear === gear;
+    card.classList.toggle("selected", active);
+    const state = card.querySelector(".gear-state");
+    if (state) state.textContent = active ? "SELECTED" : "EQUIP";
+  });
+  document.documentElement.dataset.loadoutGear = gear.toLowerCase();
+  const style = {"AURORA":"Aurora shell","PHANTOM":"Phantom suit","PULSE":"Pulse armor"}[gear] || gear;
+  $("styleSummary").textContent = style + " · " + colorName(loadoutColor);
+}
+function colorName(color) {
+  return ({"#63e6ff":"Ice cyan","#a78bfa":"Violet","#ffad66":"Solar orange","#8be0a2":"Mint","#f28bb8":"Rose"})[color] || "Custom";
+}
+function chooseLoadoutColor(color, button) {
+  loadoutColor = color;
+  selectedAvatarColor = color;
+  document.documentElement.style.setProperty("--avatar-accent", color);
+  document.querySelectorAll("#loadoutStudio .swatch").forEach(s => s.classList.toggle("active", s === button));
+  document.querySelectorAll(".gear-visual").forEach(v => v.style.setProperty("--gear-color", color));
+  $("styleSummary").textContent = ({"AURORA":"Aurora shell","PHANTOM":"Phantom suit","PULSE":"Pulse armor"}[selectedGear]) + " · " + colorName(color);
+  const oldSwatches = document.querySelectorAll("#customizer .swatch");
+  oldSwatches.forEach(s => s.classList.toggle("active", s.getAttribute("aria-label") === ({"#63e6ff":"Cyan","#a78bfa":"Violet","#ffad66":"Orange","#8be0a2":"Mint"}[color])));
+  if (typeof renderSavedLoadouts === "function") renderSavedLoadouts();
+}
+function readLoadouts() {
+  try {
+    const value = JSON.parse(localStorage.getItem(LOADOUT_STORAGE_KEY) || "[]");
+    return Array.isArray(value) ? value.filter(x => x && typeof x.name === "string" && ["AURORA","PHANTOM","PULSE"].includes(x.gear) && /^#[0-9a-f]{6}$/i.test(x.color)).slice(0,5) : [];
+  } catch (_) { return []; }
+}
+function saveLoadout() {
+  const input = $("loadoutName");
+  const name = (input.value.trim() || ({"AURORA":"Aurora shell","PHANTOM":"Phantom suit","PULSE":"Pulse armor"}[selectedGear])).slice(0,20);
+  const saved = readLoadouts();
+  if (saved.length >= 5) {
+    $("loadoutMessage").textContent = "You have 5 saved looks. Delete one before saving another.";
+    return;
+  }
+  saved.push({id:Date.now().toString(36),name,gear:selectedGear,color:loadoutColor});
+  try {
+    localStorage.setItem(LOADOUT_STORAGE_KEY, JSON.stringify(saved));
+    input.value = "";
+    $("loadoutMessage").textContent = "Saved “" + name + "” on this device.";
+    renderSavedLoadouts();
+  } catch (_) {
+    $("loadoutMessage").textContent = "Saving is unavailable in this browser session.";
+  }
+}
+function equipSavedLoadout(id) {
+  const item = readLoadouts().find(x => x.id === id);
+  if (!item) return;
+  chooseGear(item.gear, document.querySelector('.gear-card[data-gear="' + item.gear + '"]'));
+  const swatch = [...document.querySelectorAll("#loadoutStudio .swatch")].find(s => s.style.getPropertyValue("--swatch").trim().toLowerCase() === item.color.toLowerCase());
+  chooseLoadoutColor(item.color, swatch || document.querySelector("#loadoutStudio .swatch"));
+  $("loadoutMessage").textContent = "Equipped “" + item.name + "”.";
+}
+function deleteSavedLoadout(id) {
+  try {
+    localStorage.setItem(LOADOUT_STORAGE_KEY, JSON.stringify(readLoadouts().filter(x => x.id !== id)));
+    renderSavedLoadouts();
+    $("loadoutMessage").textContent = "Saved look deleted.";
+  } catch (_) { $("loadoutMessage").textContent = "Could not update saved looks."; }
+}
+function renderSavedLoadouts() {
+  const list = $("savedLoadoutList");
+  if (!list) return;
+  const saved = readLoadouts();
+  $("savedLoadoutCount").textContent = saved.length + " / 5";
+  list.innerHTML = saved.length ? saved.map(item => '<div class="saved-loadout-item"><span class="saved-color" style="--saved-color:' + item.color + '"></span><span class="saved-info"><strong>' + escapeLoadoutText(item.name) + '</strong><small>' + item.gear + ' · ' + colorName(item.color) + '</small></span><span class="saved-actions"><button onclick="equipSavedLoadout(\'' + item.id + '\')">EQUIP</button><button class="delete-loadout" aria-label="Delete ' + escapeLoadoutText(item.name) + '" onclick="deleteSavedLoadout(\'' + item.id + '\')">×</button></span></div>').join("") : '<p class="fine-print">No saved looks yet. Customize a style and save it above.</p>';
+}
+function escapeLoadoutText(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".gear-visual").forEach(v => v.style.setProperty("--gear-color", loadoutColor));
+  renderSavedLoadouts();
+});
