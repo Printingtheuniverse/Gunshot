@@ -277,6 +277,37 @@ function makePlayer(p) {
   part(new THREE.CylinderGeometry(0.16, 0.18, 0.65, 8), dark, -0.2, 0.38, 0);
   part(new THREE.CylinderGeometry(0.16, 0.18, 0.65, 8), dark, 0.2, 0.38, 0);
 
+  // Extra silhouette details make the arena avatars feel like distinct sci-fi explorers.
+  const armor = new THREE.MeshStandardMaterial({
+    color: 0x9db7c5, metalness: 0.62, roughness: 0.3
+  });
+  const deepArmor = new THREE.MeshStandardMaterial({
+    color: 0x172b3a, metalness: 0.5, roughness: 0.4
+  });
+  const glow = new THREE.MeshStandardMaterial({
+    color: 0xd9fbff, emissive: 0x56dfff, emissiveIntensity: 0.85,
+    metalness: 0.25, roughness: 0.25
+  });
+  // Shoulder plates
+  part(new THREE.SphereGeometry(0.27, 12, 8), armor, -0.53, 1.72, 0);
+  part(new THREE.SphereGeometry(0.27, 12, 8), armor, 0.53, 1.72, 0);
+  // Chest badge and slim illuminated torso panel
+  part(new THREE.BoxGeometry(0.3, 0.38, 0.075), deepArmor, 0, 1.48, 0.19);
+  part(new THREE.BoxGeometry(0.12, 0.2, 0.09), glow, 0, 1.5, 0.245);
+  // Back-mounted explorer pack
+  part(new THREE.BoxGeometry(0.48, 0.56, 0.2), deepArmor, 0, 1.55, -0.29);
+  part(new THREE.BoxGeometry(0.34, 0.09, 0.08), material, 0, 1.72, -0.405);
+  // Forearm cuffs and knee guards
+  part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, -0.53, 1.1, 0);
+  part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, 0.53, 1.1, 0);
+  part(new THREE.BoxGeometry(0.29, 0.18, 0.12), armor, -0.2, 0.47, 0.13);
+  part(new THREE.BoxGeometry(0.29, 0.18, 0.12), armor, 0.2, 0.47, 0.13);
+  // Helmet fins and boots give the model a stronger silhouette.
+  part(new THREE.ConeGeometry(0.12, 0.32, 5), material, -0.22, 2.35, -0.02).rotation.z = -0.35;
+  part(new THREE.ConeGeometry(0.12, 0.32, 5), material, 0.22, 2.35, -0.02).rotation.z = 0.35;
+  part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, -0.2, 0.08, 0.08);
+  part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, 0.2, 0.08, 0.08);
+
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.045, 8, 32),
     material
