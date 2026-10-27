@@ -302,13 +302,17 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
-const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER", "ION SHOTGUN"];
+const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER", "ION SHOTGUN", "BANANA GUN"];
+const BANANA_UNLOCK_KEY = "reloadshot.bananaWeaponUnlocked.v1";
+const bananaMines = [];
+function hasBananaGun(){ try { return localStorage.getItem(BANANA_UNLOCK_KEY)==="yes"; } catch { return false; } }
 const WEAPON_UNLOCK_KEY = "reloadshot.weaponUnlocks.v1";
 function hasIonShotgun(){ try { return JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]").includes("ion-shotgun"); } catch { return false; } }
 let selectedWeapon = 0;
 
 function setWeapon(index) {
   if (index === 3 && !hasIonShotgun()) { const label=document.getElementById("weaponStatus"); if(label) label.textContent="WEAPON LOCKED // REDEEM QASIM2COOL"; return; }
+  if (index === 4 && !hasBananaGun()) { const label=document.getElementById("weaponStatus"); if(label) label.textContent="WEAPON LOCKED // REDEEM BANANABLAST"; return; }
   selectedWeapon = Math.max(0, Math.min(weaponNames.length - 1, index));
   const label = document.getElementById("weaponStatus");
   if (label) label.textContent = "WEAPON // " + weaponNames[selectedWeapon] + "  ·  " + (selectedWeapon + 1);
@@ -440,10 +444,15 @@ function makePlayer(p) {
   weaponPart(ionShotgun, new THREE.CylinderGeometry(0.12, 0.12, 0.12, 10), cyanGlowForShot, 0, 0.03, -0.72, Math.PI / 2);
   weaponPart(ionShotgun, new THREE.BoxGeometry(0.18, 0.09, 0.34), weaponMaterials[2], 0, 0.19, -0.08);
   weaponPart(ionShotgun, new THREE.BoxGeometry(0.17, 0.28, 0.2), weaponMaterials[1], 0, -0.22, 0.1, -0.2);
+  const bananaGun = new THREE.Group();
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.3, 0.26, 0.48), weaponMaterials[1], 0, 0, 0);
+  weaponPart(bananaGun, new THREE.CylinderGeometry(0.13, 0.16, 0.42, 10), new THREE.MeshStandardMaterial({color:0xffd92e,emissive:0x6b4d00,roughness:0.45}), 0, 0.04, -0.43, Math.PI/2);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.16, 0.08, 0.3), weaponGlow, 0, 0.17, -0.06);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.15, 0.26, 0.18), weaponMaterials[2], 0, -0.21, 0.1, -0.2);
   const weaponRack = new THREE.Group();
   weaponRack.position.set(0.53, 1.28, -0.22);
   weaponRack.rotation.y = 0;
-  [rifle, sidearm, heavy, ionShotgun].forEach((weaponModel, index) => {
+  [rifle, sidearm, heavy, ionShotgun, bananaGun].forEach((weaponModel, index) => {
     weaponModel.userData.weaponSlot = index;
     weaponModel.visible = index === 0;
     weaponRack.add(weaponModel);
@@ -562,6 +571,21 @@ renderer.domElement.addEventListener("click", event => {
     const shotEnd = hit.length ? hit[0].point.clone() : muzzleOrigin.clone().add(new THREE.Vector3(
       (pointer.x * 12), 0, -16 + pointer.y * 4
     ));
+    if (selectedWeapon === 4) {
+      const banana = new THREE.Group();
+      const yellow = new THREE.MeshStandardMaterial({color:0xffdf36,emissive:0x725500,roughness:0.48});
+      const peel = new THREE.Mesh(new THREE.TorusGeometry(0.16,0.07,8,12,Math.PI*1.45), yellow);
+      peel.rotation.x = Math.PI/2; banana.add(peel);
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.045,0.12,6),new THREE.MeshStandardMaterial({color:0x477a25}));
+      stem.position.set(0,0.12,0); banana.add(stem);
+      banana.position.copy(muzzleOrigin); scene.add(banana);
+      const started=performance.now(), origin=muzzleOrigin.clone(), target=shotEnd.clone();
+      const fly=now=>{const t=Math.min(1,(now-started)/260);banana.position.lerpVectors(origin,target,t);banana.rotation.x+=0.12;banana.rotation.z+=0.09;if(t<1)requestAnimationFrame(fly);else{
+        const mine=new THREE.Group();
+        for(let i=0;i<3;i++){const strip=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.34,7),yellow);strip.rotation.z=(i-1)*0.75;strip.position.set((i-1)*0.13,0.1,0);mine.add(strip);}
+        mine.position.set(target.x,0.08,target.z);scene.add(mine);bananaMines.push({model:mine,owner:playerId,team:myTeam,created:performance.now()});scene.remove(banana);banana.traverse(o=>{if(o.geometry)o.geometry.dispose();});
+      }};requestAnimationFrame(fly);
+    }
     const beamGeometry = new THREE.BufferGeometry().setFromPoints([muzzleOrigin, shotEnd]);
     const beam = new THREE.Line(beamGeometry, new THREE.LineBasicMaterial({
       color: selectedWeapon === 3 ? 0xb8a0ff : selectedWeapon === 2 ? 0xffa45e : selectedWeapon === 1 ? 0xa9f8ff : 0x43e6ff,
@@ -590,7 +614,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === "1" || key === "2" || key === "3" || key === "4") setWeapon(Number(key) - 1);
+  if (key === "1" || key === "2" || key === "3" || key === "4" || key === "5") setWeapon(Number(key) - 1);
   keys[key] = true;
 });
 
@@ -645,6 +669,7 @@ function loop() {
     updatePlayers();
   }
 
+  for(let i=bananaMines.length-1;i>=0;i--){const mine=bananaMines[i];if(performance.now()-mine.created>18000){scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);continue;}const victim=players.find(p=>p.id!==mine.owner&&p.team!==mine.team&&Math.hypot((p.x-400)*0.075-mine.model.position.x,(p.y-250)*0.075-mine.model.position.z)<0.85);if(victim){const burst=new THREE.Mesh(new THREE.SphereGeometry(0.65,10,8),new THREE.MeshBasicMaterial({color:0xffdf36,transparent:true,opacity:0.8}));burst.position.set(mine.model.position.x,0.6,mine.model.position.z);scene.add(burst);setTimeout(()=>{scene.remove(burst);burst.geometry.dispose();burst.material.dispose();},260);scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);}}
   renderer.render(scene, camera);
 }
 
@@ -777,13 +802,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const SHOP_KEY = "reloadshot.shop.v1";
 const PROMO_KEY = "reloadshot.promos.v1";
 const SHOP_ITEMS = { arctic: "ARCTIC PULSE", sunforged: "SUNFORGED", void: "VOID CIRCUIT" };
-const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, weapon: "ion-shotgun" } };
+const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, weapon: "ion-shotgun" }, BANANABLAST: { credits: 75, weapon: "banana-gun" } };
 function readShop(){ try { return JSON.parse(localStorage.getItem(SHOP_KEY)) || {credits:250,owned:[]}; } catch { return {credits:250,owned:[]}; } }
 function saveShop(data){ localStorage.setItem(SHOP_KEY,JSON.stringify(data)); renderShop(); }
 function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"start"}); renderShop(); }
 function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
 function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
-function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);if(reward.weapon){const unlocked=JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]");if(!unlocked.includes(reward.weapon)){unlocked.push(reward.weapon);localStorage.setItem(WEAPON_UNLOCK_KEY,JSON.stringify(unlocked));}}used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
+function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);if(reward.weapon==="banana-gun"){localStorage.setItem(BANANA_UNLOCK_KEY,"yes");}else if(reward.weapon){const unlocked=JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]");if(!unlocked.includes(reward.weapon)){unlocked.push(reward.weapon);localStorage.setItem(WEAPON_UNLOCK_KEY,JSON.stringify(unlocked));}}used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon==="banana-gun"?" and BANANA GUN unlocked! Press 5 to equip it.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
 document.addEventListener("DOMContentLoaded",renderShop);
 
 
