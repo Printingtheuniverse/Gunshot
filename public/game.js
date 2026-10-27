@@ -608,7 +608,8 @@ function loop() {
         lastSentY = me.y;
       }
 
-      const model = playerObjects.get(playerId);
+      // If the socket ID has not synced yet, still frame a received player model.
+      const model = playerObjects.get(playerId) || (players.length ? playerObjects.get(players[0].id) : null);
       if (model) {
         // Closer follow camera: keep the local operator large enough to see during play.
         camera.position.set(
