@@ -101,3 +101,11 @@ button,input{font:inherit}button{cursor:pointer;transition:transform .18s ease,f
 .avatar-moss .avatar-ear{width:17px;height:22px;top:43px;border-radius:50%}.avatar-moss .avatar-scarf{height:23px;top:82px;clip-path:polygon(0 0,100% 0,100% 65%,65% 100%,35% 72%,0 100%)}
 @media(max-width:720px){.cinematic-banner{min-height:410px}.banner-content{padding:26px 20px 22px;max-width:100%}.banner-content h2{font-size:42px}.banner-character{right:-7%;top:100px;bottom:0;width:48%;min-width:170px;opacity:.45}.banner-character-label{display:none}.banner-coordinate{font-size:6px}.banner-metrics{max-width:72%;gap:8px}.banner-metrics i{display:none}.banner-content>p:not(.eyebrow){max-width:70%}.banner-play,.banner-secondary{padding:12px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){.banner-figure{animation:none}}
+
+
+/* RELOAD-SHOT weapon selector HUD */
+.weapon-hud{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 5px;padding:11px 14px;border:1px solid #315b70;border-radius:10px;background:linear-gradient(100deg,#071522,#102b3b);box-shadow:inset 3px 0 #50dff7}
+.weapon-status{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#8ceeff;text-shadow:0 0 12px #3adcf555}
+.weapon-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#9bb8c8;font-size:9px;letter-spacing:.4px}
+.weapon-controls kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border:1px solid #4b7183;border-radius:5px;background:#173445;color:#e4fbff;font:700 10px ui-monospace,monospace;box-shadow:0 2px 0 #06111b}
+@media(max-width:600px){.weapon-hud{align-items:flex-start;flex-direction:column}.weapon-controls{font-size:8px}}
