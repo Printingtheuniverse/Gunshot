@@ -154,47 +154,52 @@ function toggleReady() {
 const arena = $("arena");
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x070b16);
-scene.fog = new THREE.Fog(0x070b16, 35, 100);
+scene.background = new THREE.Color(0x17212b);
+scene.fog = new THREE.Fog(0x17212b, 48, 125);
 
-const camera = new THREE.PerspectiveCamera(65, 800 / 500, 0.1, 200);
+const camera = new THREE.PerspectiveCamera(52, 800 / 500, 0.1, 220);
+camera.position.set(0, 31, 38);
+camera.lookAt(0, 0, 0);
 // Reuse the canvas already present in index.html. Do not nest a canvas
 // inside another canvas; that creates an invisible/zero-sized render surface.
 const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
 renderer.domElement.style.cssText =
   "display:block;width:100%;height:auto;border-radius:10px;cursor:crosshair";
 
-scene.add(new THREE.HemisphereLight(0x9bbcff, 0x151525, 2));
+scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 3);
+const mainLight = new THREE.DirectionalLight(0xfff3df, 3.1);
 mainLight.position.set(-8, 18, 10);
 mainLight.castShadow = true;
 scene.add(mainLight);
 
-const blueLight = new THREE.PointLight(0x168bff, 100, 40);
+const blueLight = new THREE.PointLight(0x4a9ac7, 32, 48);
 blueLight.position.set(-15, 5, -8);
 scene.add(blueLight);
 
-const redLight = new THREE.PointLight(0xff244f, 100, 40);
+const redLight = new THREE.PointLight(0xc77969, 26, 48);
 redLight.position.set(15, 5, 8);
 scene.add(redLight);
 
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(80, 50),
   new THREE.MeshStandardMaterial({
-    color: 0x101a2b,
-    metalness: 0.8,
-    roughness: 0.35
+    color: 0x53616b,
+    metalness: 0.22,
+    roughness: 0.82
   })
 );
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(80, 40, 0x168bff, 0x243b58);
+const grid = new THREE.GridHelper(80, 32, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
@@ -203,10 +208,10 @@ function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
     new THREE.BoxGeometry(sx, sy, sz),
     new THREE.MeshStandardMaterial({
       color,
-      metalness: 0.65,
-      roughness: 0.3,
+      metalness: 0.28,
+      roughness: 0.62,
       emissive,
-      emissiveIntensity: 1
+      emissiveIntensity: emissive === 0x000000 ? 0 : 0.28
     })
   );
   mesh.position.set(x, y, z);
@@ -217,27 +222,27 @@ function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
 }
 
 // Arena walls and glowing trim
-addBox(0, 2, -25, 80, 4, 1, 0x17263a);
+addBox(0, 2, -25, 80, 4, 1, 0x344653);
 addBox(0, 2, 25, 80, 4, 1, 0x17263a);
 addBox(-40, 2, 0, 1, 4, 50, 0x17263a);
 addBox(40, 2, 0, 1, 4, 50, 0x17263a);
-addBox(0, 3.8, -24.4, 78, 0.12, 0.12, 0x168bff, 0x168bff);
-addBox(0, 3.8, 24.4, 78, 0.12, 0.12, 0xff244f, 0xff244f);
+addBox(0, 3.8, -24.4, 78, 0.12, 0.12, 0x5a9cb5, 0x163847);
+addBox(0, 3.8, 24.4, 78, 0.12, 0.12, 0xc77969, 0x3d201d);
 
 // Cover crates
 for (const [x, z] of [
   [-18, -10], [-8, 8], [8, -8], [18, 10],
   [-24, 5], [24, -5], [0, -16], [0, 16]
 ]) {
-  addBox(x, 1.2, z, 3.5, 2.4, 3.5, 0x29394d);
-  addBox(x, 2.43, z, 3.7, 0.12, 3.7, 0x168bff, 0x06264d);
+  addBox(x, 1.2, z, 3.5, 2.4, 3.5, 0x53636c);
+  addBox(x, 2.43, z, 3.7, 0.12, 3.7, 0x7897a5, 0x152e3a);
 }
 
 const teamMaterials = teamColors.map(color =>
   new THREE.MeshStandardMaterial({
     color,
     emissive: color,
-    emissiveIntensity: 0.35,
+    emissiveIntensity: 0.12,
     metalness: 0.45,
     roughness: 0.35
   })
@@ -250,9 +255,9 @@ function makePlayer(p) {
   const group = new THREE.Group();
   const material = teamMaterials[p.team] || teamMaterials[0];
   const dark = new THREE.MeshStandardMaterial({
-    color: 0x202b3c,
-    metalness: 0.8,
-    roughness: 0.28
+    color: 0x3b4c59,
+    metalness: 0.42,
+    roughness: 0.48
   });
 
   function part(geometry, mat, x, y, z) {
