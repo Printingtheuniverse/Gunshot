@@ -23,6 +23,8 @@ function makeRoom(id, hostName) {
     players: [],
     modeVotes: {},
     mapVotes: {},
+    modeBallots: {},
+    mapBallots: {},
     state: "voting",
     mode: null,
     map: null,
