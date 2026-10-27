@@ -302,6 +302,17 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
+const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER"];
+let selectedWeapon = 0;
+
+function setWeapon(index) {
+  selectedWeapon = (index + weaponNames.length) % weaponNames.length;
+  const label = document.getElementById("weaponStatus");
+  if (label) label.textContent = "WEAPON // " + weaponNames[selectedWeapon] + "  ·  " + (selectedWeapon + 1);
+  const ownModel = playerObjects.get(playerId);
+  if (ownModel) ownModel.children.filter(child => child.userData.weaponSlot !== undefined)
+    .forEach(child => { child.visible = child.userData.weaponSlot === selectedWeapon; });
+}
 
 function makePlayer(p) {
   const group = new THREE.Group();
@@ -378,6 +389,59 @@ function makePlayer(p) {
   part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, -0.2, 0.08, 0.08);
   part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, 0.2, 0.08, 0.08);
 
+  // Three stylized, selectable sci-fi weapon models. These are visual game props.
+  const weaponMaterials = [
+    new THREE.MeshStandardMaterial({ color: 0x263d4d, metalness: 0.82, roughness: 0.28 }),
+    new THREE.MeshStandardMaterial({ color: 0x8198a5, metalness: 0.78, roughness: 0.25 }),
+    new THREE.MeshStandardMaterial({ color: 0x152633, metalness: 0.72, roughness: 0.34 })
+  ];
+  const weaponGlow = new THREE.MeshStandardMaterial({
+    color: 0xbff8ff, emissive: 0x36dfff, emissiveIntensity: 1.8,
+    metalness: 0.2, roughness: 0.2
+  });
+  const amberGlow = new THREE.MeshStandardMaterial({
+    color: 0xffd1a0, emissive: 0xff873d, emissiveIntensity: 1.6,
+    metalness: 0.2, roughness: 0.25
+  });
+  function weaponPart(parent, geometry, mat, x, y, z, rx = 0, ry = 0, rz = 0) {
+    const mesh = new THREE.Mesh(geometry, mat);
+    mesh.position.set(x, y, z);
+    mesh.rotation.set(rx, ry, rz);
+    mesh.castShadow = true;
+    parent.add(mesh);
+    return mesh;
+  }
+  const rifle = new THREE.Group();
+  weaponPart(rifle, new THREE.BoxGeometry(0.23, 0.22, 0.72), weaponMaterials[0], 0, 0, 0);
+  weaponPart(rifle, new THREE.BoxGeometry(0.14, 0.16, 0.42), weaponMaterials[1], 0, 0.07, -0.47);
+  weaponPart(rifle, new THREE.CylinderGeometry(0.055, 0.055, 0.58, 10), weaponMaterials[2], 0, 0.02, -0.78, Math.PI / 2);
+  weaponPart(rifle, new THREE.BoxGeometry(0.11, 0.055, 0.32), weaponGlow, 0, 0.14, -0.18);
+  weaponPart(rifle, new THREE.BoxGeometry(0.12, 0.24, 0.18), weaponMaterials[2], 0, -0.19, 0.1, -0.22);
+  weaponPart(rifle, new THREE.BoxGeometry(0.14, 0.08, 0.17), weaponMaterials[1], 0, 0.16, 0.12);
+  const sidearm = new THREE.Group();
+  weaponPart(sidearm, new THREE.BoxGeometry(0.19, 0.2, 0.38), weaponMaterials[1], 0, 0, 0);
+  weaponPart(sidearm, new THREE.BoxGeometry(0.13, 0.12, 0.26), weaponMaterials[0], 0, 0.06, -0.27);
+  weaponPart(sidearm, new THREE.CylinderGeometry(0.045, 0.045, 0.24, 8), weaponMaterials[2], 0, 0.03, -0.43, Math.PI / 2);
+  weaponPart(sidearm, new THREE.BoxGeometry(0.1, 0.045, 0.2), weaponGlow, 0, 0.12, -0.04);
+  weaponPart(sidearm, new THREE.BoxGeometry(0.12, 0.23, 0.14), weaponMaterials[2], 0, -0.17, 0.08, -0.18);
+  const heavy = new THREE.Group();
+  weaponPart(heavy, new THREE.BoxGeometry(0.31, 0.28, 0.6), weaponMaterials[2], 0, 0, 0);
+  weaponPart(heavy, new THREE.CylinderGeometry(0.105, 0.13, 0.52, 10), weaponMaterials[1], 0, 0.02, -0.52, Math.PI / 2);
+  weaponPart(heavy, new THREE.CylinderGeometry(0.14, 0.14, 0.12, 10), amberGlow, 0, 0.02, -0.81, Math.PI / 2);
+  weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.08, 0.36), amberGlow, 0, 0.18, -0.1);
+  weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.3, 0.2), weaponMaterials[0], 0, -0.23, 0.12, -0.2);
+  const weaponRack = new THREE.Group();
+  weaponRack.position.set(0.53, 1.28, -0.22);
+  weaponRack.rotation.y = 0;
+  [rifle, sidearm, heavy].forEach((weaponModel, index) => {
+    weaponModel.userData.weaponSlot = index;
+    weaponModel.visible = index === 0;
+    weaponRack.add(weaponModel);
+  });
+  group.add(weaponRack);
+  // Make the rack itself easy to identify when updating the selected weapon.
+  weaponRack.userData.weaponRack = true;
+
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.045, 8, 32),
     material
@@ -453,6 +517,8 @@ function updatePlayers() {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+const cyanGlowForShot = new THREE.MeshBasicMaterial({ color: 0x8df5ff });
+const amberGlowForShot = new THREE.MeshBasicMaterial({ color: 0xffbb73 });
 
 renderer.domElement.addEventListener("click", event => {
   if (currentState !== "playing") return;
@@ -471,12 +537,42 @@ renderer.domElement.addEventListener("click", event => {
   }
 
   const hit = raycaster.intersectObjects(targets, false);
+  const ownModel = playerObjects.get(playerId);
+  if (ownModel) {
+    const muzzleOrigin = new THREE.Vector3();
+    ownModel.getWorldPosition(muzzleOrigin);
+    muzzleOrigin.y += 1.42;
+    muzzleOrigin.x += 0.48;
+    muzzleOrigin.z -= 0.62;
+    const flashMaterial = selectedWeapon === 2 ? amberGlowForShot : cyanGlowForShot;
+    const flash = new THREE.Mesh(new THREE.SphereGeometry(selectedWeapon === 2 ? 0.16 : 0.1, 8, 6), flashMaterial);
+    flash.position.copy(muzzleOrigin);
+    scene.add(flash);
+    const shotEnd = hit.length ? hit[0].point.clone() : muzzleOrigin.clone().add(new THREE.Vector3(
+      (pointer.x * 12), 0, -16 + pointer.y * 4
+    ));
+    const beamGeometry = new THREE.BufferGeometry().setFromPoints([muzzleOrigin, shotEnd]);
+    const beam = new THREE.Line(beamGeometry, new THREE.LineBasicMaterial({
+      color: selectedWeapon === 2 ? 0xffa45e : selectedWeapon === 1 ? 0xa9f8ff : 0x43e6ff,
+      transparent: true, opacity: 0.9
+    }));
+    scene.add(beam);
+    window.setTimeout(() => {
+      scene.remove(flash);
+      flash.geometry.dispose();
+      scene.remove(beam);
+      beam.geometry.dispose();
+      beam.material.dispose();
+    }, 110);
+  }
   if (hit.length) socket.emit("score", { team: myTeam });
 });
 
 document.addEventListener("keydown", e => {
   if (!e.key) return;
-  keys[e.key.toLowerCase()] = true;
+  const key = e.key.toLowerCase();
+  if (key === "1" || key === "2" || key === "3") setWeapon(Number(key) - 1);
+  keys[key] = true;
 });
 
 document.addEventListener("keyup", e => {
