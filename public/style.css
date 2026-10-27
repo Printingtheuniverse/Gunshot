@@ -67,3 +67,37 @@ button,input{font:inherit}button{cursor:pointer;transition:transform .18s ease,f
 .avatar-moss .avatar-body:before,.avatar-moss .avatar-body:after{background:linear-gradient(160deg,#d7f0dc,#759c8c 65%,#2a4b4c);border-color:#b2e1c3}
 @keyframes corePulse{0%,100%{opacity:.7;scale:.92 1}50%{opacity:1;scale:1.08 1}}
 @media(prefers-reduced-motion:reduce){.avatar-figure:after{animation:none}}
+
+
+/* RELOAD-SHOT frontier menu + grounded sci-fi presentation */
+.cinematic-banner{position:relative;isolation:isolate;min-height:350px;overflow:hidden;margin:8px 0 20px;border:1px solid #326078;border-radius:20px;background:linear-gradient(105deg,#08131f 0%,#102c3c 48%,#091a29 100%);box-shadow:0 24px 70px #0005}
+.banner-atmosphere,.banner-scan,.banner-grid{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.banner-atmosphere{z-index:-1;background:radial-gradient(ellipse at 75% 45%,#297b9740 0,transparent 35%),linear-gradient(125deg,transparent 42%,#53dfff12 42.2%,transparent 42.8%)}
+.banner-grid{opacity:.18;background-image:linear-gradient(#6dddf71a 1px,transparent 1px),linear-gradient(90deg,#6dddf71a 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,transparent,#000 65%)}
+.banner-scan{opacity:.22;background:linear-gradient(180deg,transparent 0%,#7deaff16 48%,transparent 52%);background-size:100% 8px}
+.banner-moon{position:absolute;width:270px;height:270px;right:17%;top:-90px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6bb3c7,#1d5269 48%,#091a2a 72%);box-shadow:0 0 90px #40c9ed26}
+.banner-content{position:relative;z-index:2;max-width:610px;padding:35px 34px 28px}
+.banner-content .eyebrow{display:flex;align-items:center;gap:9px}.banner-content h2{margin:12px 0 12px;font-size:clamp(35px,5vw,60px);line-height:.93;letter-spacing:-2px;font-weight:1000}.banner-content h2 span{color:#75eaff;text-shadow:0 0 28px #53dfff38}.banner-content>p:not(.eyebrow){max-width:430px;color:#a6c0d0;font-size:13px;line-height:1.7;margin:0}
+.banner-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.banner-play,.banner-secondary{border-radius:9px;padding:13px 17px;font-size:10px;font-weight:1000;letter-spacing:1px}.banner-play{background:linear-gradient(110deg,#a4f5ff,#32b6e9);border:1px solid #b4f7ff;color:#071b29;box-shadow:0 0 24px #41d5f22c}.banner-play span{font-size:17px;margin-left:14px}.banner-secondary{background:#0a1b29cc;border:1px solid #426a7b;color:#d9f5ff}
+.banner-metrics{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px;color:#789caf;font-size:8px;letter-spacing:1px}.banner-metrics b{color:#e2f7ff;font-size:11px;margin-right:5px}.banner-metrics i{height:15px;width:1px;background:#416174}
+.banner-character{position:absolute;right:5%;top:0;bottom:0;width:36%;min-width:220px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.banner-character-halo{position:absolute;width:230px;height:230px;border:1px solid #72e8ff40;border-radius:50%;box-shadow:0 0 0 24px #72e8ff08,0 0 0 52px #72e8ff05,0 0 75px #4edfff22}
+.banner-figure{position:relative;width:170px;height:280px;filter:drop-shadow(0 0 22px #4ac9e94c);animation:bannerFloat 5s ease-in-out infinite}
+.banner-helmet{position:absolute;top:18px;left:48px;width:75px;height:69px;border:3px solid #b3d3df;border-radius:22px 22px 27px 27px;background:linear-gradient(130deg,#e7f2f5 0%,#7e9baa 35%,#263f50 75%);box-shadow:inset -12px -9px #142b3b}
+.banner-visor{position:absolute;z-index:2;top:48px;left:56px;width:59px;height:17px;border:2px solid #9cefff;border-radius:7px;background:linear-gradient(90deg,#122c3c,#6de8ff,#1a475d);box-shadow:0 0 22px #65e9ff99}
+.banner-neck{position:absolute;top:83px;left:71px;width:30px;height:22px;background:#253e4d}
+.banner-torso{position:absolute;top:94px;left:32px;width:108px;height:112px;clip-path:polygon(18% 0,82% 0,100% 18%,84% 100%,16% 100%,0 18%);border:3px solid #a9c8d7;background:linear-gradient(100deg,#e1edf1 0%,#738e9f 38%,#233e50 39%,#102536 100%);box-shadow:inset 0 0 0 7px #233c4e}
+.banner-torso:before{content:"";position:absolute;inset:14px 18px 18px;background:linear-gradient(150deg,#74eaff,#173f58);clip-path:polygon(50% 0,100% 20%,75% 100%,25% 100%,0 20%)}
+.banner-chest-light{position:absolute;z-index:3;top:134px;left:79px;width:16px;height:23px;border:2px solid #d5fbff;border-radius:4px;background:#4fd9f6;box-shadow:0 0 18px #52e4ff}
+.banner-arm{position:absolute;top:103px;width:30px;height:98px;border:2px solid #b4d0dd;border-radius:10px;background:linear-gradient(90deg,#dce9ed,#536f82 55%,#1d394c);transform-origin:top center}
+.banner-arm-left{left:12px;transform:rotate(9deg)}.banner-arm-right{right:8px;transform:rotate(-13deg)}
+.banner-pack{position:absolute;top:115px;right:16px;width:28px;height:61px;border:2px solid #3f667a;border-radius:6px;background:linear-gradient(180deg,#213d4f,#0b1d2b)}
+.banner-character-label{position:absolute;right:0;bottom:25px;padding:10px 12px;border-left:2px solid #6ee7ff;background:#071522b8;min-width:150px}.banner-character-label span,.banner-character-label b,.banner-character-label small{display:block}.banner-character-label span{font-size:8px;color:#72eaff;letter-spacing:2px}.banner-character-label b{font-size:10px;letter-spacing:1px;margin-top:4px}.banner-character-label small{font-size:7px;color:#829eaf;letter-spacing:1px;margin-top:4px}
+.banner-coordinate{position:absolute;right:14px;top:14px;font-size:7px;letter-spacing:1.5px;color:#7ea6b9}
+@keyframes bannerFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(1deg)}}
+.hero-panel{background:radial-gradient(ellipse at 50% 52%,#28586b 0%,#102c3b 42%,#081522 80%)}
+.avatar-nova .avatar-head{border-radius:18px 18px 28px 28px}.avatar-nova .avatar-body{background:linear-gradient(110deg,#e6f2f5,#8299a7 40%,#263f50 41%,#102536)}
+.avatar-bolt .avatar-ear{height:36px;top:25px;clip-path:polygon(50% 0,100% 100%,0 100%)}.avatar-bolt .avatar-body{clip-path:polygon(20% 0,80% 0,100% 30%,75% 100%,25% 100%,0 30%)}
+.avatar-moss .avatar-ear{width:17px;height:22px;top:43px;border-radius:50%}.avatar-moss .avatar-scarf{height:23px;top:82px;clip-path:polygon(0 0,100% 0,100% 65%,65% 100%,35% 72%,0 100%)}
+@media(max-width:720px){.cinematic-banner{min-height:410px}.banner-content{padding:26px 20px 22px;max-width:100%}.banner-content h2{font-size:42px}.banner-character{right:-7%;top:100px;bottom:0;width:48%;min-width:170px;opacity:.45}.banner-character-label{display:none}.banner-coordinate{font-size:6px}.banner-metrics{max-width:72%;gap:8px}.banner-metrics i{display:none}.banner-content>p:not(.eyebrow){max-width:70%}.banner-play,.banner-secondary{padding:12px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.banner-figure{animation:none}}
