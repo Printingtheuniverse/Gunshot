@@ -302,11 +302,14 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
-const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER"];
+const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER", "ION SHOTGUN"];
+const WEAPON_UNLOCK_KEY = "reloadshot.weaponUnlocks.v1";
+function hasIonShotgun(){ try { return JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]").includes("ion-shotgun"); } catch { return false; } }
 let selectedWeapon = 0;
 
 function setWeapon(index) {
-  selectedWeapon = (index + weaponNames.length) % weaponNames.length;
+  if (index === 3 && !hasIonShotgun()) { const label=document.getElementById("weaponStatus"); if(label) label.textContent="WEAPON LOCKED // REDEEM QASIM2COOL"; return; }
+  selectedWeapon = Math.max(0, Math.min(weaponNames.length - 1, index));
   const label = document.getElementById("weaponStatus");
   if (label) label.textContent = "WEAPON // " + weaponNames[selectedWeapon] + "  ·  " + (selectedWeapon + 1);
   const ownModel = playerObjects.get(playerId);
@@ -431,10 +434,16 @@ function makePlayer(p) {
   weaponPart(heavy, new THREE.CylinderGeometry(0.14, 0.14, 0.12, 10), amberGlow, 0, 0.02, -0.81, Math.PI / 2);
   weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.08, 0.36), amberGlow, 0, 0.18, -0.1);
   weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.3, 0.2), weaponMaterials[0], 0, -0.23, 0.12, -0.2);
+  const ionShotgun = new THREE.Group();
+  weaponPart(ionShotgun, new THREE.BoxGeometry(0.34, 0.3, 0.52), weaponMaterials[0], 0, 0, 0);
+  weaponPart(ionShotgun, new THREE.CylinderGeometry(0.13, 0.16, 0.48, 10), weaponGlow, 0, 0.03, -0.46, Math.PI / 2);
+  weaponPart(ionShotgun, new THREE.CylinderGeometry(0.12, 0.12, 0.12, 10), cyanGlowForShot, 0, 0.03, -0.72, Math.PI / 2);
+  weaponPart(ionShotgun, new THREE.BoxGeometry(0.18, 0.09, 0.34), weaponMaterials[2], 0, 0.19, -0.08);
+  weaponPart(ionShotgun, new THREE.BoxGeometry(0.17, 0.28, 0.2), weaponMaterials[1], 0, -0.22, 0.1, -0.2);
   const weaponRack = new THREE.Group();
   weaponRack.position.set(0.53, 1.28, -0.22);
   weaponRack.rotation.y = 0;
-  [rifle, sidearm, heavy].forEach((weaponModel, index) => {
+  [rifle, sidearm, heavy, ionShotgun].forEach((weaponModel, index) => {
     weaponModel.userData.weaponSlot = index;
     weaponModel.visible = index === 0;
     weaponRack.add(weaponModel);
@@ -547,7 +556,7 @@ renderer.domElement.addEventListener("click", event => {
     muzzleOrigin.x += 0.48;
     muzzleOrigin.z -= 0.62;
     const flashMaterial = selectedWeapon === 2 ? amberGlowForShot : cyanGlowForShot;
-    const flash = new THREE.Mesh(new THREE.SphereGeometry(selectedWeapon === 2 ? 0.16 : 0.1, 8, 6), flashMaterial);
+    const flash = new THREE.Mesh(new THREE.SphereGeometry(selectedWeapon === 2 ? 0.16 : selectedWeapon === 3 ? 0.2 : 0.1, 8, 6), flashMaterial);
     flash.position.copy(muzzleOrigin);
     scene.add(flash);
     const shotEnd = hit.length ? hit[0].point.clone() : muzzleOrigin.clone().add(new THREE.Vector3(
@@ -555,10 +564,18 @@ renderer.domElement.addEventListener("click", event => {
     ));
     const beamGeometry = new THREE.BufferGeometry().setFromPoints([muzzleOrigin, shotEnd]);
     const beam = new THREE.Line(beamGeometry, new THREE.LineBasicMaterial({
-      color: selectedWeapon === 2 ? 0xffa45e : selectedWeapon === 1 ? 0xa9f8ff : 0x43e6ff,
-      transparent: true, opacity: 0.9
+      color: selectedWeapon === 3 ? 0xb8a0ff : selectedWeapon === 2 ? 0xffa45e : selectedWeapon === 1 ? 0xa9f8ff : 0x43e6ff,
+      transparent: true, opacity: selectedWeapon === 3 ? 1 : 0.9
     }));
     scene.add(beam);
+    if (selectedWeapon === 3) {
+      [-0.22, 0.22].forEach(offset => {
+        const spreadEnd = shotEnd.clone(); spreadEnd.x += offset * 5;
+        const spread = new THREE.Line(new THREE.BufferGeometry().setFromPoints([muzzleOrigin, spreadEnd]), new THREE.LineBasicMaterial({color:0xb8a0ff,transparent:true,opacity:0.72}));
+        scene.add(spread);
+        window.setTimeout(()=>{scene.remove(spread);spread.geometry.dispose();spread.material.dispose();},110);
+      });
+    }
     window.setTimeout(() => {
       scene.remove(flash);
       flash.geometry.dispose();
@@ -573,7 +590,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === "1" || key === "2" || key === "3") setWeapon(Number(key) - 1);
+  if (key === "1" || key === "2" || key === "3" || key === "4") setWeapon(Number(key) - 1);
   keys[key] = true;
 });
 
@@ -760,13 +777,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const SHOP_KEY = "reloadshot.shop.v1";
 const PROMO_KEY = "reloadshot.promos.v1";
 const SHOP_ITEMS = { arctic: "ARCTIC PULSE", sunforged: "SUNFORGED", void: "VOID CIRCUIT" };
-const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, item: "sunforged" } };
+const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, weapon: "ion-shotgun" } };
 function readShop(){ try { return JSON.parse(localStorage.getItem(SHOP_KEY)) || {credits:250,owned:[]}; } catch { return {credits:250,owned:[]}; } }
 function saveShop(data){ localStorage.setItem(SHOP_KEY,JSON.stringify(data)); renderShop(); }
 function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"start"}); renderShop(); }
 function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
 function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
-function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":".");saveShop(data);}
+function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);if(reward.weapon){const unlocked=JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]");if(!unlocked.includes(reward.weapon)){unlocked.push(reward.weapon);localStorage.setItem(WEAPON_UNLOCK_KEY,JSON.stringify(unlocked));}}used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
 document.addEventListener("DOMContentLoaded",renderShop);
 
 
