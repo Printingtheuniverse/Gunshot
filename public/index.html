@@ -16,6 +16,7 @@
           <button class="nav-button" onclick="openLoadoutStudio()">✦ <span>LOADOUTS</span></button>
           <button class="nav-button" onclick="showServers()">◎ <span>PLAY ONLINE</span></button>
           <button class="nav-button" onclick="openShop()">◉ <span>SHOP</span></button>
+          <button class="nav-button" onclick="openQuests()">✧ <span>QUESTS</span></button>
         </nav>
         <div class="profile-chip"><span class="online-dot"></span><span>PLAYER PROFILE<small>Guest session</small></span></div>
       </header>
@@ -106,6 +107,11 @@
         <div class="saved-loadouts"><div class="saved-title"><div><h3>SAVED LOADOUTS</h3><small>Stored on this device</small></div><span id="savedLoadoutCount">0 / 5</span></div><div id="savedLoadoutList" class="saved-loadout-list"><p class="fine-print">No saved looks yet. Customize a style and save it above.</p></div></div>
       </section>
 
+      <section id="questPanel" class="quest-panel">
+        <div class="quest-heading"><div><p class="eyebrow">FRONTIER ASSIGNMENTS</p><h2>QUEST <span>BOARD</span></h2><p class="sub">Complete missions to earn credits and rewards.</p></div><div class="quest-total">◉ <strong id="questCredits">250</strong><small> CREDITS</small></div></div>
+        <div id="questList" class="quest-list"></div>
+        <p class="fine-print">Quest progress is currently saved in this browser. Match-based objectives are prototypes and may require server-side tracking for reliable rewards.</p>
+      </section>
       <section id="shopPanel" class="shop-panel">
         <div class="shop-heading"><div><p class="eyebrow">FRONTIER EXCHANGE</p><h2>THE <span>SHOP</span></h2><p class="sub">Earn prototype credits and unlock weapon finishes.</p></div><div class="coin-wallet">◉ <strong id="coinBalance">250</strong><small> CREDITS</small></div></div>
         <div class="shop-grid">
@@ -189,6 +195,7 @@
     </section>
   </main>
 
+<div id="loadingCredit" class="loading-credit" role="status"><span class="loading-mark">R</span><span>RELOAD-SHOT<small>MADE BY QASIM A</small></span></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="game.js"></script>
