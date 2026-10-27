@@ -310,8 +310,9 @@ function setWeapon(index) {
   const label = document.getElementById("weaponStatus");
   if (label) label.textContent = "WEAPON // " + weaponNames[selectedWeapon] + "  ·  " + (selectedWeapon + 1);
   const ownModel = playerObjects.get(playerId);
-  if (ownModel) ownModel.children.filter(child => child.userData.weaponSlot !== undefined)
-    .forEach(child => { child.visible = child.userData.weaponSlot === selectedWeapon; });
+  if (ownModel) ownModel.traverse(child => {
+    if (child.userData.weaponSlot !== undefined) child.visible = child.userData.weaponSlot === selectedWeapon;
+  });
 }
 
 function makePlayer(p) {
@@ -452,6 +453,7 @@ function makePlayer(p) {
 
   scene.add(group);
   playerObjects.set(p.id, group);
+  if (p.id === playerId) setWeapon(selectedWeapon);
   return group;
 }
 
