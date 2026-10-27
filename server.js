@@ -177,6 +177,9 @@ io.on("connection", socket => {
   socket.on("voteMode", mode => {
     const room = findRoomForSocket(socket);
     if (!room || room.state !== "voting" || !modes.includes(mode)) return;
+    const previous = room.modeBallots[socket.id];
+    if (previous) room.modeVotes[previous] = Math.max(0, (room.modeVotes[previous] || 1) - 1);
+    room.modeBallots[socket.id] = mode;
     room.modeVotes[mode] = (room.modeVotes[mode] || 0) + 1;
     sendLobby(room);
   });
@@ -184,6 +187,9 @@ io.on("connection", socket => {
   socket.on("voteMap", map => {
     const room = findRoomForSocket(socket);
     if (!room || room.state !== "voting" || !maps.includes(map)) return;
+    const previous = room.mapBallots[socket.id];
+    if (previous) room.mapVotes[previous] = Math.max(0, (room.mapVotes[previous] || 1) - 1);
+    room.mapBallots[socket.id] = map;
     room.mapVotes[map] = (room.mapVotes[map] || 0) + 1;
     sendLobby(room);
   });
