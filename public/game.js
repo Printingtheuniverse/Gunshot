@@ -444,11 +444,37 @@ function makePlayer(p) {
   weaponPart(ionShotgun, new THREE.CylinderGeometry(0.12, 0.12, 0.12, 10), cyanGlowForShot, 0, 0.03, -0.72, Math.PI / 2);
   weaponPart(ionShotgun, new THREE.BoxGeometry(0.18, 0.09, 0.34), weaponMaterials[2], 0, 0.19, -0.08);
   weaponPart(ionShotgun, new THREE.BoxGeometry(0.17, 0.28, 0.2), weaponMaterials[1], 0, -0.22, 0.1, -0.2);
+  // BANANA GUN: long, angular sci-fi rifle inspired by the reference image,
+  // with magenta energy rails and a bright banana-shaped side ornament.
   const bananaGun = new THREE.Group();
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.3, 0.26, 0.48), weaponMaterials[1], 0, 0, 0);
-  weaponPart(bananaGun, new THREE.CylinderGeometry(0.13, 0.16, 0.42, 10), new THREE.MeshStandardMaterial({color:0xffd92e,emissive:0x6b4d00,roughness:0.45}), 0, 0.04, -0.43, Math.PI/2);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.16, 0.08, 0.3), weaponGlow, 0, 0.17, -0.06);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.15, 0.26, 0.18), weaponMaterials[2], 0, -0.21, 0.1, -0.2);
+  const bananaMetal = new THREE.MeshStandardMaterial({color:0x718893, metalness:0.82, roughness:0.28});
+  const bananaDark = new THREE.MeshStandardMaterial({color:0x172631, metalness:0.76, roughness:0.34});
+  const bananaPink = new THREE.MeshStandardMaterial({color:0xff42d2, emissive:0xc90091, emissiveIntensity:1.8, metalness:0.22, roughness:0.22});
+  const bananaGold = new THREE.MeshStandardMaterial({color:0xffd52b, emissive:0x6b4d00, emissiveIntensity:0.22, metalness:0.18, roughness:0.4});
+  // Main receiver, elongated barrel shroud, and vented front muzzle.
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.31,0.29,0.72), weaponMaterials[0], 0,0,0.02);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.25,0.22,1.12), bananaMetal, 0,0.045,-0.76);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.29,0.26,0.13), bananaDark, 0,0.045,-1.36);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.19,0.07,0.88), bananaPink, 0,0.12,-0.79);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.19,0.045,0.88), bananaPink, 0,-0.015,-0.79);
+  // Raised top rail, sight, side vents, and chunky stock.
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.13,0.07,0.92), bananaDark, 0,0.205,-0.47);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.1,0.13,0.14), bananaMetal, 0,0.3,-0.34);
+  for (let vent=0; vent<4; vent++) weaponPart(bananaGun, new THREE.BoxGeometry(0.018,0.095,0.06), bananaDark, 0.158,0.04,-0.27-vent*0.13);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.24,0.2,0.48), bananaMetal, 0,0.015,0.57);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.21,0.17,0.16), bananaDark, 0,0.015,0.88);
+  // Angled grip and mag with three glowing pink charge cells.
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.16,0.29,0.19), bananaDark, 0,-0.22,0.16,-0.18);
+  weaponPart(bananaGun, new THREE.BoxGeometry(0.13,0.28,0.2), bananaMetal, 0,-0.31,-0.13,-0.12);
+  for (let cell=0; cell<3; cell++) weaponPart(bananaGun, new THREE.BoxGeometry(0.105,0.035,0.025), bananaPink, 0,-0.26-cell*0.075,-0.242);
+  // A curved banana charm on the receiver makes the weapon unmistakably BANANA.
+  const bananaCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.10,0.19,0.22), new THREE.Vector3(-0.20,0.24,0.08),
+    new THREE.Vector3(-0.20,0.17,-0.08), new THREE.Vector3(-0.09,0.10,-0.18),
+    new THREE.Vector3(0.02,0.10,-0.15)
+  ]);
+  weaponPart(bananaGun, new THREE.TubeGeometry(bananaCurve,18,0.055,8,false), bananaGold, -0.02,0.02,0.02);
+  weaponPart(bananaGun, new THREE.ConeGeometry(0.045,0.12,7), bananaDark, -0.12,0.21,0.2,0,0,0.6);
   const weaponRack = new THREE.Group();
   weaponRack.position.set(0.53, 1.28, -0.22);
   weaponRack.rotation.y = 0;
