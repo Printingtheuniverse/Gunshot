@@ -16,9 +16,9 @@ function name() {
 
 
 const characters = [
-  { name: "NOVA", description: "Fast feet. Big energy. Ready to explore.", className: "avatar-nova" },
-  { name: "BOLT", description: "Bright ideas. Bold moves. Always curious.", className: "avatar-bolt" },
-  { name: "MOSS", description: "Calm under pressure. A friend to every team.", className: "avatar-moss" }
+  { name: "NOVA", description: "Frontier scout · Precision-built ceramic armor.", className: "avatar-nova" },
+  { name: "BOLT", description: "Rapid-response explorer · Angular pulse plating.", className: "avatar-bolt" },
+  { name: "MOSS", description: "Recon specialist · Rugged field-ready armor.", className: "avatar-moss" }
 ];
 let selectedCharacter = 0;
 let selectedAvatarColor = "#63e6ff";
@@ -236,6 +236,58 @@ for (const [x, z] of [
 ]) {
   addBox(x, 1.2, z, 3.5, 2.4, 3.5, 0x53636c);
   addBox(x, 2.43, z, 3.7, 0.12, 3.7, 0x7897a5, 0x152e3a);
+}
+
+// Industrial frontier set dressing: structural steel, utility conduits, lamps, and worn floor panels.
+const steel = 0x354957;
+const darkSteel = 0x182b39;
+const neonCyan = 0x48d8f3;
+const neonAmber = 0xe7a765;
+// Heavy corner pylons with illuminated signal bands.
+for (const [x, z] of [[-34,-20],[34,-20],[-34,20],[34,20]]) {
+  addBox(x, 3.3, z, 2.1, 6.6, 2.1, darkSteel);
+  addBox(x, 6.15, z, 2.35, 0.16, 2.35, steel);
+  addBox(x, 4.8, z + (z < 0 ? 1.08 : -1.08), 1.2, 0.12, 0.08, neonCyan, neonCyan);
+  addBox(x, 2.5, z + (z < 0 ? 1.08 : -1.08), 0.75, 0.08, 0.08, neonAmber, neonAmber);
+}
+// Reinforced wall ribs and recessed service bays.
+for (const x of [-28,-18,-8,2,12,22,32]) {
+  addBox(x, 2.6, -24.05, 0.32, 5.2, 0.18, steel);
+  addBox(x, 2.6, 24.05, 0.32, 5.2, 0.18, steel);
+}
+for (const z of [-15,-5,5,15]) {
+  addBox(-39.35, 2.2, z, 0.16, 3.8, 0.28, steel);
+  addBox(39.35, 2.2, z, 0.16, 3.8, 0.28, steel);
+}
+// Ground-level light strips and modular floor plates.
+for (const z of [-21,-13,-5,3,11,19]) {
+  addBox(-29, 0.035, z, 10, 0.035, 0.09, neonCyan, 0x124c60);
+  addBox(29, 0.035, z, 10, 0.035, 0.09, neonAmber, 0x5c3218);
+}
+for (const x of [-30,-20,-10,10,20,30]) {
+  addBox(x, 0.04, 0, 0.055, 0.025, 36, 0x6a7b84);
+}
+// Utility consoles along the outer lanes.
+for (const [x, z, color] of [[-30,-8,neonCyan],[30,8,neonAmber],[-30,8,neonCyan],[30,-8,neonAmber]]) {
+  addBox(x, 0.8, z, 2.2, 1.6, 1.5, darkSteel);
+  addBox(x, 1.65, z, 2.25, 0.12, 1.55, steel);
+  addBox(x, 1.12, z + (z < 0 ? 0.77 : -0.77), 1.1, 0.28, 0.06, color, color);
+  addBox(x - 0.55, 0.25, z, 0.12, 0.35, 1.05, steel);
+  addBox(x + 0.55, 0.25, z, 0.12, 0.35, 1.05, steel);
+}
+// Low industrial gantries frame the arena without closing the play space.
+for (const x of [-20, 20]) {
+  addBox(x, 4.9, -18, 0.35, 0.25, 9, steel);
+  addBox(x, 4.9, 18, 0.35, 0.25, 9, steel);
+  addBox(x, 4.75, -18, 0.12, 0.06, 8.5, neonCyan, 0x124c60);
+  addBox(x, 4.75, 18, 0.12, 0.06, 8.5, neonAmber, 0x5c3218);
+}
+// A few metal floor grates and hazard markers give the surface scale.
+for (const [x, z] of [[-12,-20],[12,-20],[-12,20],[12,20]]) {
+  addBox(x, 0.045, z, 4.4, 0.045, 1.8, 0x263b49);
+  for (let stripe = -1; stripe <= 1; stripe++) {
+    addBox(x + stripe * 1.1, 0.073, z, 0.055, 0.018, 1.5, 0x91a4aa);
+  }
 }
 
 const teamMaterials = teamColors.map(color =>
