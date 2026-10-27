@@ -340,9 +340,27 @@ function makePlayer(p) {
     color: 0xd9fbff, emissive: 0x56dfff, emissiveIntensity: 0.85,
     metalness: 0.25, roughness: 0.25
   });
+  // Stable per-player silhouette variants keep every explorer visually distinct.
+  const identity = String(p.id || p.name || "scout");
+  const variant = [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
   // Shoulder plates
-  part(new THREE.SphereGeometry(0.27, 12, 8), armor, -0.53, 1.72, 0);
-  part(new THREE.SphereGeometry(0.27, 12, 8), armor, 0.53, 1.72, 0);
+  part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, -0.53, 1.72, 0);
+  part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, 0.53, 1.72, 0);
+  if (variant === 0) {
+    // Broad explorer crest
+    part(new THREE.BoxGeometry(0.46, 0.12, 0.16), deepArmor, 0, 2.28, 0);
+    part(new THREE.ConeGeometry(0.13, 0.28, 5), material, 0, 2.43, -0.02);
+  } else if (variant === 1) {
+    // Angular side fins and reinforced collar
+    part(new THREE.ConeGeometry(0.13, 0.38, 5), material, -0.29, 2.32, -0.02).rotation.z = -0.48;
+    part(new THREE.ConeGeometry(0.13, 0.38, 5), material, 0.29, 2.32, -0.02).rotation.z = 0.48;
+    part(new THREE.BoxGeometry(0.84, 0.13, 0.42), armor, 0, 1.86, -0.01);
+  } else {
+    // Compact sensor mast and side-mounted utility pack
+    part(new THREE.CylinderGeometry(0.055, 0.075, 0.36, 8), material, 0.25, 2.42, -0.02);
+    part(new THREE.SphereGeometry(0.1, 10, 8), glow, 0.25, 2.62, -0.02);
+    part(new THREE.BoxGeometry(0.18, 0.42, 0.25), armor, -0.34, 1.56, -0.28);
+  }
   // Chest badge and slim illuminated torso panel
   part(new THREE.BoxGeometry(0.3, 0.38, 0.075), deepArmor, 0, 1.48, 0.19);
   part(new THREE.BoxGeometry(0.12, 0.2, 0.09), glow, 0, 1.5, 0.245);
