@@ -610,12 +610,11 @@ function loop() {
 
       const model = playerObjects.get(playerId);
       if (model) {
-        // Keep the active operator clearly in frame instead of looking past them.
-        // A higher, slightly wider follow camera shows nearby cover while preserving character visibility.
+        // Closer follow camera: keep the local operator large enough to see during play.
         camera.position.set(
-          model.position.x + 1.5,
-          15,
-          model.position.z + 23
+          model.position.x + 1.2,
+          7.5,
+          model.position.z + 10
         );
         camera.lookAt(
           model.position.x,
