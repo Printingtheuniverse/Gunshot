@@ -302,6 +302,31 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
+
+// Always-visible local operator fallback, independent of the detailed character
+// model builder. This ensures a player is visible even if a weapon/model part fails.
+const emergencyOperator = new THREE.Group();
+const emergencyBody = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.42, 0.9, 4, 10),
+  new THREE.MeshStandardMaterial({ color: 0x35e8ff, emissive: 0x087b99, emissiveIntensity: 1.2 })
+);
+emergencyBody.position.y = 1.05;
+emergencyOperator.add(emergencyBody);
+const emergencyHead = new THREE.Mesh(
+  new THREE.SphereGeometry(0.3, 12, 10),
+  new THREE.MeshStandardMaterial({ color: 0xf4fbff, emissive: 0x399dff, emissiveIntensity: 0.5 })
+);
+emergencyHead.position.y = 1.85;
+emergencyOperator.add(emergencyHead);
+const emergencyRing = new THREE.Mesh(
+  new THREE.TorusGeometry(0.78, 0.07, 8, 28),
+  new THREE.MeshBasicMaterial({ color: 0x35e8ff })
+);
+emergencyRing.rotation.x = -Math.PI / 2;
+emergencyRing.position.y = 0.1;
+emergencyOperator.add(emergencyRing);
+emergencyOperator.visible = false;
+scene.add(emergencyOperator);
 const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER", "ION SHOTGUN", "BANANA GUN"];
 const BANANA_UNLOCK_KEY = "reloadshot.bananaWeaponUnlocked.v1";
 const bananaMines = [];
@@ -677,17 +702,21 @@ function loop() {
         lastSentY = me.y;
       }
     }
-    // Rebuild models before targeting the camera every frame.
-    updatePlayers();
+    // Detailed player creation can fail if any model asset is invalid. Keep a
+    // simple, bright operator visible regardless, and keep the camera following it.
+    try { updatePlayers(); } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
+      emergencyOperator.visible = false;
       camera.position.set(cameraTarget.position.x + 1.2, 5.2, cameraTarget.position.z + 7.2);
       camera.lookAt(cameraTarget.position.x, 1.15, cameraTarget.position.z);
     } else {
-      // Visible center view fallback instead of remaining at the original wide shot.
-      camera.position.set(0, 5.2, 7.2);
-      camera.lookAt(0, 1.15, 0);
+      const fallback = targetPlayer || { x: 400, y: 250 };
+      emergencyOperator.visible = true;
+      emergencyOperator.position.set((fallback.x - 400) * 0.075, 0, (fallback.y - 250) * 0.075);
+      camera.position.set(emergencyOperator.position.x + 1.2, 5.2, emergencyOperator.position.z + 7.2);
+      camera.lookAt(emergencyOperator.position.x, 1.15, emergencyOperator.position.z);
     }
   }
 
