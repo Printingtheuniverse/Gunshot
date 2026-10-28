@@ -103,7 +103,7 @@ socket.on("lobbyState", state => {
       <span>Team ${p.team + 1} ${p.ready ? "✓" : ""}</span>
     </div>`).join("");
 
-  renderVotes("modeVotes", state.modeVotes, ["Crystal Hunt","Explorer Teams","Free Explore","Checkpoint Rally"], "voteMode");
+  renderVotes("modeVotes", state.modeVotes, ["Zone Control","Checkpoint Rally","Crystal Hunt","Free Explore"], "voteMode");
   renderVotes("mapVotes", state.mapVotes, ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"], "voteMap");
 
   $("readyBtn").disabled = state.state !== "voting";
@@ -164,6 +164,13 @@ function toggleReady() {
 const arena = $("arena");
 let selectedAbility = "Dash";
 let jumpHeight = 0;
+let jumpRequested = false;
+let cameraYaw = 0;
+let cameraPitch = 0.28;
+let cameraDistance = 13;
+let cameraDragging = false;
+let lastPointerX = 0;
+let lastPointerY = 0;
 let jumpVelocity = 0;
 let abilityCooldown = 0;
 let lastFrameTime = performance.now();
@@ -226,6 +233,24 @@ function resizeArena() {
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resizeArena);
+renderer.domElement.addEventListener("pointerdown", e => {
+  if (currentState !== "playing") return;
+  cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY;
+  renderer.domElement.setPointerCapture?.(e.pointerId);
+});
+renderer.domElement.addEventListener("pointermove", e => {
+  if (!cameraDragging) return;
+  cameraYaw -= (e.clientX - lastPointerX) * 0.008;
+  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch + (e.clientY - lastPointerY) * 0.004));
+  lastPointerX = e.clientX; lastPointerY = e.clientY;
+});
+renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
+renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; });
+renderer.domElement.addEventListener("wheel", e => {
+  if (currentState !== "playing") return;
+  cameraDistance = Math.max(7, Math.min(24, cameraDistance + Math.sign(e.deltaY) * 1.2));
+  e.preventDefault();
+}, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 
@@ -626,13 +651,14 @@ renderer.domElement.addEventListener("click", event => {
   if (index >= 0) collectibleCrystals.splice(index,1);
   collectedCrystals++;
   const status = document.getElementById("arenaObjective");
-  if (status) status.textContent = "DATA CRYSTALS // " + collectedCrystals + " / 8";
-  socket.emit("score", { team: myTeam });
+  if (status) status.textContent = "CRYSTALS FOUND // " + collectedCrystals + " / 8";
+  if (document.getElementById("matchTitle")?.textContent.startsWith("Crystal Hunt")) socket.emit("score", { team: myTeam });
 });
 
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
+  if (key === " " && !e.repeat) jumpRequested = true;
   // Number keys are reserved for future exploration abilities.
   keys[key] = true;
   if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
@@ -665,7 +691,8 @@ function loop() {
       if (keys["s"] || keys["arrowdown"]) me.y += moveSpeed;
       if (keys["a"] || keys["arrowleft"]) me.x -= moveSpeed;
       if (keys["d"] || keys["arrowright"]) me.x += moveSpeed;
-      if (keys[" "] && jumpHeight <= 0) { jumpVelocity = 8.5; keys[" "] = false; }
+      if (jumpRequested && jumpHeight <= 0) { jumpVelocity = 10.5; jumpRequested = false; }
+      if (jumpHeight > 0 && jumpRequested) jumpRequested = false;
       jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
       if (abilityCooldown > 0) abilityCooldown -= dt;
       if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
@@ -684,14 +711,20 @@ function loop() {
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
       emergencyOperator.visible = false;
-      camera.position.lerp(new THREE.Vector3(cameraTarget.position.x + 1.2, 8.5, cameraTarget.position.z + 12.5), 0.16);
-      camera.lookAt(cameraTarget.position.x, 1.1 + jumpHeight * 0.2, cameraTarget.position.z);
+      const target = cameraTarget.position;
+      const horizontal = Math.cos(cameraPitch) * cameraDistance;
+      const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
+      camera.position.lerp(desiredCamera, 0.12);
+      camera.lookAt(target.x, 1.15 + jumpHeight * 0.2, target.z);
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
       emergencyOperator.position.set((fallback.x - 400) * 0.075, 0, (fallback.y - 250) * 0.075);
-      camera.position.lerp(new THREE.Vector3(emergencyOperator.position.x + 1.2, 8.5, emergencyOperator.position.z + 12.5), 0.16);
-      camera.lookAt(emergencyOperator.position.x, 1.1 + jumpHeight * 0.2, emergencyOperator.position.z);
+      const target = emergencyOperator.position;
+      const horizontal = Math.cos(cameraPitch) * cameraDistance;
+      const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
+      camera.position.lerp(desiredCamera, 0.12);
+      camera.lookAt(target.x, 1.15 + jumpHeight * 0.2, target.z);
     }
   }
 
@@ -714,7 +747,13 @@ socket.on("matchStarted", data => {
   resizeArena();
   setMapTheme(data.map);
   collectedCrystals = 0;
-  const objective = $("arenaObjective"); if (objective) objective.textContent = "DATA CRYSTALS // 0 / 8";
+  const objective = $("arenaObjective");
+  if (objective) {
+    const mode = String(data.mode || "");
+    objective.textContent = mode === "Zone Control" ? "ZONE CONTROL // HOLD THE GLOWING RINGS" :
+      mode === "Checkpoint Rally" ? "CHECKPOINT RALLY // RUN THE COURSE" :
+      mode === "Free Explore" ? "FREE EXPLORE // FIND YOUR OWN PATH" : "CRYSTAL HUNT // 0 / 8";
+  }
   const abilityLabel = $("abilityStatus"); if (abilityLabel) abilityLabel.textContent = "ABILITY // " + selectedAbility.toUpperCase();
 
   // Give the local player a visible starting model immediately. The server's
@@ -731,6 +770,24 @@ socket.on("players", data => {
   players = data;
   updatePlayers();
 });
+socket.on("chatMessage", data => {
+  const feed = $("chatMessages");
+  if (!feed || !data) return;
+  const row = document.createElement("div");
+  row.className = "chat-line";
+  const who = document.createElement("strong"); who.textContent = String(data.name || "Player") + ": ";
+  const message = document.createElement("span"); message.textContent = String(data.message || "");
+  row.append(who, message); feed.appendChild(row);
+  while (feed.children.length > 40) feed.firstChild.remove();
+  feed.scrollTop = feed.scrollHeight;
+});
+function sendChatMessage(event) {
+  event?.preventDefault();
+  const input = $("chatInput");
+  if (!input || !input.value.trim()) return;
+  socket.emit("chatMessage", input.value.trim().slice(0,180));
+  input.value = "";
+}
 
 function resizeArena() {
   const width = arena.clientWidth || 800;
