@@ -709,7 +709,7 @@ function loop() {
     if (me) {
       const speed = 3;
       const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
-      const moveSpeed = (keys["shift"] ? speed * 1.8 : speed) * 0.075;
+      const moveSpeed = keys["shift"] ? speed * 1.8 : speed;
       const forward = (keys["w"] || keys["arrowup"] ? 1 : 0) - (keys["s"] || keys["arrowdown"] ? 1 : 0);
       const strafe = (keys["d"] || keys["arrowright"] ? 1 : 0) - (keys["a"] || keys["arrowleft"] ? 1 : 0);
       if (forward || strafe) {
