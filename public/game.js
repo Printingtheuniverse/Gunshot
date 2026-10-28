@@ -711,6 +711,14 @@ socket.on("matchStarted", data => {
   currentState = "playing";
   $("matchTitle").textContent = `${data.mode} — ${data.map}`;
   show("game");
+
+  // Give the local player a visible starting model immediately. The server's
+  // authoritative players event replaces this temporary entry as soon as it
+  // arrives, avoiding an empty arena if that event is delayed.
+  if (!players.length && playerId) {
+    players = [{ id: playerId, name: name(), team: myTeam, x: 100, y: 100, hp: 100 }];
+    updatePlayers();
+  }
   start3DLoop();
 });
 
