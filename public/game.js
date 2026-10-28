@@ -625,7 +625,7 @@ function loop() {
     }
   }
 
-  for(let i=bananaMines.length-1;i>=0;i--){const mine=bananaMines[i];if(performance.now()-mine.created>18000){scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);continue;}const victim=players.find(p=>p.id!==mine.owner&&p.team!==mine.team&&Math.hypot((p.x-400)*0.075-mine.model.position.x,(p.y-250)*0.075-mine.model.position.z)<0.85);if(victim){const burst=new THREE.Mesh(new THREE.SphereGeometry(0.65,10,8),new THREE.MeshBasicMaterial({color:0xffdf36,transparent:true,opacity:0.8}));burst.position.set(mine.model.position.x,0.6,mine.model.position.z);scene.add(burst);setTimeout(()=>{scene.remove(burst);burst.geometry.dispose();burst.material.dispose();},260);scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);}}
+  collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.12; });
   renderer.render(scene, camera);
 }
 
