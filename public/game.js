@@ -409,6 +409,24 @@ emergencyOperator.visible = false;
 scene.add(emergencyOperator);
 const collectibleCrystals = [];
 let collectedCrystals = 0;
+const controlZones = [];
+const rallyCheckpoints = [];
+let activeCheckpoint = 0;
+let lastObjectiveScoreAt = 0;
+function createObjectiveRing(x, z, index) {
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.25,0.09,10,40), new THREE.MeshStandardMaterial({color:teamColors[index%teamColors.length],emissive:teamColors[index%teamColors.length],emissiveIntensity:1.3}));
+  ring.rotation.x = Math.PI/2; ring.position.set(x,0.12,z); ring.userData.objectiveIndex=index; scene.add(ring); controlZones.push(ring);
+}
+function createCheckpoint(x,z,index) {
+  const group = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8,0.12,10,36),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:1.8}));
+  ring.position.y=2.2; group.add(ring);
+  const postMat=new THREE.MeshStandardMaterial({color:0x284c60,emissive:0x147c9a,emissiveIntensity:.7});
+  for(const side of [-1,1]) {const post=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,2.2,8),postMat);post.position.set(side*1.8,1.1,0);group.add(post);}
+  group.position.set(x,0,z);group.userData.checkpointIndex=index;scene.add(group);rallyCheckpoints.push(group);
+}
+[[-22,-12],[0,0],[22,12]].forEach((p,i)=>createObjectiveRing(p[0],p[1],i));
+[[-28,-16],[-14,12],[0,-14],[15,13],[28,-10]].forEach((p,i)=>createCheckpoint(p[0],p[1],i));
 function setWeapon() {}
 
 function makePlayer(p) {
@@ -683,6 +701,13 @@ function loop() {
       players = [{ id: playerId, name: name(), team: myTeam, x: 400, y: 250, hp: 100 }];
     }
     const me = players.find(p => p.id === playerId);
+    const matchMode = $("matchTitle")?.textContent.split(" — ")[0] || "Crystal Hunt";
+    controlZones.forEach(zone => { zone.visible = matchMode === "Zone Control"; zone.rotation.z += 0.002; });
+    rallyCheckpoints.forEach((checkpoint, i) => {
+      checkpoint.visible = matchMode === "Checkpoint Rally";
+      const ring = checkpoint.children[0];
+      if (ring?.material) ring.material.color.setHex(i === activeCheckpoint ? 0xffd18a : 0x385c70);
+    });
     if (me) {
       const speed = 3;
       const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
@@ -698,6 +723,17 @@ function loop() {
       if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
+      const worldX = (me.x - 400) * 0.075;
+      const worldZ = (me.y - 250) * 0.075;
+      const now = performance.now();
+      if (matchMode === "Zone Control" && now - lastObjectiveScoreAt > 5000) {
+        const zone = controlZones.find(z => Math.hypot(worldX-z.position.x, worldZ-z.position.z) < 2.6);
+        if (zone) { socket.emit("score", {team:myTeam}); lastObjectiveScoreAt = now; const status=$("arenaObjective"); if(status) status.textContent="ZONE HELD // TEAM "+(myTeam+1); }
+      } else if (matchMode === "Checkpoint Rally" && rallyCheckpoints[activeCheckpoint] && Math.hypot(worldX-rallyCheckpoints[activeCheckpoint].position.x,worldZ-rallyCheckpoints[activeCheckpoint].position.z)<2.8) {
+        activeCheckpoint=(activeCheckpoint+1)%rallyCheckpoints.length;
+        socket.emit("score",{team:myTeam}); lastObjectiveScoreAt=now;
+        const status=$("arenaObjective"); if(status) status.textContent="CHECKPOINT // "+activeCheckpoint+" / "+rallyCheckpoints.length;
+      }
       if (me.x !== lastSentX || me.y !== lastSentY) {
         socket.emit("playerMove", { x: me.x, y: me.y });
         lastSentX = me.x;
@@ -747,6 +783,8 @@ socket.on("matchStarted", data => {
   resizeArena();
   setMapTheme(data.map);
   collectedCrystals = 0;
+  activeCheckpoint = 0;
+  lastObjectiveScoreAt = 0;
   const objective = $("arenaObjective");
   if (objective) {
     const mode = String(data.mode || "");
