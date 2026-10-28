@@ -167,7 +167,8 @@ let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.28;
-let cameraDistance = 13;
+const cameraDistance = 15;
+let moveFacing = 0;
 let cameraDragging = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -203,7 +204,7 @@ function setMapTheme(mapName) {
     for (const [x,z] of [[-28,-17],[-20,14],[22,-16],[29,13],[-5,-19],[7,18]]) { add(new THREE.BoxGeometry(2.6,7,2.6),mat(0x666c83),x,3.5,z); add(new THREE.BoxGeometry(3.4,.45,3.4),mat(0xa5a9c3),x,7,z); }
     for (let i=0;i<10;i++) add(new THREE.TetrahedronGeometry(1.3),mat(0x777b91),((i*13)%55)-27,.7,((i*19)%38)-19,1.3,.8,1.1);
   } else {
-    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,1,1.25,1); }
+    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,0.78,0.82,0.78); }
     for (let i=0;i<12;i++) add(new THREE.SphereGeometry(.14,8,6),new THREE.MeshBasicMaterial({color:t.secondary}),((i*9)%54)-27,1.4+(i%4),((i*17)%36)-18);
   }
   mainLight.position.set(-8, mapName==="Glass Dunes"?25:18, 10); mainLight.intensity=mapName==="Glass Dunes"?3.8:3.1;
@@ -235,6 +236,7 @@ function resizeArena() {
 window.addEventListener("resize", resizeArena);
 renderer.domElement.addEventListener("pointerdown", e => {
   if (currentState !== "playing") return;
+  renderer.domElement.focus();
   cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY;
   renderer.domElement.setPointerCapture?.(e.pointerId);
 });
@@ -246,11 +248,7 @@ renderer.domElement.addEventListener("pointermove", e => {
 });
 renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
 renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; });
-renderer.domElement.addEventListener("wheel", e => {
-  if (currentState !== "playing") return;
-  cameraDistance = Math.max(7, Math.min(24, cameraDistance + Math.sign(e.deltaY) * 1.2));
-  e.preventDefault();
-}, {passive:false});
+renderer.domElement.addEventListener("wheel", e => { if (currentState === "playing") e.preventDefault(); }, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 
@@ -676,7 +674,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === " " && !e.repeat) jumpRequested = true;
+  if (key === " " && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
   // Number keys are reserved for future exploration abilities.
   keys[key] = true;
   if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
@@ -711,13 +709,22 @@ function loop() {
     if (me) {
       const speed = 3;
       const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
-      const moveSpeed = keys["shift"] ? speed * 1.8 : speed;
-      if (keys["w"] || keys["arrowup"]) me.y -= moveSpeed;
-      if (keys["s"] || keys["arrowdown"]) me.y += moveSpeed;
-      if (keys["a"] || keys["arrowleft"]) me.x -= moveSpeed;
-      if (keys["d"] || keys["arrowright"]) me.x += moveSpeed;
-      if (jumpRequested && jumpHeight <= 0) { jumpVelocity = 10.5; jumpRequested = false; }
-      if (jumpHeight > 0 && jumpRequested) jumpRequested = false;
+      const moveSpeed = (keys["shift"] ? speed * 1.8 : speed) * 0.075;
+      const forward = (keys["w"] || keys["arrowup"] ? 1 : 0) - (keys["s"] || keys["arrowdown"] ? 1 : 0);
+      const strafe = (keys["d"] || keys["arrowright"] ? 1 : 0) - (keys["a"] || keys["arrowleft"] ? 1 : 0);
+      if (forward || strafe) {
+        const magnitude = Math.hypot(forward, strafe) || 1;
+        const f = forward / magnitude, side = strafe / magnitude, angle = cameraYaw;
+        const dx = Math.sin(angle) * f + Math.cos(angle) * side;
+        const dz = -Math.cos(angle) * f + Math.sin(angle) * side;
+        me.x += dx * moveSpeed; me.y += dz * moveSpeed;
+        moveFacing = Math.atan2(dx, dz);
+        const movingModel = playerObjects.get(playerId);
+        if (movingModel) movingModel.rotation.y = moveFacing;
+        emergencyOperator.rotation.y = moveFacing;
+      }
+      if (jumpRequested && jumpHeight <= 0.02) { jumpVelocity = 9.5; jumpRequested = false; }
+      if (jumpHeight > 0.02 && jumpRequested) jumpRequested = false;
       jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
       if (abilityCooldown > 0) abilityCooldown -= dt;
       if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
@@ -828,8 +835,8 @@ function sendChatMessage(event) {
 }
 
 function resizeArena() {
-  const width = arena.clientWidth || 800;
-  const height = width * 500 / 800;
+  const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
+  const height = Math.max(420, Math.min(window.innerHeight * 0.78, width * 0.58));
   renderer.setSize(width, height, false);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
