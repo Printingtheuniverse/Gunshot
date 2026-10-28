@@ -570,7 +570,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === "1" || key === "2" || key === "3" || key === "4" || key === "5") setWeapon(Number(key) - 1);
+  // Number keys are reserved for future exploration abilities.
   keys[key] = true;
 });
 
