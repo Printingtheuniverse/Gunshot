@@ -10,19 +10,19 @@
   <main class="app">
     <section id="dashboard" class="screen active">
       <header class="topbar">
-        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark">R</span><span>RELOAD<span class="brand-light">-SHOT</span><small>DROP IN • LOCK IN • RELOAD</small></span></a>
+        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark">R</span><span>RELOAD<span class="brand-light">-SHOT</span><small>EXPLORE • MOVE • DISCOVER</small></span></a>
         <nav class="topnav" aria-label="Main navigation">
           <button class="nav-button selected" onclick="show('dashboard')">⌂ <span>HOME</span></button>
-          <button class="nav-button" onclick="openLoadoutStudio()">✦ <span>LOADOUTS</span></button>
-          <button class="nav-button" onclick="showServers()">◎ <span>PLAY ONLINE</span></button>
-          <button class="nav-button" onclick="openShop()">◉ <span>SHOP</span></button>
-          <button class="nav-button" onclick="openQuests()">✧ <span>QUESTS</span></button>
+          <button class="nav-button" onclick="openLoadoutStudio()">✦ <span>STYLE LAB</span></button>
+          <button class="nav-button" onclick="showServers()">◎ <span>PLAY ARENA</span></button>
+          <button class="nav-button" onclick="openShop()">◉ <span>STYLE SHOP</span></button>
+          <button class="nav-button" onclick="openQuests()">✧ <span>MISSIONS</span></button>
         </nav>
         <div class="profile-chip"><span class="online-dot"></span><span>PLAYER PROFILE<small>Guest session</small></span></div>
       </header>
 
       <div class="welcome-row">
-        <div><p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p><h1>ENTER THE <span>ARENA.</span></h1><p class="sub">Team up, outplay your rivals, and make the arena yours.</p></div>
+        <div><p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p><h1>ENTER THE <span>ARENA.</span></h1><p class="sub">Explore luminous worlds, master movement, and discover hidden arena routes.</p></div>
         <div class="season-chip"><span>✦</span><div>SEASON 01<small>THE FIRST FRONTIER</small></div></div>
       </div>
 
@@ -30,25 +30,25 @@
         <div class="banner-atmosphere" aria-hidden="true"><span class="banner-moon"></span><span class="banner-scan"></span><span class="banner-grid"></span></div>
         <div class="banner-content">
           <p class="eyebrow"><span class="live-pip"></span> FRONTIER PROTOCOL // ONLINE</p>
-          <h2>THE FRONTIER<br><span>IS YOURS.</span></h2>
-          <p>Drop into a living combat arena. Build your squad, choose your look, and make your mark.</p>
-          <div class="banner-actions"><button class="banner-play" onclick="showServers()">ENTER THE ARENA <span>↗</span></button><button class="banner-secondary" onclick="openLoadoutStudio()">CUSTOMIZE OPERATOR</button></div>
-          <div class="banner-metrics"><span><b>01</b> ACTIVE FRONTIER</span><i></i><span><b>16</b> PLAYER LOBBIES</span><i></i><span><b>LIVE</b> MULTIPLAYER</span></div>
+          <h2>DISCOVER THE<br><span>FRONTIER.</span></h2>
+          <p>Enter a living sci-fi playground. Customize your explorer, master energy abilities, and uncover new paths.</p>
+          <div class="banner-actions"><button class="banner-play" onclick="showServers()">EXPLORE THE ARENA <span>↗</span></button><button class="banner-secondary" onclick="openLoadoutStudio()">CUSTOMIZE EXPLORER</button></div>
+          <div class="banner-metrics"><span><b>01</b> ACTIVE WORLD</span><i></i><span><b>16</b> EXPLORER LOBBIES</span><i></i><span><b>LIVE</b> MULTIPLAYER</span></div>
         </div>
-        <div class="banner-character" aria-hidden="true"><div class="banner-character-halo"></div><div class="banner-figure"><span class="banner-helmet"></span><span class="banner-visor"></span><span class="banner-neck"></span><span class="banner-torso"></span><span class="banner-chest-light"></span><span class="banner-arm banner-arm-left"></span><span class="banner-arm banner-arm-right"></span><span class="banner-pack"></span></div><div class="banner-character-label"><span>RS-01</span><b>FRONTIER SCOUT</b><small>EXPLORATION DIVISION</small></div></div>
+        <div class="banner-character" aria-hidden="true"><div class="banner-character-halo"></div><div class="banner-figure"><span class="banner-helmet"></span><span class="banner-visor"></span><span class="banner-neck"></span><span class="banner-torso"></span><span class="banner-chest-light"></span><span class="banner-arm banner-arm-left"></span><span class="banner-arm banner-arm-right"></span><span class="banner-pack"></span></div><div class="banner-character-label"><span>RS-01</span><b>FRONTIER SCOUT</b><small>FRONTIER EXPLORATION</small></div></div>
         <div class="banner-coordinate">SECTOR 07 / NORTHERN OUTPOST</div>
       </section>
 
       <div class="lobby-layout">
         <aside class="side-panel">
-          <div class="panel-heading"><span class="mini-icon">◈</span><div><h3>YOUR PROFILE</h3><small>Make yourself known</small></div></div>
+          <div class="panel-heading"><span class="mini-icon">◈</span><div><h3>YOUR PROFILE</h3><small>Make your mark</small></div></div>
           <label class="field-label" for="playerName">PLAYER NAME</label>
           <input id="playerName" maxlength="18" placeholder="Choose a name">
           <div class="profile-preview"><div class="avatar-mini" id="miniAvatar">A</div><div><strong id="profileNamePreview">ARENA EXPLORER</strong><small>Rookie • Level 1</small></div></div>
           <div class="divider-line"></div>
           <div class="panel-heading"><span class="mini-icon">✧</span><div><h3>QUICK LINKS</h3><small>Jump right in</small></div></div>
           <button class="quick-link" onclick="showServers()"><span>◎</span> Find a match <b>›</b></button>
-          <button class="quick-link" onclick="openLoadoutStudio()"><span>✦</span> Loadout studio <b>›</b></button>
+          <button class="quick-link" onclick="openLoadoutStudio()"><span>✦</span> Style lab <b>›</b></button>
           <p class="fine-print">Cosmetics are for style only. More ways to personalize your character can be added as the game grows.</p>
         </aside>
 
