@@ -18,7 +18,9 @@ function name() {
 const characters = [
   { name: "NOVA", description: "Frontier scout · Precision-built ceramic armor.", className: "avatar-nova" },
   { name: "BOLT", description: "Rapid-response explorer · Angular pulse plating.", className: "avatar-bolt" },
-  { name: "MOSS", description: "Recon specialist · Rugged field-ready armor.", className: "avatar-moss" }
+  { name: "MOSS", description: "Recon specialist · Rugged field-ready armor.", className: "avatar-moss" },
+  { name: "ORBIT", description: "Signal navigator · Orbital sensor crown and violet energy trim.", className: "avatar-orbit" },
+  { name: "EMBER", description: "Solar wanderer · Heat-shield plates and amber glow.", className: "avatar-ember" }
 ];
 let selectedCharacter = 0;
 let selectedAvatarColor = "#63e6ff";
@@ -423,7 +425,7 @@ function makePlayer(p) {
   });
   // Stable per-player silhouette variants keep every explorer visually distinct.
   const identity = String(p.id || p.name || "scout");
-  const variant = [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
+  const variant = p.id === playerId ? selectedCharacter : [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5;
   // Shoulder plates
   part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, -0.53, 1.72, 0);
   part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, 0.53, 1.72, 0);
@@ -436,11 +438,19 @@ function makePlayer(p) {
     part(new THREE.ConeGeometry(0.13, 0.38, 5), material, -0.29, 2.32, -0.02).rotation.z = -0.48;
     part(new THREE.ConeGeometry(0.13, 0.38, 5), material, 0.29, 2.32, -0.02).rotation.z = 0.48;
     part(new THREE.BoxGeometry(0.84, 0.13, 0.42), armor, 0, 1.86, -0.01);
-  } else {
+  } else if (variant === 2) {
     // Compact sensor mast and side-mounted utility pack
     part(new THREE.CylinderGeometry(0.055, 0.075, 0.36, 8), material, 0.25, 2.42, -0.02);
     part(new THREE.SphereGeometry(0.1, 10, 8), glow, 0.25, 2.62, -0.02);
     part(new THREE.BoxGeometry(0.18, 0.42, 0.25), armor, -0.34, 1.56, -0.28);
+  }
+  if (variant === 3) {
+    part(new THREE.TorusGeometry(0.42,0.055,8,20), glow, 0, 2.48, 0).rotation.x = Math.PI / 2;
+    part(new THREE.BoxGeometry(0.18,0.55,0.22), deepArmor, 0.42, 1.55, -0.28);
+  } else if (variant === 4) {
+    part(new THREE.ConeGeometry(0.2,0.52,6), material, 0, 2.48, -0.02);
+    part(new THREE.BoxGeometry(0.72,0.14,0.3), armor, 0, 1.88, -0.02);
+    part(new THREE.SphereGeometry(0.14,10,8), new THREE.MeshStandardMaterial({color:0xffb45e,emissive:0xff7a28,emissiveIntensity:1.4}), 0, 1.5, 0.31);
   }
   // Chest badge and slim illuminated torso panel
   part(new THREE.BoxGeometry(0.3, 0.38, 0.075), deepArmor, 0, 1.48, 0.19);
@@ -658,7 +668,7 @@ function loop() {
       if (keys[" "] && jumpHeight <= 0) { jumpVelocity = 8.5; keys[" "] = false; }
       jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
       if (abilityCooldown > 0) abilityCooldown -= dt;
-      if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { jumpVelocity = Math.max(jumpVelocity, 4); } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } abilityCooldown = 4; }
+      if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
       if (me.x !== lastSentX || me.y !== lastSentY) {
