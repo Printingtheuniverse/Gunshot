@@ -178,6 +178,15 @@
         <div class="card">
           <h3>VOTE — MAP</h3>
           <div id="mapVotes"></div>
+          <p class="fine-print">Each map changes the scenery, lighting, and atmosphere.</p>
+          <h3 class="ability-heading">CHOOSE YOUR FIELD ABILITY</h3>
+          <div class="ability-options">
+            <button class="ability-option selected" onclick="chooseAbility(&quot;Dash&quot;,this)"><strong>⚡ DASH</strong><small>Quick burst of movement · E</small></button>
+            <button class="ability-option" onclick="chooseAbility(&quot;Shield&quot;,this)"><strong>◈ SHIELD</strong><small>Short protective boost · E</small></button>
+            <button class="ability-option" onclick="chooseAbility(&quot;Scanner&quot;,this)"><strong>⌁ SCANNER</strong><small>Highlight nearby crystals · E</small></button>
+            <button class="ability-option" onclick="chooseAbility(&quot;Beacon&quot;,this)"><strong>✧ BEACON</strong><small>Navigation companion · E</small></button>
+          </div>
+          <p class="fine-print">Move with WASD / arrows · Space to jump · Shift to sprint · E to use ability.</p>
         </div>
       </div>
 
@@ -189,8 +198,8 @@
         <h2 id="matchTitle">MATCH</h2>
         <div id="scores"></div>
       </div>
-      <canvas id="arena" width="800" height="500"></canvas>
-      <div class="weapon-hud"><span class="weapon-status" id="arenaObjective">DATA CRYSTALS // 0 / 8</span><span class="weapon-controls">EXPLORER MODE · DISCOVERY OBJECTIVES</span></div>
+      <div class="arena-frame"><canvas id="arena" width="1200" height="750"></canvas></div>
+      <div class="weapon-hud"><span class="weapon-status" id="arenaObjective">DATA CRYSTALS // 0 / 8</span><span class="weapon-controls" id="abilityStatus">ABILITY // DASH</span></div>
       <p class="help">WASD / Arrow keys to explore. Click glowing data crystals to collect them and earn team points.</p>
     </section>
   </main>
