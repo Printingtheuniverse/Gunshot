@@ -101,8 +101,8 @@ socket.on("lobbyState", state => {
       <span>Team ${p.team + 1} ${p.ready ? "✓" : ""}</span>
     </div>`).join("");
 
-  renderVotes("modeVotes", state.modeVotes, ["2 Teams","Capture the Flag","Free For All","Team Elimination"], "voteMode");
-  renderVotes("mapVotes", state.mapVotes, ["Battleground","Desert","Rocky Valley","Forest"], "voteMap");
+  renderVotes("modeVotes", state.modeVotes, ["Crystal Hunt","Explorer Teams","Free Explore","Checkpoint Rally"], "voteMode");
+  renderVotes("mapVotes", state.mapVotes, ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"], "voteMap");
 
   $("readyBtn").disabled = state.state !== "voting";
   $("readyBtn").textContent = state.players.find(p=>p.id===playerId)?.ready ? "NOT READY" : "READY";
@@ -327,25 +327,9 @@ emergencyRing.position.y = 0.1;
 emergencyOperator.add(emergencyRing);
 emergencyOperator.visible = false;
 scene.add(emergencyOperator);
-const weaponNames = ["PULSE RIFLE", "SIDEARM", "HEAVY BLASTER", "ION SHOTGUN", "BANANA GUN"];
-const BANANA_UNLOCK_KEY = "reloadshot.bananaWeaponUnlocked.v1";
-const bananaMines = [];
-function hasBananaGun(){ try { return localStorage.getItem(BANANA_UNLOCK_KEY)==="yes"; } catch { return false; } }
-const WEAPON_UNLOCK_KEY = "reloadshot.weaponUnlocks.v1";
-function hasIonShotgun(){ try { return JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]").includes("ion-shotgun"); } catch { return false; } }
-let selectedWeapon = 0;
-
-function setWeapon(index) {
-  if (index === 3 && !hasIonShotgun()) { const label=document.getElementById("weaponStatus"); if(label) label.textContent="WEAPON LOCKED // REDEEM QASIM2COOL"; return; }
-  if (index === 4 && !hasBananaGun()) { const label=document.getElementById("weaponStatus"); if(label) label.textContent="WEAPON LOCKED // REDEEM BANANABLAST"; return; }
-  selectedWeapon = Math.max(0, Math.min(weaponNames.length - 1, index));
-  const label = document.getElementById("weaponStatus");
-  if (label) label.textContent = "WEAPON // " + weaponNames[selectedWeapon] + "  ·  " + (selectedWeapon + 1);
-  const ownModel = playerObjects.get(playerId);
-  if (ownModel) ownModel.traverse(child => {
-    if (child.userData.weaponSlot !== undefined) child.visible = child.userData.weaponSlot === selectedWeapon;
-  });
-}
+const collectibleCrystals = [];
+let collectedCrystals = 0;
+function setWeapon() {}
 
 function makePlayer(p) {
   const group = new THREE.Group();
@@ -442,123 +426,23 @@ function makePlayer(p) {
   part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, 0.27, 1.57, -0.43);
 
 
-  // Three stylized, selectable sci-fi weapon models. These are visual game props.
-  const weaponMaterials = [
-    new THREE.MeshStandardMaterial({ color: 0x263d4d, metalness: 0.82, roughness: 0.28 }),
-    new THREE.MeshStandardMaterial({ color: 0x8198a5, metalness: 0.78, roughness: 0.25 }),
-    new THREE.MeshStandardMaterial({ color: 0x152633, metalness: 0.72, roughness: 0.34 })
-  ];
-  const weaponGlow = new THREE.MeshStandardMaterial({
-    color: 0xbff8ff, emissive: 0x36dfff, emissiveIntensity: 1.8,
-    metalness: 0.2, roughness: 0.2
-  });
-  const amberGlow = new THREE.MeshStandardMaterial({
-    color: 0xffd1a0, emissive: 0xff873d, emissiveIntensity: 1.6,
-    metalness: 0.2, roughness: 0.25
-  });
-  function weaponPart(parent, geometry, mat, x, y, z, rx = 0, ry = 0, rz = 0) {
-    const mesh = new THREE.Mesh(geometry, mat);
-    mesh.position.set(x, y, z);
-    mesh.rotation.set(rx, ry, rz);
-    mesh.castShadow = true;
-    parent.add(mesh);
-    return mesh;
-  }
-  const rifle = new THREE.Group();
-  weaponPart(rifle, new THREE.BoxGeometry(0.23, 0.22, 0.72), weaponMaterials[0], 0, 0, 0);
-  weaponPart(rifle, new THREE.BoxGeometry(0.14, 0.16, 0.42), weaponMaterials[1], 0, 0.07, -0.47);
-  weaponPart(rifle, new THREE.CylinderGeometry(0.055, 0.055, 0.58, 10), weaponMaterials[2], 0, 0.02, -0.78, Math.PI / 2);
-  weaponPart(rifle, new THREE.BoxGeometry(0.11, 0.055, 0.32), weaponGlow, 0, 0.14, -0.18);
-  weaponPart(rifle, new THREE.BoxGeometry(0.12, 0.24, 0.18), weaponMaterials[2], 0, -0.19, 0.1, -0.22);
-  weaponPart(rifle, new THREE.BoxGeometry(0.14, 0.08, 0.17), weaponMaterials[1], 0, 0.16, 0.12);
-  const sidearm = new THREE.Group();
-  weaponPart(sidearm, new THREE.BoxGeometry(0.19, 0.2, 0.38), weaponMaterials[1], 0, 0, 0);
-  weaponPart(sidearm, new THREE.BoxGeometry(0.13, 0.12, 0.26), weaponMaterials[0], 0, 0.06, -0.27);
-  weaponPart(sidearm, new THREE.CylinderGeometry(0.045, 0.045, 0.24, 8), weaponMaterials[2], 0, 0.03, -0.43, Math.PI / 2);
-  weaponPart(sidearm, new THREE.BoxGeometry(0.1, 0.045, 0.2), weaponGlow, 0, 0.12, -0.04);
-  weaponPart(sidearm, new THREE.BoxGeometry(0.12, 0.23, 0.14), weaponMaterials[2], 0, -0.17, 0.08, -0.18);
-  const heavy = new THREE.Group();
-  weaponPart(heavy, new THREE.BoxGeometry(0.31, 0.28, 0.6), weaponMaterials[2], 0, 0, 0);
-  weaponPart(heavy, new THREE.CylinderGeometry(0.105, 0.13, 0.52, 10), weaponMaterials[1], 0, 0.02, -0.52, Math.PI / 2);
-  weaponPart(heavy, new THREE.CylinderGeometry(0.14, 0.14, 0.12, 10), amberGlow, 0, 0.02, -0.81, Math.PI / 2);
-  weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.08, 0.36), amberGlow, 0, 0.18, -0.1);
-  weaponPart(heavy, new THREE.BoxGeometry(0.16, 0.3, 0.2), weaponMaterials[0], 0, -0.23, 0.12, -0.2);
-  const ionShotgun = new THREE.Group();
-  weaponPart(ionShotgun, new THREE.BoxGeometry(0.34, 0.3, 0.52), weaponMaterials[0], 0, 0, 0);
-  weaponPart(ionShotgun, new THREE.CylinderGeometry(0.13, 0.16, 0.48, 10), weaponGlow, 0, 0.03, -0.46, Math.PI / 2);
-  weaponPart(ionShotgun, new THREE.CylinderGeometry(0.12, 0.12, 0.12, 10), cyanGlowForShot, 0, 0.03, -0.72, Math.PI / 2);
-  weaponPart(ionShotgun, new THREE.BoxGeometry(0.18, 0.09, 0.34), weaponMaterials[2], 0, 0.19, -0.08);
-  weaponPart(ionShotgun, new THREE.BoxGeometry(0.17, 0.28, 0.2), weaponMaterials[1], 0, -0.22, 0.1, -0.2);
-  // BANANA GUN: long, angular sci-fi rifle inspired by the reference image,
-  // with magenta energy rails and a bright banana-shaped side ornament.
-  const bananaGun = new THREE.Group();
-  const bananaMetal = new THREE.MeshStandardMaterial({color:0x718893, metalness:0.82, roughness:0.28});
-  const bananaDark = new THREE.MeshStandardMaterial({color:0x172631, metalness:0.76, roughness:0.34});
-  const bananaPink = new THREE.MeshStandardMaterial({color:0xff42d2, emissive:0xc90091, emissiveIntensity:1.8, metalness:0.22, roughness:0.22});
-  const bananaGold = new THREE.MeshStandardMaterial({color:0xffd52b, emissive:0x6b4d00, emissiveIntensity:0.22, metalness:0.18, roughness:0.4});
-  // Main receiver, elongated barrel shroud, and vented front muzzle.
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.31,0.29,0.72), weaponMaterials[0], 0,0,0.02);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.25,0.22,1.12), bananaMetal, 0,0.045,-0.76);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.29,0.26,0.13), bananaDark, 0,0.045,-1.36);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.19,0.07,0.88), bananaPink, 0,0.12,-0.79);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.19,0.045,0.88), bananaPink, 0,-0.015,-0.79);
-  // Raised top rail, sight, side vents, and chunky stock.
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.13,0.07,0.92), bananaDark, 0,0.205,-0.47);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.1,0.13,0.14), bananaMetal, 0,0.3,-0.34);
-  for (let vent=0; vent<4; vent++) weaponPart(bananaGun, new THREE.BoxGeometry(0.018,0.095,0.06), bananaDark, 0.158,0.04,-0.27-vent*0.13);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.24,0.2,0.48), bananaMetal, 0,0.015,0.57);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.21,0.17,0.16), bananaDark, 0,0.015,0.88);
-  // Angled grip and mag with three glowing pink charge cells.
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.16,0.29,0.19), bananaDark, 0,-0.22,0.16,-0.18);
-  weaponPart(bananaGun, new THREE.BoxGeometry(0.13,0.28,0.2), bananaMetal, 0,-0.31,-0.13,-0.12);
-  for (let cell=0; cell<3; cell++) weaponPart(bananaGun, new THREE.BoxGeometry(0.105,0.035,0.025), bananaPink, 0,-0.26-cell*0.075,-0.242);
-  // A curved banana charm on the receiver makes the weapon unmistakably BANANA.
-  const bananaCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-0.10,0.19,0.22), new THREE.Vector3(-0.20,0.24,0.08),
-    new THREE.Vector3(-0.20,0.17,-0.08), new THREE.Vector3(-0.09,0.10,-0.18),
-    new THREE.Vector3(0.02,0.10,-0.15)
-  ]);
-  weaponPart(bananaGun, new THREE.TubeGeometry(bananaCurve,18,0.055,8,false), bananaGold, -0.02,0.02,0.02);
-  weaponPart(bananaGun, new THREE.ConeGeometry(0.045,0.12,7), bananaDark, -0.12,0.21,0.2,0,0,0.6);
-
-  // Final weapon detailing pass: rails, heat vents, sights, and distinct glowing power cores.
-  const weaponAccent = new THREE.MeshStandardMaterial({color:0x8af4ff, emissive:0x25bde8, emissiveIntensity:1.55, metalness:0.3, roughness:0.22});
-  const weaponRubber = new THREE.MeshStandardMaterial({color:0x101923, metalness:0.12, roughness:0.82});
-  // Pulse rifle: top rail, twin side rails, and a segmented power cell.
-  weaponPart(rifle,new THREE.BoxGeometry(0.075,0.07,0.7),weaponMaterials[2],0,0.17,-0.24);
-  weaponPart(rifle,new THREE.BoxGeometry(0.045,0.055,0.55),weaponAccent,0.13,0.035,-0.28);
-  weaponPart(rifle,new THREE.BoxGeometry(0.045,0.055,0.55),weaponAccent,-0.13,0.035,-0.28);
-  weaponPart(rifle,new THREE.BoxGeometry(0.13,0.11,0.17),weaponRubber,0,-0.11,0.02);
-  for(let i=0;i<3;i++) weaponPart(rifle,new THREE.BoxGeometry(0.09,0.025,0.035),weaponAccent,0,0.025,0.14+i*0.065);
-  // Sidearm: raised slide, front sight, and a contrasting grip.
-  weaponPart(sidearm,new THREE.BoxGeometry(0.14,0.07,0.28),weaponMaterials[2],0,0.14,-0.12);
-  weaponPart(sidearm,new THREE.BoxGeometry(0.055,0.05,0.07),weaponAccent,0,0.19,-0.32);
-  weaponPart(sidearm,new THREE.BoxGeometry(0.13,0.12,0.07),weaponRubber,0,-0.09,0.09);
-  // Heavy blaster: reinforced barrel collars and visible amber capacitor bands.
-  weaponPart(heavy,new THREE.CylinderGeometry(0.15,0.15,0.09,10),weaponMaterials[2],0,0.02,-0.38,Math.PI/2);
-  weaponPart(heavy,new THREE.CylinderGeometry(0.12,0.12,0.055,10),amberGlow,0,0.02,-0.67,Math.PI/2);
-  weaponPart(heavy,new THREE.BoxGeometry(0.055,0.055,0.34),weaponMaterials[1],0.19,0.04,-0.18);
-  weaponPart(heavy,new THREE.BoxGeometry(0.055,0.055,0.34),weaponMaterials[1],-0.19,0.04,-0.18);
-  // Ion shotgun: twin barrel sockets and bright charge indicators.
-  weaponPart(ionShotgun,new THREE.CylinderGeometry(0.075,0.075,0.43,10),weaponMaterials[2],-0.095,0.02,-0.49,Math.PI/2);
-  weaponPart(ionShotgun,new THREE.CylinderGeometry(0.075,0.075,0.43,10),weaponMaterials[2],0.095,0.02,-0.49,Math.PI/2);
-  for(let i=0;i<3;i++) weaponPart(ionShotgun,new THREE.BoxGeometry(0.055,0.045,0.045),weaponAccent,0.19,0.11,-0.08+i*0.09);
-  // Banana rifle: bright muzzle ring, opposing side rail and extra energy-cell details.
-  weaponPart(bananaGun,new THREE.CylinderGeometry(0.115,0.115,0.075,12),bananaPink,0,0.045,-1.43,Math.PI/2);
-  weaponPart(bananaGun,new THREE.BoxGeometry(0.035,0.06,0.76),bananaPink,-0.145,0.04,-0.79);
-  weaponPart(bananaGun,new THREE.BoxGeometry(0.11,0.06,0.12),bananaDark,0,0.28,0.04);
-  weaponPart(bananaGun,new THREE.BoxGeometry(0.12,0.055,0.16),bananaGold,0,0.06,0.31);
-  const weaponRack = new THREE.Group();
-  weaponRack.position.set(0.53, 1.28, -0.22);
-  weaponRack.rotation.y = 0;
-  [rifle, sidearm, heavy, ionShotgun, bananaGun].forEach((weaponModel, index) => {
-    weaponModel.userData.weaponSlot = index;
-    weaponModel.visible = index === 0;
-    weaponRack.add(weaponModel);
-  });
-  group.add(weaponRack);
-  // Make the rack itself easy to identify when updating the selected weapon.
-  weaponRack.userData.weaponRack = true;
+  // Explorer beacon: a harmless glowing navigation orb carried by each explorer.
+  const beacon = new THREE.Group();
+  const beaconCore = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.13, 1),
+    new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2.2,metalness:0.18,roughness:0.2})
+  );
+  beaconCore.position.set(0.48,1.35,-0.22);
+  beacon.add(beaconCore);
+  const beaconHalo = new THREE.Mesh(
+    new THREE.TorusGeometry(0.21,0.025,8,24),
+    new THREE.MeshBasicMaterial({color:0xa8a0ff})
+  );
+  beaconHalo.position.copy(beaconCore.position);
+  beaconHalo.rotation.x = Math.PI/2;
+  beacon.add(beaconHalo);
+  beacon.userData.navigationBeacon = true;
+  group.add(beacon);
 
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.045, 8, 32),
@@ -570,7 +454,7 @@ function makePlayer(p) {
 
   scene.add(group);
   playerObjects.set(p.id, group);
-  if (p.id === playerId) setWeapon(selectedWeapon);
+  
   return group;
 }
 
@@ -639,81 +523,54 @@ const pointer = new THREE.Vector2();
 const cyanGlowForShot = new THREE.MeshBasicMaterial({ color: 0x8df5ff });
 const amberGlowForShot = new THREE.MeshBasicMaterial({ color: 0xffbb73 });
 
+// Explore the arena by collecting luminous data crystals. Clicking an explorer
+// no longer tags opponents; only crystal discoveries contribute to team score.
+function addDataCrystal(x, z, color = 0x8df5ff) {
+  const crystal = new THREE.Group();
+  const gem = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.48, 0),
+    new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:1.35, metalness:0.18, roughness:0.22})
+  );
+  gem.position.y = 0.9;
+  crystal.add(gem);
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.68, 0.025, 8, 32),
+    new THREE.MeshBasicMaterial({color})
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.12;
+  crystal.add(ring);
+  crystal.position.set(x,0,z);
+  crystal.userData.isDataCrystal = true;
+  scene.add(crystal);
+  collectibleCrystals.push(crystal);
+}
+[[-22,-15],[22,-15],[-27,13],[27,13],[0,-20],[0,20],[-12,0],[12,0]].forEach((p,i)=>addDataCrystal(p[0],p[1],[0x8df5ff,0xb8a0ff,0x8be0a2,0xffd18a][i%4]));
+
 renderer.domElement.addEventListener("click", event => {
   if (currentState !== "playing") return;
-
   const rect = renderer.domElement.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
   raycaster.setFromCamera(pointer, camera);
-  const targets = [];
-
-  for (const p of players) {
-    if (p.id === playerId || p.team === myTeam) continue;
-    const model = playerObjects.get(p.id);
-    if (model) targets.push(...model.children);
-  }
-
-  const hit = raycaster.intersectObjects(targets, false);
-  const ownModel = playerObjects.get(playerId);
-  if (ownModel) {
-    const muzzleOrigin = new THREE.Vector3();
-    ownModel.getWorldPosition(muzzleOrigin);
-    muzzleOrigin.y += 1.42;
-    muzzleOrigin.x += 0.48;
-    muzzleOrigin.z -= 0.62;
-    const flashMaterial = selectedWeapon === 2 ? amberGlowForShot : cyanGlowForShot;
-    const flash = new THREE.Mesh(new THREE.SphereGeometry(selectedWeapon === 2 ? 0.16 : selectedWeapon === 3 ? 0.2 : 0.1, 8, 6), flashMaterial);
-    flash.position.copy(muzzleOrigin);
-    scene.add(flash);
-    const shotEnd = hit.length ? hit[0].point.clone() : muzzleOrigin.clone().add(new THREE.Vector3(
-      (pointer.x * 12), 0, -16 + pointer.y * 4
-    ));
-    if (selectedWeapon === 4) {
-      const banana = new THREE.Group();
-      const yellow = new THREE.MeshStandardMaterial({color:0xffdf36,emissive:0x725500,roughness:0.48});
-      const peel = new THREE.Mesh(new THREE.TorusGeometry(0.16,0.07,8,12,Math.PI*1.45), yellow);
-      peel.rotation.x = Math.PI/2; banana.add(peel);
-      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.045,0.12,6),new THREE.MeshStandardMaterial({color:0x477a25}));
-      stem.position.set(0,0.12,0); banana.add(stem);
-      banana.position.copy(muzzleOrigin); scene.add(banana);
-      const started=performance.now(), origin=muzzleOrigin.clone(), target=shotEnd.clone();
-      const fly=now=>{const t=Math.min(1,(now-started)/260);banana.position.lerpVectors(origin,target,t);banana.rotation.x+=0.12;banana.rotation.z+=0.09;if(t<1)requestAnimationFrame(fly);else{
-        const mine=new THREE.Group();
-        for(let i=0;i<3;i++){const strip=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.34,7),yellow);strip.rotation.z=(i-1)*0.75;strip.position.set((i-1)*0.13,0.1,0);mine.add(strip);}
-        mine.position.set(target.x,0.08,target.z);scene.add(mine);bananaMines.push({model:mine,owner:playerId,team:myTeam,created:performance.now()});scene.remove(banana);banana.traverse(o=>{if(o.geometry)o.geometry.dispose();});
-      }};requestAnimationFrame(fly);
-    }
-    const beamGeometry = new THREE.BufferGeometry().setFromPoints([muzzleOrigin, shotEnd]);
-    const beam = new THREE.Line(beamGeometry, new THREE.LineBasicMaterial({
-      color: selectedWeapon === 3 ? 0xb8a0ff : selectedWeapon === 2 ? 0xffa45e : selectedWeapon === 1 ? 0xa9f8ff : 0x43e6ff,
-      transparent: true, opacity: selectedWeapon === 3 ? 1 : 0.9
-    }));
-    scene.add(beam);
-    if (selectedWeapon === 3) {
-      [-0.22, 0.22].forEach(offset => {
-        const spreadEnd = shotEnd.clone(); spreadEnd.x += offset * 5;
-        const spread = new THREE.Line(new THREE.BufferGeometry().setFromPoints([muzzleOrigin, spreadEnd]), new THREE.LineBasicMaterial({color:0xb8a0ff,transparent:true,opacity:0.72}));
-        scene.add(spread);
-        window.setTimeout(()=>{scene.remove(spread);spread.geometry.dispose();spread.material.dispose();},110);
-      });
-    }
-    window.setTimeout(() => {
-      scene.remove(flash);
-      flash.geometry.dispose();
-      scene.remove(beam);
-      beam.geometry.dispose();
-      beam.material.dispose();
-    }, 110);
-  }
-  if (hit.length) socket.emit("score", { team: myTeam });
+  const hit = raycaster.intersectObjects(collectibleCrystals, true);
+  if (!hit.length) return;
+  let crystal = hit[0].object;
+  while (crystal && !crystal.userData.isDataCrystal) crystal = crystal.parent;
+  if (!crystal || !crystal.userData.isDataCrystal) return;
+  scene.remove(crystal);
+  const index = collectibleCrystals.indexOf(crystal);
+  if (index >= 0) collectibleCrystals.splice(index,1);
+  collectedCrystals++;
+  const status = document.getElementById("arenaObjective");
+  if (status) status.textContent = "DATA CRYSTALS // " + collectedCrystals + " / 8";
+  socket.emit("score", { team: myTeam });
 });
 
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === "1" || key === "2" || key === "3" || key === "4" || key === "5") setWeapon(Number(key) - 1);
+  // Number keys are reserved for future exploration abilities.
   keys[key] = true;
 });
 
@@ -768,7 +625,7 @@ function loop() {
     }
   }
 
-  for(let i=bananaMines.length-1;i>=0;i--){const mine=bananaMines[i];if(performance.now()-mine.created>18000){scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);continue;}const victim=players.find(p=>p.id!==mine.owner&&p.team!==mine.team&&Math.hypot((p.x-400)*0.075-mine.model.position.x,(p.y-250)*0.075-mine.model.position.z)<0.85);if(victim){const burst=new THREE.Mesh(new THREE.SphereGeometry(0.65,10,8),new THREE.MeshBasicMaterial({color:0xffdf36,transparent:true,opacity:0.8}));burst.position.set(mine.model.position.x,0.6,mine.model.position.z);scene.add(burst);setTimeout(()=>{scene.remove(burst);burst.geometry.dispose();burst.material.dispose();},260);scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);}}
+  collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.12; });
   renderer.render(scene, camera);
 }
 
@@ -910,13 +767,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const SHOP_KEY = "reloadshot.shop.v1";
 const PROMO_KEY = "reloadshot.promos.v1";
 const SHOP_ITEMS = { arctic: "ARCTIC PULSE", sunforged: "SUNFORGED", void: "VOID CIRCUIT" };
-const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, weapon: "ion-shotgun" }, BANANABLAST: { credits: 75, weapon: "banana-gun" } };
+const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" } };
 function readShop(){ try { return JSON.parse(localStorage.getItem(SHOP_KEY)) || {credits:250,owned:[]}; } catch { return {credits:250,owned:[]}; } }
 function saveShop(data){ localStorage.setItem(SHOP_KEY,JSON.stringify(data)); renderShop(); }
 function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"start"}); renderShop(); }
 function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
 function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
-function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);if(reward.weapon==="banana-gun"){localStorage.setItem(BANANA_UNLOCK_KEY,"yes");}else if(reward.weapon){const unlocked=JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]");if(!unlocked.includes(reward.weapon)){unlocked.push(reward.weapon);localStorage.setItem(WEAPON_UNLOCK_KEY,JSON.stringify(unlocked));}}used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon==="banana-gun"?" and BANANA GUN unlocked! Press 5 to equip it.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
+function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" frontier credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" style unlocked.":".");saveShop(data);}
 document.addEventListener("DOMContentLoaded",renderShop);
 
 
