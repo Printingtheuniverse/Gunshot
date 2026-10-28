@@ -101,8 +101,8 @@ socket.on("lobbyState", state => {
       <span>Team ${p.team + 1} ${p.ready ? "✓" : ""}</span>
     </div>`).join("");
 
-  renderVotes("modeVotes", state.modeVotes, ["2 Teams","Capture the Flag","Free For All","Team Elimination"], "voteMode");
-  renderVotes("mapVotes", state.mapVotes, ["Battleground","Desert","Rocky Valley","Forest"], "voteMap");
+  renderVotes("modeVotes", state.modeVotes, ["Crystal Hunt","Explorer Teams","Free Explore","Checkpoint Rally"], "voteMode");
+  renderVotes("mapVotes", state.mapVotes, ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"], "voteMap");
 
   $("readyBtn").disabled = state.state !== "voting";
   $("readyBtn").textContent = state.players.find(p=>p.id===playerId)?.ready ? "NOT READY" : "READY";
@@ -454,7 +454,7 @@ function makePlayer(p) {
 
   scene.add(group);
   playerObjects.set(p.id, group);
-  if (p.id === playerId) setWeapon(selectedWeapon);
+  
   return group;
 }
 
@@ -767,13 +767,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const SHOP_KEY = "reloadshot.shop.v1";
 const PROMO_KEY = "reloadshot.promos.v1";
 const SHOP_ITEMS = { arctic: "ARCTIC PULSE", sunforged: "SUNFORGED", void: "VOID CIRCUIT" };
-const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" }, QASIM2COOL: { credits: 100, weapon: "ion-shotgun" }, BANANABLAST: { credits: 75, weapon: "banana-gun" } };
+const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" } };
 function readShop(){ try { return JSON.parse(localStorage.getItem(SHOP_KEY)) || {credits:250,owned:[]}; } catch { return {credits:250,owned:[]}; } }
 function saveShop(data){ localStorage.setItem(SHOP_KEY,JSON.stringify(data)); renderShop(); }
 function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"start"}); renderShop(); }
 function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
 function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
-function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);if(reward.weapon==="banana-gun"){localStorage.setItem(BANANA_UNLOCK_KEY,"yes");}else if(reward.weapon){const unlocked=JSON.parse(localStorage.getItem(WEAPON_UNLOCK_KEY)||"[]");if(!unlocked.includes(reward.weapon)){unlocked.push(reward.weapon);localStorage.setItem(WEAPON_UNLOCK_KEY,JSON.stringify(unlocked));}}used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon==="banana-gun"?" and BANANA GUN unlocked! Press 5 to equip it.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
+function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" unlocked.":reward.weapon==="banana-gun"?" and BANANA GUN unlocked! Press 5 to equip it.":reward.weapon?" and ION SHOTGUN unlocked! Press 4 to equip it.":".");saveShop(data);}
 document.addEventListener("DOMContentLoaded",renderShop);
 
 
