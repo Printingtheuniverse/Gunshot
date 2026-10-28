@@ -421,6 +421,26 @@ function makePlayer(p) {
   part(new THREE.ConeGeometry(0.12, 0.32, 5), material, 0.22, 2.35, -0.02).rotation.z = 0.35;
   part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, -0.2, 0.08, 0.08);
   part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, 0.2, 0.08, 0.08);
+  // Layered tactical silhouette pass: visor, segmented chest plates, utility gear and shin armor.
+  const visor = new THREE.MeshStandardMaterial({color:0x0b2638, metalness:0.45, roughness:0.18, emissive:0x06283c, emissiveIntensity:0.8});
+  const trim = new THREE.MeshStandardMaterial({color:0xcee7ee, metalness:0.78, roughness:0.24});
+  const teamGlow = new THREE.MeshStandardMaterial({color:0x8af7ff, emissive:0x35dfff, emissiveIntensity:1.25, metalness:0.25, roughness:0.22});
+  part(new THREE.BoxGeometry(0.39,0.13,0.075), visor, 0, 2.08, 0.255);
+  part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, -0.115, 2.08, 0.3);
+  part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, 0.115, 2.08, 0.3);
+  part(new THREE.BoxGeometry(0.55,0.19,0.095), armor, 0, 1.68, 0.225);
+  part(new THREE.BoxGeometry(0.13,0.12,0.045), teamGlow, 0, 1.69, 0.28);
+  part(new THREE.BoxGeometry(0.21,0.32,0.1), deepArmor, -0.37, 1.4, 0.14);
+  part(new THREE.BoxGeometry(0.21,0.32,0.1), deepArmor, 0.37, 1.4, 0.14);
+  part(new THREE.BoxGeometry(0.24,0.19,0.17), trim, -0.2, 0.7, 0.035);
+  part(new THREE.BoxGeometry(0.24,0.19,0.17), trim, 0.2, 0.7, 0.035);
+  part(new THREE.BoxGeometry(0.12,0.34,0.16), deepArmor, -0.2, 0.34, 0.02);
+  part(new THREE.BoxGeometry(0.12,0.34,0.16), deepArmor, 0.2, 0.34, 0.02);
+  part(new THREE.BoxGeometry(0.16,0.27,0.18), armor, -0.38, 1.3, -0.3);
+  part(new THREE.BoxGeometry(0.16,0.27,0.18), armor, 0.38, 1.3, -0.3);
+  part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, -0.27, 1.57, -0.43);
+  part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, 0.27, 1.57, -0.43);
+
 
   // Three stylized, selectable sci-fi weapon models. These are visual game props.
   const weaponMaterials = [
