@@ -520,6 +520,34 @@ function makePlayer(p) {
   ]);
   weaponPart(bananaGun, new THREE.TubeGeometry(bananaCurve,18,0.055,8,false), bananaGold, -0.02,0.02,0.02);
   weaponPart(bananaGun, new THREE.ConeGeometry(0.045,0.12,7), bananaDark, -0.12,0.21,0.2,0,0,0.6);
+
+  // Final weapon detailing pass: rails, heat vents, sights, and distinct glowing power cores.
+  const weaponAccent = new THREE.MeshStandardMaterial({color:0x8af4ff, emissive:0x25bde8, emissiveIntensity:1.55, metalness:0.3, roughness:0.22});
+  const weaponRubber = new THREE.MeshStandardMaterial({color:0x101923, metalness:0.12, roughness:0.82});
+  // Pulse rifle: top rail, twin side rails, and a segmented power cell.
+  weaponPart(rifle,new THREE.BoxGeometry(0.075,0.07,0.7),weaponMaterials[2],0,0.17,-0.24);
+  weaponPart(rifle,new THREE.BoxGeometry(0.045,0.055,0.55),weaponAccent,0.13,0.035,-0.28);
+  weaponPart(rifle,new THREE.BoxGeometry(0.045,0.055,0.55),weaponAccent,-0.13,0.035,-0.28);
+  weaponPart(rifle,new THREE.BoxGeometry(0.13,0.11,0.17),weaponRubber,0,-0.11,0.02);
+  for(let i=0;i<3;i++) weaponPart(rifle,new THREE.BoxGeometry(0.09,0.025,0.035),weaponAccent,0,0.025,0.14+i*0.065);
+  // Sidearm: raised slide, front sight, and a contrasting grip.
+  weaponPart(sidearm,new THREE.BoxGeometry(0.14,0.07,0.28),weaponMaterials[2],0,0.14,-0.12);
+  weaponPart(sidearm,new THREE.BoxGeometry(0.055,0.05,0.07),weaponAccent,0,0.19,-0.32);
+  weaponPart(sidearm,new THREE.BoxGeometry(0.13,0.12,0.07),weaponRubber,0,-0.09,0.09);
+  // Heavy blaster: reinforced barrel collars and visible amber capacitor bands.
+  weaponPart(heavy,new THREE.CylinderGeometry(0.15,0.15,0.09,10),weaponMaterials[2],0,0.02,-0.38,Math.PI/2);
+  weaponPart(heavy,new THREE.CylinderGeometry(0.12,0.12,0.055,10),amberGlow,0,0.02,-0.67,Math.PI/2);
+  weaponPart(heavy,new THREE.BoxGeometry(0.055,0.055,0.34),weaponMaterials[1],0.19,0.04,-0.18);
+  weaponPart(heavy,new THREE.BoxGeometry(0.055,0.055,0.34),weaponMaterials[1],-0.19,0.04,-0.18);
+  // Ion shotgun: twin barrel sockets and bright charge indicators.
+  weaponPart(ionShotgun,new THREE.CylinderGeometry(0.075,0.075,0.43,10),weaponMaterials[2],-0.095,0.02,-0.49,Math.PI/2);
+  weaponPart(ionShotgun,new THREE.CylinderGeometry(0.075,0.075,0.43,10),weaponMaterials[2],0.095,0.02,-0.49,Math.PI/2);
+  for(let i=0;i<3;i++) weaponPart(ionShotgun,new THREE.BoxGeometry(0.055,0.045,0.045),weaponAccent,0.19,0.11,-0.08+i*0.09);
+  // Banana rifle: bright muzzle ring, opposing side rail and extra energy-cell details.
+  weaponPart(bananaGun,new THREE.CylinderGeometry(0.115,0.115,0.075,12),bananaPink,0,0.045,-1.43,Math.PI/2);
+  weaponPart(bananaGun,new THREE.BoxGeometry(0.035,0.06,0.76),bananaPink,-0.145,0.04,-0.79);
+  weaponPart(bananaGun,new THREE.BoxGeometry(0.11,0.06,0.12),bananaDark,0,0.28,0.04);
+  weaponPart(bananaGun,new THREE.BoxGeometry(0.12,0.055,0.16),bananaGold,0,0.06,0.31);
   const weaponRack = new THREE.Group();
   weaponRack.position.set(0.53, 1.28, -0.22);
   weaponRack.rotation.y = 0;
