@@ -180,6 +180,7 @@ const scene = new THREE.Scene();
 const mapDecoration = new THREE.Group();
 scene.add(mapDecoration);
 function setMapTheme(mapName) {
+  baseEnvironmentObjects.forEach(object => { object.visible = mapName === "Luminous Gardens"; });
   while (mapDecoration.children.length) {
     const item = mapDecoration.children[0]; mapDecoration.remove(item);
     item.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material) { if (Array.isArray(obj.material)) obj.material.forEach(m=>m.dispose()); else obj.material.dispose(); } });
@@ -197,13 +198,30 @@ function setMapTheme(mapName) {
   const mat = (color, emissive=0x000000) => new THREE.MeshStandardMaterial({color,roughness:0.82,metalness:0.08,emissive,emissiveIntensity:0.35});
   const add = (geometry, material, x,y,z, sx=1,sy=1,sz=1) => { const m = new THREE.Mesh(geometry,material); m.position.set(x,y,z); m.scale.set(sx,sy,sz); m.castShadow=true; m.receiveShadow=true; mapDecoration.add(m); return m; };
   if (mapName === "Glass Dunes") {
+    for (const [x,z] of [[-30,-16],[30,-12],[-25,15],[26,16]]) {
+      add(new THREE.BoxGeometry(1.8,5.5,1.8),mat(0xb9854f),x,2.75,z);
+      add(new THREE.BoxGeometry(5.4,.8,1.8),mat(0xe2b76d),x,5.2,z);
+    }
+    for (const [x,z] of [[-12,-18],[12,-12],[-18,4],[15,8],[0,19]]) add(new THREE.SphereGeometry(1,12,8),mat(0xd9ad69),x,-.3,z,5,.5,3);
     for (let i=0;i<18;i++) { const x=((i*17)%65)-32, z=((i*23)%39)-19; add(new THREE.SphereGeometry(1,10,7),mat(i%2?0xb88a51:0xd2a969),x,-0.1,z,3+(i%3),0.35+(i%3)*0.1,1.8); }
     for (const [x,z] of [[-25,-12],[24,-15],[-18,15],[27,10],[0,-20]]) add(new THREE.DodecahedronGeometry(1.5,0),mat(0x8c6545),x,0.8,z,1.2,1.1,0.9);
     add(new THREE.SphereGeometry(5,24,16),new THREE.MeshBasicMaterial({color:0xffc477}),27,20,-38);
   } else if (mapName === "Skyline Ruins") {
+    for (const [x,z,h] of [[-30,-12,9],[-20,13,5],[23,-16,11],[31,12,7],[-4,-20,6],[8,18,9]]) {
+      add(new THREE.BoxGeometry(4,h,4),mat(0x454d70),x,h/2,z);
+      add(new THREE.BoxGeometry(5.4,.35,4.8),mat(0x9ba9e8,0x323e80),x,h,z);
+      add(new THREE.BoxGeometry(2,.18,1.8),mat(0x7ceaff,0x1c7fa5),x,h+.22,z);
+    }
+    for (const [x,z] of [[-10,-7],[11,6],[-25,5],[24,-4]]) add(new THREE.BoxGeometry(8,.5,2),mat(0x747d9c),x,2.5,z);
     for (const [x,z] of [[-28,-17],[-20,14],[22,-16],[29,13],[-5,-19],[7,18]]) { add(new THREE.BoxGeometry(2.6,7,2.6),mat(0x666c83),x,3.5,z); add(new THREE.BoxGeometry(3.4,.45,3.4),mat(0xa5a9c3),x,7,z); }
     for (let i=0;i<10;i++) add(new THREE.TetrahedronGeometry(1.3),mat(0x777b91),((i*13)%55)-27,.7,((i*19)%38)-19,1.3,.8,1.1);
   } else {
+    for (let i=0;i<24;i++) {
+      const x=((i*17)%68)-34, z=((i*23)%42)-21;
+      if(Math.abs(x)<8 && Math.abs(z)<8) continue;
+      add(new THREE.CylinderGeometry(.18,.32,3,7),mat(0x335e62),x,1.5,z);
+      add(new THREE.SphereGeometry(1.6,12,9),mat(i%2?0x58bba4:0x8e83d8,i%2?0x2a967f:0x6352b5),x,3.5,z,1.1,.75,1.1);
+    }
     for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,0.78,0.82,0.78); }
     for (let i=0;i<12;i++) add(new THREE.SphereGeometry(.14,8,6),new THREE.MeshBasicMaterial({color:t.secondary}),((i*9)%54)-27,1.4+(i%4),((i*17)%36)-18);
   }
@@ -281,6 +299,7 @@ const grid = new THREE.GridHelper(80, 32, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
+const baseEnvironmentObjects = [];
 function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
   const mesh = new THREE.Mesh(
     new THREE.BoxGeometry(sx, sy, sz),
@@ -296,6 +315,7 @@ function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   scene.add(mesh);
+  baseEnvironmentObjects.push(mesh);
   return mesh;
 }
 
