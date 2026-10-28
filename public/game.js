@@ -118,6 +118,8 @@ socket.on("lobbyState", state => {
     $("matchTitle").textContent = `${state.mode} — ${state.map}`;
     renderScores(state.scores);
     show("game");
+    resizeArena();
+    setMapTheme(state.map);
   }
 });
 
@@ -146,18 +148,62 @@ function voteMode(mode) {
 function voteMap(map) {
   socket.emit("voteMap", map);
 }
+function chooseAbility(ability, button) {
+  selectedAbility = ability;
+  document.querySelectorAll(".ability-option").forEach(el => el.classList.toggle("selected", el === button));
+  const label = $("selectedAbilityLabel");
+  if (label) label.textContent = ability.toUpperCase();
+}
 
 function toggleReady() {
   socket.emit("ready");
 }
 
 const arena = $("arena");
+let selectedAbility = "Dash";
+let jumpHeight = 0;
+let jumpVelocity = 0;
+let abilityCooldown = 0;
+let lastFrameTime = performance.now();
 
 const scene = new THREE.Scene();
+const mapDecoration = new THREE.Group();
+scene.add(mapDecoration);
+function setMapTheme(mapName) {
+  while (mapDecoration.children.length) {
+    const item = mapDecoration.children[0]; mapDecoration.remove(item);
+    item.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material) { if (Array.isArray(obj.material)) obj.material.forEach(m=>m.dispose()); else obj.material.dispose(); } });
+  }
+  const themes = {
+    "Luminous Gardens": {bg:0x102c38,fog:0x102c38,floor:0x244b45,grid:0x5be6bd,light:0xb7ffe5,accent:0x69ffc7,secondary:0x8a9cff},
+    "Glass Dunes": {bg:0x5a321b,fog:0x9b6034,floor:0xc69a5b,grid:0xe9c17a,light:0xffd49a,accent:0xffc46d,secondary:0xf18a56},
+    "Skyline Ruins": {bg:0x252b4c,fog:0x343c60,floor:0x6b6c7e,grid:0x9ba9e8,light:0xd2d6ff,accent:0x9da9ff,secondary:0xffa9da},
+    "Aurora Grove": {bg:0x102b38,fog:0x173b43,floor:0x254a42,grid:0x65cbb4,light:0xc6ffe8,accent:0x76f2b4,secondary:0xb69bff}
+  };
+  const t = themes[mapName] || themes["Luminous Gardens"];
+  scene.background.setHex(t.bg); scene.fog.color.setHex(t.fog); floor.material.color.setHex(t.floor);
+  grid.material.color.setHex(t.grid); mainLight.color.setHex(t.light); blueLight.color.setHex(t.accent); redLight.color.setHex(t.secondary);
+  grid.visible = mapName !== "Glass Dunes";
+  const mat = (color, emissive=0x000000) => new THREE.MeshStandardMaterial({color,roughness:0.82,metalness:0.08,emissive,emissiveIntensity:0.35});
+  const add = (geometry, material, x,y,z, sx=1,sy=1,sz=1) => { const m = new THREE.Mesh(geometry,material); m.position.set(x,y,z); m.scale.set(sx,sy,sz); m.castShadow=true; m.receiveShadow=true; mapDecoration.add(m); return m; };
+  if (mapName === "Glass Dunes") {
+    for (let i=0;i<18;i++) { const x=((i*17)%65)-32, z=((i*23)%39)-19; add(new THREE.SphereGeometry(1,10,7),mat(i%2?0xb88a51:0xd2a969),x,-0.1,z,3+(i%3),0.35+(i%3)*0.1,1.8); }
+    for (const [x,z] of [[-25,-12],[24,-15],[-18,15],[27,10],[0,-20]]) add(new THREE.DodecahedronGeometry(1.5,0),mat(0x8c6545),x,0.8,z,1.2,1.1,0.9);
+    add(new THREE.SphereGeometry(5,24,16),new THREE.MeshBasicMaterial({color:0xffc477}),27,20,-38);
+  } else if (mapName === "Skyline Ruins") {
+    for (const [x,z] of [[-28,-17],[-20,14],[22,-16],[29,13],[-5,-19],[7,18]]) { add(new THREE.BoxGeometry(2.6,7,2.6),mat(0x666c83),x,3.5,z); add(new THREE.BoxGeometry(3.4,.45,3.4),mat(0xa5a9c3),x,7,z); }
+    for (let i=0;i<10;i++) add(new THREE.TetrahedronGeometry(1.3),mat(0x777b91),((i*13)%55)-27,.7,((i*19)%38)-19,1.3,.8,1.1);
+  } else {
+    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,1,1.25,1); }
+    for (let i=0;i<12;i++) add(new THREE.SphereGeometry(.14,8,6),new THREE.MeshBasicMaterial({color:t.secondary}),((i*9)%54)-27,1.4+(i%4),((i*17)%36)-18);
+  }
+  mainLight.position.set(-8, mapName==="Glass Dunes"?25:18, 10); mainLight.intensity=mapName==="Glass Dunes"?3.8:3.1;
+  resizeArena();
+}
 scene.background = new THREE.Color(0x17212b);
 scene.fog = new THREE.Fog(0x17212b, 48, 125);
 
-const camera = new THREE.PerspectiveCamera(52, 800 / 500, 0.1, 220);
+const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 260);
 camera.position.set(0, 31, 38);
 camera.lookAt(0, 0, 0);
 // Reuse the canvas already present in index.html. Do not nest a canvas
@@ -169,8 +215,15 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.08;
-renderer.domElement.style.cssText =
-  "display:block;width:100%;height:auto;border-radius:10px;cursor:crosshair";
+renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair";
+function resizeArena() {
+  const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
+  const height = Math.max(480, Math.min(window.innerHeight * 0.78, width * 0.72));
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resizeArena);
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 
@@ -572,6 +625,7 @@ document.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
   // Number keys are reserved for future exploration abilities.
   keys[key] = true;
+  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
 });
 
 document.addEventListener("keyup", e => {
@@ -595,10 +649,16 @@ function loop() {
     const me = players.find(p => p.id === playerId);
     if (me) {
       const speed = 3;
-      if (keys["w"] || keys["arrowup"]) me.y -= speed;
-      if (keys["s"] || keys["arrowdown"]) me.y += speed;
-      if (keys["a"] || keys["arrowleft"]) me.x -= speed;
-      if (keys["d"] || keys["arrowright"]) me.x += speed;
+      const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
+      const moveSpeed = keys["shift"] ? speed * 1.8 : speed;
+      if (keys["w"] || keys["arrowup"]) me.y -= moveSpeed;
+      if (keys["s"] || keys["arrowdown"]) me.y += moveSpeed;
+      if (keys["a"] || keys["arrowleft"]) me.x -= moveSpeed;
+      if (keys["d"] || keys["arrowright"]) me.x += moveSpeed;
+      if (keys[" "] && jumpHeight <= 0) { jumpVelocity = 8.5; keys[" "] = false; }
+      jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
+      if (abilityCooldown > 0) abilityCooldown -= dt;
+      if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { jumpVelocity = Math.max(jumpVelocity, 4); } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
       if (me.x !== lastSentX || me.y !== lastSentY) {
@@ -609,22 +669,23 @@ function loop() {
     }
     // Detailed player creation can fail if any model asset is invalid. Keep a
     // simple, bright operator visible regardless, and keep the camera following it.
-    try { updatePlayers(); } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
+    try { updatePlayers(); const localModel = playerObjects.get(playerId); if (localModel) localModel.position.y = jumpHeight; emergencyOperator.position.y = jumpHeight; } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
       emergencyOperator.visible = false;
-      camera.position.set(cameraTarget.position.x + 1.2, 5.2, cameraTarget.position.z + 7.2);
-      camera.lookAt(cameraTarget.position.x, 1.15, cameraTarget.position.z);
+      camera.position.lerp(new THREE.Vector3(cameraTarget.position.x + 1.2, 8.5, cameraTarget.position.z + 12.5), 0.16);
+      camera.lookAt(cameraTarget.position.x, 1.1 + jumpHeight * 0.2, cameraTarget.position.z);
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
       emergencyOperator.position.set((fallback.x - 400) * 0.075, 0, (fallback.y - 250) * 0.075);
-      camera.position.set(emergencyOperator.position.x + 1.2, 5.2, emergencyOperator.position.z + 7.2);
-      camera.lookAt(emergencyOperator.position.x, 1.15, emergencyOperator.position.z);
+      camera.position.lerp(new THREE.Vector3(emergencyOperator.position.x + 1.2, 8.5, emergencyOperator.position.z + 12.5), 0.16);
+      camera.lookAt(emergencyOperator.position.x, 1.1 + jumpHeight * 0.2, emergencyOperator.position.z);
     }
   }
 
+  lastFrameTime = performance.now();
   collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.12; });
   renderer.render(scene, camera);
 }
@@ -640,6 +701,11 @@ socket.on("matchStarted", data => {
   currentState = "playing";
   $("matchTitle").textContent = `${data.mode} — ${data.map}`;
   show("game");
+  resizeArena();
+  setMapTheme(data.map);
+  collectedCrystals = 0;
+  const objective = $("arenaObjective"); if (objective) objective.textContent = "DATA CRYSTALS // 0 / 8";
+  const abilityLabel = $("abilityStatus"); if (abilityLabel) abilityLabel.textContent = "ABILITY // " + selectedAbility.toUpperCase();
 
   // Give the local player a visible starting model immediately. The server's
   // authoritative players event replaces this temporary entry as soon as it
