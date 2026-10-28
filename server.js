@@ -13,8 +13,8 @@ const MAX_PLAYERS = 16;
 
 const rooms = new Map();
 const colors = ["#4da3ff", "#ff5c5c", "#4ddc88", "#ffd34d"];
-const modes = ["2 Teams", "Capture the Flag", "Free For All", "Team Elimination"];
-const maps = ["Battleground", "Desert", "Rocky Valley", "Forest"];
+const modes = ["Crystal Hunt", "Explorer Teams", "Free Explore", "Checkpoint Rally"];
+const maps = ["Luminous Gardens", "Glass Dunes", "Skyline Ruins", "Aurora Grove"];
 
 function makeRoom(id, hostName) {
   return {
