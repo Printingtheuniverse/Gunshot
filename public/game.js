@@ -675,24 +675,26 @@ function loop() {
         lastSentY = me.y;
       }
 
-      // If the socket ID has not synced yet, still frame a received player model.
-      const model = playerObjects.get(playerId) || (players.length ? playerObjects.get(players[0].id) : null);
-      if (model) {
-        // Closer follow camera: keep the local operator large enough to see during play.
-        camera.position.set(
-          model.position.x + 1.2,
-          7.5,
-          model.position.z + 10
-        );
-        camera.lookAt(
-          model.position.x,
-          1.15,
-          model.position.z
-        );
-      }
     }
 
+    // Update the models before choosing a camera target. This also handles the
+    // brief moment when the server's player list arrives before our socket ID
+    // has been matched, so the arena never stays pointed at an empty corner.
     updatePlayers();
+    const ownModel = playerObjects.get(playerId);
+    const cameraTarget = ownModel || (players.length ? playerObjects.get(players[0].id) : null);
+    if (cameraTarget) {
+      camera.position.set(
+        cameraTarget.position.x + 1.2,
+        6.2,
+        cameraTarget.position.z + 8.5
+      );
+      camera.lookAt(
+        cameraTarget.position.x,
+        1.05,
+        cameraTarget.position.z
+      );
+    }
   }
 
   for(let i=bananaMines.length-1;i>=0;i--){const mine=bananaMines[i];if(performance.now()-mine.created>18000){scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);continue;}const victim=players.find(p=>p.id!==mine.owner&&p.team!==mine.team&&Math.hypot((p.x-400)*0.075-mine.model.position.x,(p.y-250)*0.075-mine.model.position.z)<0.85);if(victim){const burst=new THREE.Mesh(new THREE.SphereGeometry(0.65,10,8),new THREE.MeshBasicMaterial({color:0xffdf36,transparent:true,opacity:0.8}));burst.position.set(mine.model.position.x,0.6,mine.model.position.z);scene.add(burst);setTimeout(()=>{scene.remove(burst);burst.geometry.dispose();burst.material.dispose();},260);scene.remove(mine.model);mine.model.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});bananaMines.splice(i,1);}}
