@@ -227,3 +227,13 @@ button:hover{box-shadow:0 0 22px #72eaff1c}
 .chat-compose{display:flex;gap:8px;margin-top:9px}.chat-compose input{flex:1;min-width:0;margin:0}.chat-compose button{padding:10px 16px;border:1px solid #62e5f8;border-radius:8px;background:#12394b;color:#c9f8ff;font-weight:800;font-size:10px;letter-spacing:1px}
 .arena-frame canvas{outline:none}
 @media(max-width:600px){.chat-messages{height:115px}.chat-compose button{padding:10px}}
+
+/* Fixed-corner chat and stable arena view */
+#game{position:relative}
+#game .game-chat{position:fixed;right:18px;bottom:16px;z-index:50;width:min(330px,calc(100vw - 28px));margin:0;padding:10px;background:rgba(5,15,27,.94);backdrop-filter:blur(12px);box-shadow:0 8px 28px #0008}
+#game .chat-messages{height:100px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:3px}
+#game .chat-compose input{background:#091927;color:#e5f8ff;border:1px solid #25465e}
+#game .chat-line{white-space:normal;line-height:1.35}
+#game .arena-frame{height:min(76vh,850px);min-height:420px}
+#arena{touch-action:none}
+@media(max-width:650px){#game .game-chat{right:8px;bottom:8px;width:min(285px,calc(100vw - 16px));padding:8px}#game .chat-messages{height:76px}#game .arena-frame{height:68vh;min-height:420px}}
