@@ -191,3 +191,24 @@ input,select,textarea{
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* Frontier visual refresh: luminous exploration-first sci-fi atmosphere */
+:root{--bg:#050b18;--panel:rgba(13,24,48,.88);--panel-border:rgba(133,126,255,.24);--cyan:#72f7ff;--blue:#6d7cff}
+body{background:radial-gradient(ellipse at 18% 8%,#182957 0%,transparent 42%),radial-gradient(ellipse at 84% 38%,#153d54 0%,transparent 38%),linear-gradient(145deg,#050816,#08172a 55%,#090c20)}
+body:before{opacity:.3;background-image:radial-gradient(#9cecff 1px,transparent 1px),radial-gradient(#b9a7ff 1px,transparent 1px);background-size:47px 47px,113px 113px;background-position:0 0,23px 31px}
+.brand-mark{background:linear-gradient(145deg,#a6fbff,#7a86ff 65%,#d8a5ff);box-shadow:0 0 30px #72f7ff40}
+.welcome-row h1 span,.eyebrow{color:#8df5ff;text-shadow:0 0 25px #7defff3a}
+.cinematic-banner{border-color:#83cfff35;box-shadow:0 24px 80px #030814a8,inset 0 0 70px #5b76ff0a}
+.banner-grid{opacity:.72}
+.banner-moon{box-shadow:0 0 90px #71dfff40,0 0 170px #7885ff25}
+.banner-character-halo{background:radial-gradient(circle,#75f4ff40,transparent 68%)}
+.hero-panel{background:radial-gradient(ellipse at 50% 54%,#244d79 0%,#14264a 42%,#071323 80%)}
+.hero-glow{opacity:.19;filter:blur(92px)}
+.orbit,.orbit-two{border-color:#88eaff42;box-shadow:0 0 22px #6deaff0b}
+.side-panel,.hero-panel{border-color:#91aaff25;box-shadow:0 18px 60px #0005, inset 0 1px #ffffff08}
+button{transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+button:hover{box-shadow:0 0 22px #72eaff1c}
+@media(prefers-reduced-motion:no-preference){.brand-mark,.season-chip>span{animation:frontierGlow 4s ease-in-out infinite alternate}.hero-glow{animation:heroPulse 6s ease-in-out infinite alternate}}
+@keyframes frontierGlow{from{filter:saturate(.9);box-shadow:0 0 18px #39cfff24}to{filter:saturate(1.25);box-shadow:0 0 32px #8a8cff45}}
+@keyframes heroPulse{from{opacity:.12;transform:translate(-50%,-50%) scale(.9)}to{opacity:.23;transform:translate(-50%,-50%) scale(1.08)}}
