@@ -657,43 +657,37 @@ function loop() {
   requestAnimationFrame(loop);
 
   if (currentState === "playing") {
+    // Recover if the socket ID or player-list event arrived late.
+    if (!playerId && socket.id) playerId = socket.id;
+    if (!players.length && playerId) {
+      players = [{ id: playerId, name: name(), team: myTeam, x: 400, y: 250, hp: 100 }];
+    }
     const me = players.find(p => p.id === playerId);
-
     if (me) {
       const speed = 3;
       if (keys["w"] || keys["arrowup"]) me.y -= speed;
       if (keys["s"] || keys["arrowdown"]) me.y += speed;
       if (keys["a"] || keys["arrowleft"]) me.x -= speed;
       if (keys["d"] || keys["arrowright"]) me.x += speed;
-
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
-
       if (me.x !== lastSentX || me.y !== lastSentY) {
         socket.emit("playerMove", { x: me.x, y: me.y });
         lastSentX = me.x;
         lastSentY = me.y;
       }
-
     }
-
-    // Update the models before choosing a camera target. This also handles the
-    // brief moment when the server's player list arrives before our socket ID
-    // has been matched, so the arena never stays pointed at an empty corner.
+    // Rebuild models before targeting the camera every frame.
     updatePlayers();
-    const ownModel = playerObjects.get(playerId);
-    const cameraTarget = ownModel || (players.length ? playerObjects.get(players[0].id) : null);
+    const targetPlayer = players.find(p => p.id === playerId) || players[0];
+    const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
-      camera.position.set(
-        cameraTarget.position.x + 1.2,
-        6.2,
-        cameraTarget.position.z + 8.5
-      );
-      camera.lookAt(
-        cameraTarget.position.x,
-        1.05,
-        cameraTarget.position.z
-      );
+      camera.position.set(cameraTarget.position.x + 1.2, 5.2, cameraTarget.position.z + 7.2);
+      camera.lookAt(cameraTarget.position.x, 1.15, cameraTarget.position.z);
+    } else {
+      // Visible center view fallback instead of remaining at the original wide shot.
+      camera.position.set(0, 5.2, 7.2);
+      camera.lookAt(0, 1.15, 0);
     }
   }
 
@@ -708,6 +702,7 @@ function start3DLoop() {
 }
 
 socket.on("matchStarted", data => {
+  playerId = playerId || socket.id;
   currentState = "playing";
   $("matchTitle").textContent = `${data.mode} — ${data.map}`;
   show("game");
