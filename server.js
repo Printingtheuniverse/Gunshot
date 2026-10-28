@@ -13,7 +13,7 @@ const MAX_PLAYERS = 16;
 
 const rooms = new Map();
 const colors = ["#4da3ff", "#ff5c5c", "#4ddc88", "#ffd34d"];
-const modes = ["Crystal Hunt", "Explorer Teams", "Free Explore", "Checkpoint Rally"];
+const modes = ["Zone Control", "Checkpoint Rally", "Crystal Hunt", "Free Explore"];
 const maps = ["Luminous Gardens", "Glass Dunes", "Skyline Ruins", "Aurora Grove"];
 
 function makeRoom(id, hostName) {
@@ -204,6 +204,15 @@ io.on("connection", socket => {
     if (room.players.length >= 2 && room.players.every(p => p.ready)) {
       startMatch(room);
     }
+  });
+
+  socket.on("chatMessage", raw => {
+    const room = findRoomForSocket(socket);
+    const player = getPlayer(room, socket.id);
+    if (!room || !player) return;
+    const message = String(raw || "").replace(/[<>]/g, "").trim().slice(0, 180);
+    if (!message) return;
+    io.to(room.id).emit("chatMessage", { name: player.name, message, id: socket.id, time: Date.now() });
   });
 
   socket.on("playerMove", data => {
