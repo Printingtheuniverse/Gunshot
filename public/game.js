@@ -716,7 +716,7 @@ socket.on("matchStarted", data => {
   // authoritative players event replaces this temporary entry as soon as it
   // arrives, avoiding an empty arena if that event is delayed.
   if (!players.length && playerId) {
-    players = [{ id: playerId, name: name(), team: myTeam, x: 100, y: 100, hp: 100 }];
+    players = [{ id: playerId, name: name(), team: myTeam, x: 400, y: 250, hp: 100 }];
     updatePlayers();
   }
   start3DLoop();
