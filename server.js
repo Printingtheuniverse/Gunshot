@@ -136,7 +136,7 @@ io.on("connection", socket => {
 
     room.players.push({
       id: socket.id, name: clean, team: 0, ready: false,
-      x: 100, y: 100, hp: 100
+      x: 400, y: 250, hp: 100
     });
 
     socket.join(id);
@@ -155,7 +155,7 @@ io.on("connection", socket => {
     const clean = String(name || "Player").slice(0, 18);
     room.players.push({
       id: socket.id, name: clean, team: room.players.length % 4, ready: false,
-      x: 100 + Math.random()*400, y: 100 + Math.random()*300, hp: 100
+      x: 360 + Math.random()*80, y: 220 + Math.random()*60, hp: 100
     });
 
     socket.join(room.id);
