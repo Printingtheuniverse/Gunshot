@@ -188,7 +188,7 @@ let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.18;
-const cameraDistance = 19;
+const cameraDistance = 15;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -292,7 +292,7 @@ renderer.domElement.addEventListener("pointerdown", e => {
 });
 renderer.domElement.addEventListener("pointermove", e => {
   if (!cameraDragging) return;
-  cameraYaw += (e.clientX - lastPointerX) * 0.008;
+  cameraYaw -= (e.clientX - lastPointerX) * 0.008;
   cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch - (e.clientY - lastPointerY) * 0.004));
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
@@ -807,8 +807,8 @@ function loop() {
       if (forward || strafe) {
         const magnitude = Math.hypot(forward, strafe) || 1;
         const f = forward / magnitude, side = strafe / magnitude, angle = cameraYaw;
-        const dx = Math.sin(angle) * f + Math.cos(angle) * side;
-        const dz = -Math.cos(angle) * f + Math.sin(angle) * side;
+        const dx = Math.sin(angle) * f - Math.cos(angle) * side;
+        const dz = -Math.cos(angle) * f - Math.sin(angle) * side;
         const proposedX = me.x + dx * moveSpeed;
         const proposedY = me.y + dz * moveSpeed;
         const nextX = (proposedX - 400) * 0.12, nextZ = (proposedY - 250) * 0.12;
