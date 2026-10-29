@@ -351,3 +351,34 @@ button:disabled{cursor:not-allowed;filter:saturate(.45);opacity:.65;transform:no
 .help{color:#9cb6c9}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:720px){.weapon-hud{padding:12px;font-size:10px}.topbar{backdrop-filter:blur(10px)}.hero-panel{animation:none}}
+
+
+/* Final usability pass: clearer keyboard focus, touch targets, and small-screen spacing. */
+:where(a,button,input,[tabindex]):focus-visible{
+  outline:3px solid var(--cyan);
+  outline-offset:3px;
+  box-shadow:0 0 0 5px #63e6ff22;
+}
+:where(button,input){min-height:40px}
+button:active:not(:disabled){transform:translateY(0) scale(.985)}
+::selection{background:#63e6ff55;color:#fff}
+:where(input,textarea){color:var(--text);background-color:#071521;border-color:#31556a}
+:where(input,textarea)::placeholder{color:#819caf;opacity:1}
+#arena:focus-visible{outline-offset:5px}
+@media(max-width:720px){
+  .app{padding:10px 12px 18px}
+  .topbar{gap:10px;padding:10px}
+  .topnav{gap:5px;flex-wrap:wrap}
+  .nav-button{min-height:42px;padding:9px 10px}
+  .profile-chip{max-width:100%;font-size:11px}
+  .game-chat{margin-bottom:env(safe-area-inset-bottom,0px)}
+  .chat-compose{gap:8px}
+  .chat-compose input{min-width:0;width:100%}
+}
+@media(max-width:420px){
+  .app{padding-inline:8px}
+  .brand{font-size:14px;letter-spacing:1px}
+  .brand-mark{width:36px;height:36px;font-size:21px}
+  .nav-button span{font-size:9px}
+  .weapon-hud{gap:8px}
+}
