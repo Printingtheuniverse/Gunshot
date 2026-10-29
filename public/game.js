@@ -103,8 +103,16 @@ socket.on("lobbyState", state => {
       <span>Team ${p.team + 1} ${p.ready ? "✓" : ""}</span>
     </div>`).join("");
 
-  renderVotes("modeVotes", state.modeVotes, ["Zone Control","Checkpoint Rally","Crystal Hunt","Free Explore"], "voteMode");
-  renderVotes("mapVotes", state.mapVotes, ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"], "voteMap");
+  const availableModes = ["Zone Control","Checkpoint Rally","Crystal Hunt","Free Explore"];
+  const availableMaps = ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"];
+  renderVotes("modeVotes", state.modeVotes, availableModes, "voteMode");
+  renderVotes("mapVotes", state.mapVotes, availableMaps, "voteMap");
+  const leader = (votes, options) => {
+    const ranked = options.map((name, index) => ({name, votes:Number(votes?.[name] || 0), index})).sort((a,b)=>b.votes-a.votes || a.index-b.index);
+    return ranked[0]?.votes ? `${ranked[0].name} (${ranked[0].votes})` : "No votes yet";
+  };
+  if ($("leadingMode")) $("leadingMode").textContent = leader(state.modeVotes, availableModes);
+  if ($("leadingMap")) $("leadingMap").textContent = leader(state.mapVotes, availableMaps);
 
   $("readyBtn").disabled = state.state !== "voting";
   $("readyBtn").textContent = state.players.find(p=>p.id===playerId)?.ready ? "NOT READY" : "READY";
@@ -169,6 +177,7 @@ let cameraYaw = 0;
 let cameraPitch = 0.28;
 const cameraDistance = 15;
 let moveFacing = 0;
+let hasMovedFacing = false;
 let cameraDragging = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -628,9 +637,7 @@ function updatePlayers() {
     }
 
     // Face toward the current movement direction.
-    if (p.id === playerId) {
-      model.rotation.y = 0;
-    }
+    if (p.id === playerId && !hasMovedFacing) model.rotation.y = moveFacing;
   }
 
   for (const [id, model] of playerObjects) {
@@ -694,7 +701,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
-  if (key === " " && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
+  if ((key === " " || e.code === "Space") && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
   // Number keys are reserved for future exploration abilities.
   keys[key] = true;
   if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
@@ -742,6 +749,7 @@ function loop() {
         const movingModel = playerObjects.get(playerId);
         if (movingModel) movingModel.rotation.y = moveFacing;
         emergencyOperator.rotation.y = moveFacing;
+        hasMovedFacing = true;
       }
       if (jumpRequested && jumpHeight <= 0.02) { jumpVelocity = 9.5; jumpRequested = false; }
       if (jumpHeight > 0.02 && jumpRequested) jumpRequested = false;
