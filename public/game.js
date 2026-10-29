@@ -273,8 +273,8 @@ renderer.domElement.addEventListener("pointerdown", e => {
 });
 renderer.domElement.addEventListener("pointermove", e => {
   if (!cameraDragging) return;
-  cameraYaw -= (e.clientX - lastPointerX) * 0.008;
-  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch + (e.clientY - lastPointerY) * 0.004));
+  cameraYaw += (e.clientX - lastPointerX) * 0.008;
+  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch - (e.clientY - lastPointerY) * 0.004));
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
 renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
