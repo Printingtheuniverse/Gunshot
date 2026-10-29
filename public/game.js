@@ -188,7 +188,7 @@ let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.18;
-const cameraDistance = 15;
+let cameraDistance = 15;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -298,7 +298,12 @@ renderer.domElement.addEventListener("pointermove", e => {
 });
 renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
 renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; });
-renderer.domElement.addEventListener("wheel", e => { if (currentState === "playing") e.preventDefault(); }, {passive:false});
+renderer.domElement.addEventListener("wheel", e => {
+  if (currentState !== "playing") return;
+  e.preventDefault();
+  // Smoothly adjust the third-person camera distance with the mouse wheel.
+  cameraDistance = Math.max(8, Math.min(28, cameraDistance + Math.sign(e.deltaY) * 1.5));
+}, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 
