@@ -295,7 +295,7 @@ redLight.position.set(15, 5, 8);
 scene.add(redLight);
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(80, 50),
+  new THREE.PlaneGeometry(120, 80),
   new THREE.MeshStandardMaterial({
     color: 0x53616b,
     metalness: 0.22,
@@ -306,7 +306,7 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(80, 32, 0x607f91, 0x344956);
+const grid = new THREE.GridHelper(120, 48, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
@@ -331,12 +331,12 @@ function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
 }
 
 // Arena walls and glowing trim
-addBox(0, 2, -25, 80, 4, 1, 0x344653);
-addBox(0, 2, 25, 80, 4, 1, 0x17263a);
-addBox(-40, 2, 0, 1, 4, 50, 0x17263a);
-addBox(40, 2, 0, 1, 4, 50, 0x17263a);
-addBox(0, 3.8, -24.4, 78, 0.12, 0.12, 0x5a9cb5, 0x163847);
-addBox(0, 3.8, 24.4, 78, 0.12, 0.12, 0xc77969, 0x3d201d);
+addBox(0, 2, -40, 120, 4, 1, 0x344653);
+addBox(0, 2, 40, 120, 4, 1, 0x17263a);
+addBox(-60, 2, 0, 1, 4, 80, 0x17263a);
+addBox(60, 2, 0, 1, 4, 80, 0x17263a);
+addBox(0, 3.8, -39.4, 118, 0.12, 0.12, 0x5a9cb5, 0x163847);
+addBox(0, 3.8, 39.4, 118, 0.12, 0.12, 0xc77969, 0x3d201d);
 
 // Cover crates
 for (const [x, z] of [
@@ -746,7 +746,17 @@ function loop() {
         const f = forward / magnitude, side = strafe / magnitude, angle = cameraYaw;
         const dx = Math.sin(angle) * f + Math.cos(angle) * side;
         const dz = -Math.cos(angle) * f + Math.sin(angle) * side;
-        me.x += dx * moveSpeed; me.y += dz * moveSpeed;
+        const proposedX = me.x + dx * moveSpeed;
+        const proposedY = me.y + dz * moveSpeed;
+        const nextX = (proposedX - 400) * 0.12, nextZ = (proposedY - 250) * 0.12;
+        const currentX = (me.x - 400) * 0.12, currentZ = (me.y - 250) * 0.12;
+        const crates = [[-18,-10],[-8,8],[8,-8],[18,10],[-24,5],[24,-5],[0,-16],[0,16]];
+        const blocked = (wx,wz) => crates.some(([cx,cz]) => Math.abs(wx-cx)<2.47 && Math.abs(wz-cz)<2.47);
+        if (Math.abs(nextX)<58.5 && Math.abs(nextZ)<38.5 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
+        else {
+          if (Math.abs(nextX)<58.5 && !blocked(nextX,currentZ)) me.x=proposedX;
+          if (Math.abs(nextZ)<38.5 && !blocked(currentX,nextZ)) me.y=proposedY;
+        }
         moveFacing = Math.atan2(dx, dz);
         const movingModel = playerObjects.get(playerId);
         if (movingModel) movingModel.rotation.y = moveFacing;
@@ -785,18 +795,17 @@ function loop() {
     if (cameraTarget) {
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
-      // First-person camera: place the view at the explorer's eye level.
-      const eyeY = target.y + 1.62 + jumpHeight;
-      const desiredCamera = new THREE.Vector3(target.x, eyeY, target.z);
-      camera.position.lerp(desiredCamera, 0.28);
-      const lookDistance = 18;
-      camera.lookAt(
-        target.x + Math.sin(cameraYaw) * lookDistance,
-        eyeY + Math.sin(cameraPitch) * lookDistance,
-        target.z - Math.cos(cameraYaw) * lookDistance
+      // Stable third-person chase camera; keep the explorer visible.
+      const horizontal = Math.cos(cameraPitch) * cameraDistance;
+      const desiredCamera = new THREE.Vector3(
+        target.x + Math.sin(cameraYaw) * horizontal,
+        target.y + 2.2 + Math.sin(cameraPitch) * cameraDistance,
+        target.z + Math.cos(cameraYaw) * horizontal
       );
+      camera.position.lerp(desiredCamera, 0.22);
+      camera.lookAt(target.x, target.y + 1.1 + jumpHeight * 0.2, target.z);
       const localModel = playerObjects.get(playerId);
-      if (localModel) localModel.visible = false;
+      if (localModel) localModel.visible = true;
       emergencyOperator.visible = false;
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
