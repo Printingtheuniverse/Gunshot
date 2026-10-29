@@ -183,6 +183,7 @@ let lastPointerX = 0;
 let lastPointerY = 0;
 let jumpVelocity = 0;
 let abilityCooldown = 0;
+let abilityRequested = false;
 let lastFrameTime = performance.now();
 
 const scene = new THREE.Scene();
@@ -704,7 +705,7 @@ document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
   if ((key === " " || e.code === "Space") && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
-  // Number keys are reserved for future exploration abilities.
+  if (key === "e" && !e.repeat && currentState === "playing") abilityRequested = true;
   keys[key] = true;
   if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
 });
@@ -766,8 +767,9 @@ function loop() {
       if (jumpRequested && jumpHeight <= 0.02) { jumpVelocity = 9.5; jumpRequested = false; }
       if (jumpHeight > 0.02 && jumpRequested) jumpRequested = false;
       jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
-      if (abilityCooldown > 0) abilityCooldown -= dt;
-      if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
+      if (abilityCooldown > 0) abilityCooldown = Math.max(0, abilityCooldown - dt);
+      const abilityHud = $("abilityStatus"); if (abilityHud) abilityHud.textContent = "ABILITY // " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " // " + abilityCooldown.toFixed(1) + "s" : " // READY");
+      if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
       const worldX = (me.x - 400) * 0.12;
@@ -847,7 +849,7 @@ socket.on("matchStarted", data => {
       mode === "Checkpoint Rally" ? "CHECKPOINT RALLY // RUN THE COURSE" :
       mode === "Free Explore" ? "FREE EXPLORE // FIND YOUR OWN PATH" : "CRYSTAL HUNT // 0 / 8";
   }
-  const abilityLabel = $("abilityStatus"); if (abilityLabel) abilityLabel.textContent = "ABILITY // " + selectedAbility.toUpperCase();
+  const abilityLabel = $("abilityStatus"); if (abilityLabel) abilityLabel.textContent = "ABILITY // " + selectedAbility.toUpperCase() + " // READY";
 
   // Give the local player a visible starting model immediately. The server's
   // authoritative players event replaces this temporary entry as soon as it
