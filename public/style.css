@@ -244,3 +244,36 @@ button:hover{box-shadow:0 0 22px #72eaff1c}
 #game .arena-frame{height:min(84vh,1000px);min-height:560px}#arena{display:block;width:100%;height:100%;touch-action:none}@media(max-width:650px){#game .arena-frame{height:76vh;min-height:480px}}
 
 .brand-hero-title{font-size:clamp(38px,5vw,72px)!important;line-height:1.02;letter-spacing:-1.8px;white-space:nowrap}.brand-hero-tagline{font-size:clamp(17px,2vw,24px)!important;font-weight:900;letter-spacing:1.4px;color:#eafaff!important;margin:12px 0 8px!important}.brand-hero-sub{font-size:13px!important;letter-spacing:1.6px;text-transform:uppercase;color:#8feaff!important;font-weight:800}@media(max-width:540px){.brand-hero-title{font-size:clamp(30px,9vw,46px)!important;letter-spacing:-.8px}}
+
+
+/* RELOAD-SHOT brand identity v2 */
+.brand{gap:12px;letter-spacing:1.7px}
+.brand-mark{width:48px;height:48px;border-radius:13px;font-size:17px;font-weight:1000;letter-spacing:-1px;background:linear-gradient(145deg,#a4f5ff 0%,#48d7f6 42%,#2587ff 100%);box-shadow:0 0 0 1px #b9f7ff88,0 0 30px #39cfff50}
+.brand-wordmark{display:block;font-size:18px;line-height:1.05;font-weight:1000;letter-spacing:1.8px}
+.brand-light{color:#76edff;text-shadow:0 0 18px #63e6ff55}
+.brand small{font-size:8px;letter-spacing:2.1px;margin-top:6px;color:#80a8bc}
+.cinematic-banner{min-height:390px;border-color:#4389a4;background:linear-gradient(105deg,#06101c 0%,#103247 48%,#071522 100%);box-shadow:0 24px 80px #0007,0 0 0 1px #48d8ff12 inset}
+.cinematic-banner:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(90deg,#06101c 0%,#06101cdd 38%,transparent 74%),radial-gradient(ellipse at 65% 40%,#52dfff22,transparent 48%)}
+.banner-content{max-width:680px;padding-top:42px;padding-bottom:32px}
+.banner-stamp{display:inline-flex!important;align-items:center;gap:8px;margin:0 0 13px!important;padding:7px 10px;border:1px solid #4a8198;border-radius:5px;background:#071a28cc;color:#91eaff!important;font-size:8px!important;font-weight:900;letter-spacing:2px}
+.banner-stamp:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#6af5bb;box-shadow:0 0 10px #6af5bb}
+.banner-content h2.brand-hero-title{display:flex;flex-wrap:wrap;gap:0;margin:8px 0 15px;font-size:clamp(48px,6.5vw,78px);line-height:.92;letter-spacing:-3.4px;font-weight:1000;text-shadow:0 5px 35px #0008}
+.brand-title-main{color:#f4fbff}
+.brand-title-accent{color:#68eaff;text-shadow:0 0 30px #53dfff55}
+.banner-content .brand-hero-tagline{max-width:none!important;margin:0 0 10px!important;color:#f1fbff!important;font-size:clamp(15px,1.8vw,21px)!important;font-weight:1000;letter-spacing:2.3px;line-height:1.3!important}
+.banner-content .brand-hero-sub{max-width:430px!important;color:#9ebdce!important;font-size:11px!important;font-weight:800;letter-spacing:2.1px;line-height:1.8!important}
+.banner-actions{margin-top:23px}
+.banner-character{right:3%;width:37%}
+.banner-character-halo{width:260px;height:260px;border-color:#72e8ff55;box-shadow:0 0 0 25px #72e8ff0b,0 0 0 55px #72e8ff08,0 0 90px #4edfff30}
+.banner-figure{transform:scale(1.06);filter:drop-shadow(0 0 30px #4ac9e966)}
+.banner-coordinate{padding:7px 9px;border:1px solid #294f63;border-radius:5px;background:#061521b8}
+@media(max-width:720px){
+ .brand-wordmark{font-size:15px}.brand-mark{width:42px;height:42px}
+ .cinematic-banner{min-height:430px}
+ .banner-content{padding:28px 18px 24px}
+ .banner-content h2.brand-hero-title{font-size:clamp(39px,11vw,56px);letter-spacing:-2px;max-width:100%}
+ .banner-content .brand-hero-tagline{font-size:14px!important;letter-spacing:1.3px}
+ .banner-content .brand-hero-sub{max-width:300px!important;font-size:9px!important;letter-spacing:1.3px}
+ .banner-character{right:-9%;top:130px;width:48%;min-width:150px;opacity:.34}
+ .banner-coordinate{top:auto;bottom:9px;right:9px;font-size:6px}
+}
