@@ -783,10 +783,19 @@ function loop() {
     if (cameraTarget) {
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
-      const horizontal = Math.cos(cameraPitch) * cameraDistance;
-      const desiredCamera = new THREE.Vector3(target.x - Math.sin(cameraYaw) * horizontal, target.y + 1.8 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
-      camera.position.lerp(desiredCamera, 0.12);
-      camera.lookAt(target.x, 1.15 + jumpHeight * 0.2, target.z);
+      // First-person camera: place the view at the explorer's eye level.
+      const eyeY = target.y + 1.62 + jumpHeight;
+      const desiredCamera = new THREE.Vector3(target.x, eyeY, target.z);
+      camera.position.lerp(desiredCamera, 0.28);
+      const lookDistance = 18;
+      camera.lookAt(
+        target.x + Math.sin(cameraYaw) * lookDistance,
+        eyeY + Math.sin(cameraPitch) * lookDistance,
+        target.z - Math.cos(cameraYaw) * lookDistance
+      );
+      const localModel = playerObjects.get(playerId);
+      if (localModel) localModel.visible = false;
+      emergencyOperator.visible = false;
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
