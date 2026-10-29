@@ -174,8 +174,8 @@ let selectedAbility = "Dash";
 let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
-let cameraPitch = 0.28;
-const cameraDistance = 15;
+let cameraPitch = 0.18;
+const cameraDistance = 9;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -784,7 +784,7 @@ function loop() {
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
       const horizontal = Math.cos(cameraPitch) * cameraDistance;
-      const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
+      const desiredCamera = new THREE.Vector3(target.x - Math.sin(cameraYaw) * horizontal, target.y + 1.8 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
       camera.position.lerp(desiredCamera, 0.12);
       camera.lookAt(target.x, 1.15 + jumpHeight * 0.2, target.z);
     } else {
