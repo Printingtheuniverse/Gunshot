@@ -251,9 +251,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.physicallyCorrectLights = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
+renderer.toneMappingExposure = 1.12;
 renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair";
 function resizeArena() {
   const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
@@ -588,6 +589,21 @@ function makePlayer(p) {
   part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, -0.27, 1.57, -0.43);
   part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, 0.27, 1.57, -0.43);
 
+
+  // Visual polish pass: layered ceramic panels, engraved seams, and luminous explorer trim.
+  const ceramic = new THREE.MeshStandardMaterial({color:0xd8e8ee,metalness:0.68,roughness:0.22});
+  const seam = new THREE.MeshStandardMaterial({color:0x142838,metalness:0.52,roughness:0.3});
+  const accent = new THREE.MeshStandardMaterial({color:0x9af7ff,emissive:0x24cfff,emissiveIntensity:1.7,metalness:0.28,roughness:0.2});
+  // Layered chest and hip plates add readable silhouette depth at arena camera distance.
+  part(new THREE.BoxGeometry(0.42,0.12,0.11), ceramic, 0, 1.82, 0.205);
+  part(new THREE.BoxGeometry(0.27,0.09,0.09), seam, 0, 1.73, 0.27);
+  part(new THREE.BoxGeometry(0.19,0.07,0.035), accent, 0, 1.73, 0.322);
+  part(new THREE.BoxGeometry(0.24,0.12,0.13), ceramic, -0.29, 0.91, 0.09);
+  part(new THREE.BoxGeometry(0.24,0.12,0.13), ceramic, 0.29, 0.91, 0.09);
+  // Fine shoulder and backpack signal strips catch the rim light.
+  part(new THREE.BoxGeometry(0.28,0.055,0.07), accent, -0.52, 1.83, 0.16);
+  part(new THREE.BoxGeometry(0.28,0.055,0.07), accent, 0.52, 1.83, 0.16);
+  part(new THREE.BoxGeometry(0.28,0.08,0.035), accent, 0, 1.77, -0.412);
 
   // Explorer beacon: a harmless glowing navigation orb carried by each explorer.
   const beacon = new THREE.Group();
