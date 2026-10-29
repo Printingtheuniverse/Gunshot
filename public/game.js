@@ -134,11 +134,24 @@ socket.on("lobbyState", state => {
 });
 
 function renderVotes(id, votes, options, eventName) {
-  $(id).innerHTML = options.map(o => `
+  const container = $(id);
+  if (!container) return;
+  container.innerHTML = options.map((option, index) => `
     <div class="vote">
-      <span>${o} — ${votes[o] || 0} vote(s)</span>
-      <button onclick="${eventName}(${JSON.stringify(o)})">VOTE</button>
+      <span>${option} — ${Number(votes?.[option] || 0)} vote(s)</span>
+      <button type="button" data-vote-option="${index}">VOTE</button>
     </div>`).join("");
+
+  // Bind after rendering instead of interpolating quoted option names into
+  // an inline HTML attribute (which broke for names containing spaces).
+  container.querySelectorAll("button[data-vote-option]").forEach(button => {
+    button.addEventListener("click", () => {
+      const option = options[Number(button.dataset.voteOption)];
+      if (typeof window[eventName] === "function" && option !== undefined) {
+        window[eventName](option);
+      }
+    });
+  });
 }
 
 function renderScores(scores) {
