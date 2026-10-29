@@ -248,6 +248,7 @@ camera.lookAt(0, 0, 0);
 // inside another canvas; that creates an invisible/zero-sized render surface.
 const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.physicallyCorrectLights = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -285,7 +286,22 @@ scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
 const mainLight = new THREE.DirectionalLight(0xfff3df, 3.1);
 mainLight.position.set(-8, 18, 10);
 mainLight.castShadow = true;
+mainLight.shadow.mapSize.set(2048, 2048);
+mainLight.shadow.camera.left = -65;
+mainLight.shadow.camera.right = 65;
+mainLight.shadow.camera.top = 45;
+mainLight.shadow.camera.bottom = -45;
+mainLight.shadow.bias = -0.00015;
+mainLight.shadow.normalBias = 0.025;
 scene.add(mainLight);
+
+// Cool rim lighting separates explorer silhouettes from the arena background.
+const rimLight = new THREE.DirectionalLight(0x62cfff, 2.0);
+rimLight.position.set(12, 9, -14);
+scene.add(rimLight);
+const fillLight = new THREE.DirectionalLight(0x8b9cff, 0.8);
+fillLight.position.set(4, 7, 12);
+scene.add(fillLight);
 
 const blueLight = new THREE.PointLight(0x4a9ac7, 32, 48);
 blueLight.position.set(-15, 5, -8);
@@ -463,9 +479,9 @@ function makePlayer(p) {
   const group = new THREE.Group();
   const material = teamMaterials[p.team] || teamMaterials[0];
   const dark = new THREE.MeshStandardMaterial({
-    color: 0x3b4c59,
-    metalness: 0.42,
-    roughness: 0.48
+    color: 0x253847,
+    metalness: 0.58,
+    roughness: 0.32
   });
 
   function part(geometry, mat, x, y, z) {
@@ -487,10 +503,10 @@ function makePlayer(p) {
 
   // Extra silhouette details make the arena avatars feel like distinct sci-fi explorers.
   const armor = new THREE.MeshStandardMaterial({
-    color: 0x9db7c5, metalness: 0.62, roughness: 0.3
+    color: 0xb8cbd5, metalness: 0.72, roughness: 0.24
   });
   const deepArmor = new THREE.MeshStandardMaterial({
-    color: 0x172b3a, metalness: 0.5, roughness: 0.4
+    color: 0x101e2b, metalness: 0.62, roughness: 0.3
   });
   const glow = new THREE.MeshStandardMaterial({
     color: 0xd9fbff, emissive: 0x56dfff, emissiveIntensity: 0.85,
@@ -525,6 +541,17 @@ function makePlayer(p) {
     part(new THREE.BoxGeometry(0.72,0.14,0.3), armor, 0, 1.88, -0.02);
     part(new THREE.SphereGeometry(0.14,10,8), new THREE.MeshStandardMaterial({color:0xffb45e,emissive:0xff7a28,emissiveIntensity:1.4}), 0, 1.5, 0.31);
   }
+  // Premium suit detailing: layered collar, segmented abdomen and shoulder insets.
+  part(new THREE.TorusGeometry(0.31, 0.065, 10, 28), trim, 0, 1.91, 0).rotation.x = Math.PI / 2;
+  part(new THREE.BoxGeometry(0.36, 0.12, 0.08), deepArmor, 0, 1.28, 0.225);
+  part(new THREE.BoxGeometry(0.28, 0.08, 0.07), armor, 0, 1.16, 0.235);
+  part(new THREE.BoxGeometry(0.12, 0.22, 0.065), teamGlow, -0.43, 1.73, 0.17);
+  part(new THREE.BoxGeometry(0.12, 0.22, 0.065), teamGlow, 0.43, 1.73, 0.17);
+  // Helmet side housings and a glossy, multi-layer visor.
+  part(new THREE.BoxGeometry(0.11, 0.23, 0.25), deepArmor, -0.285, 2.06, 0.015);
+  part(new THREE.BoxGeometry(0.11, 0.23, 0.25), deepArmor, 0.285, 2.06, 0.015);
+  part(new THREE.BoxGeometry(0.33, 0.035, 0.045), glow, 0, 2.155, 0.302);
+
   // Chest badge and slim illuminated torso panel
   part(new THREE.BoxGeometry(0.3, 0.38, 0.075), deepArmor, 0, 1.48, 0.19);
   part(new THREE.BoxGeometry(0.12, 0.2, 0.09), glow, 0, 1.5, 0.245);
