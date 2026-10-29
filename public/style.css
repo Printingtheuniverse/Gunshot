@@ -382,3 +382,13 @@ button:active:not(:disabled){transform:translateY(0) scale(.985)}
   .nav-button span{font-size:9px}
   .weapon-hud{gap:8px}
 }
+
+
+/* Bigger, more cinematic arena and stronger character presentation */
+#game .arena-frame{height:min(90vh,1150px);min-height:620px;border-width:2px;}
+#game .row{max-width:none;width:100%;}
+#game .app,#game.active{max-width:none;width:100%;}
+#arena{width:100%;height:100%;}
+.avatar-figure{filter:drop-shadow(0 0 24px color-mix(in srgb,var(--avatar-accent),transparent 45%)) drop-shadow(0 14px 18px #0009);}
+.avatar-body{border:1px solid #b8f8ff55;background-image:linear-gradient(135deg,#d9f8ff,#668aa7 42%,#162b42 78%,var(--avatar-accent));}
+@media(max-width:650px){#game .arena-frame{height:78vh;min-height:520px;}}
