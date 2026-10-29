@@ -261,8 +261,10 @@ function resizeArena() {
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resizeArena);
+renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
 renderer.domElement.addEventListener("pointerdown", e => {
-  if (currentState !== "playing") return;
+  if (currentState !== "playing" || e.button !== 2) return;
+  e.preventDefault();
   renderer.domElement.focus();
   cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY;
   renderer.domElement.setPointerCapture?.(e.pointerId);
@@ -620,8 +622,8 @@ function updatePlayers() {
     if (!model) model = makePlayer(p);
 
     // Server coordinates remain 800 x 500, mapped onto the 3D floor.
-    const x = (p.x - 400) * 0.075;
-    const z = (p.y - 250) * 0.075;
+    const x = (p.x - 400) * 0.12;
+    const z = (p.y - 250) * 0.12;
     model.position.set(x, 0, z);
 
     const material = teamMaterials[p.team] || teamMaterials[0];
@@ -758,8 +760,8 @@ function loop() {
       if (keys["e"] && abilityCooldown <= 0) { if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
-      const worldX = (me.x - 400) * 0.075;
-      const worldZ = (me.y - 250) * 0.075;
+      const worldX = (me.x - 400) * 0.12;
+      const worldZ = (me.y - 250) * 0.12;
       const now = performance.now();
       if (matchMode === "Zone Control" && now - lastObjectiveScoreAt > 5000) {
         const zone = controlZones.find(z => Math.hypot(worldX-z.position.x, worldZ-z.position.z) < 2.6);
@@ -799,7 +801,7 @@ function loop() {
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
-      emergencyOperator.position.set((fallback.x - 400) * 0.075, 0, (fallback.y - 250) * 0.075);
+      emergencyOperator.position.set((fallback.x - 400) * 0.12, 0, (fallback.y - 250) * 0.12);
       const target = emergencyOperator.position;
       const horizontal = Math.cos(cameraPitch) * cameraDistance;
       const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
