@@ -188,7 +188,7 @@ let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.18;
-const cameraDistance = 9;
+const cameraDistance = 19;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -225,9 +225,14 @@ function setMapTheme(mapName) {
       add(new THREE.BoxGeometry(1.8,5.5,1.8),mat(0xb9854f),x,2.75,z);
       add(new THREE.BoxGeometry(5.4,.8,1.8),mat(0xe2b76d),x,5.2,z);
     }
-    for (const [x,z] of [[-12,-18],[12,-12],[-18,4],[15,8],[0,19]]) add(new THREE.SphereGeometry(1,12,8),mat(0xd9ad69),x,-.3,z,5,.5,3);
-    for (let i=0;i<18;i++) { const x=((i*17)%65)-32, z=((i*23)%39)-19; add(new THREE.SphereGeometry(1,10,7),mat(i%2?0xb88a51:0xd2a969),x,-0.1,z,3+(i%3),0.35+(i%3)*0.1,1.8); }
-    for (const [x,z] of [[-25,-12],[24,-15],[-18,15],[27,10],[0,-20]]) add(new THREE.DodecahedronGeometry(1.5,0),mat(0x8c6545),x,0.8,z,1.2,1.1,0.9);
+    // Large sculpted dune ridges and rock clusters frame a broad central route.
+    for (const [x,z,sx,sz] of [[-24,-17,8,4],[24,-15,9,4],[-27,13,7,5],[27,15,8,4],[-12,20,6,3],[14,-21,7,3]]) {
+      add(new THREE.SphereGeometry(1,18,12),mat(0xd9ad69),x,-0.35,z,sx,0.7,sz);
+    }
+    for (const [x,z,s] of [[-31,-7,2.8],[-20,8,2.2],[29,4,2.6],[19,-8,2.4],[-8,-22,2.1],[8,22,2.5]]) {
+      add(new THREE.DodecahedronGeometry(1.5,1),mat(0x8c6545),x,s*0.48,z,s*1.1,s*0.85,s);
+      add(new THREE.DodecahedronGeometry(0.9,0),mat(0xb88a51),x+s*0.75,s*0.28,z-s*0.35,s*0.75,s*0.6,s*0.8);
+    }
     add(new THREE.SphereGeometry(5,24,16),new THREE.MeshBasicMaterial({color:0xffc477}),27,20,-38);
   } else if (mapName === "Skyline Ruins") {
     for (const [x,z,h] of [[-30,-12,9],[-20,13,5],[23,-16,11],[31,12,7],[-4,-20,6],[8,18,9]]) {
@@ -497,6 +502,9 @@ function makePlayer(p) {
     metalness: 0.58,
     roughness: 0.32
   });
+  // Declare shared suit materials before any armor parts use them.
+  const trim = new THREE.MeshStandardMaterial({color:0xcee7ee,metalness:0.78,roughness:0.24});
+  const teamGlow = new THREE.MeshStandardMaterial({color:0x8af7ff,emissive:0x35dfff,emissiveIntensity:1.25,metalness:0.25,roughness:0.22});
 
   function part(geometry, mat, x, y, z) {
     const mesh = new THREE.Mesh(geometry, mat);
@@ -584,8 +592,6 @@ function makePlayer(p) {
   part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, 0.2, 0.08, 0.08);
   // Layered tactical silhouette pass: visor, segmented chest plates, utility gear and shin armor.
   const visor = new THREE.MeshStandardMaterial({color:0x0b2638, metalness:0.45, roughness:0.18, emissive:0x06283c, emissiveIntensity:0.8});
-  const trim = new THREE.MeshStandardMaterial({color:0xcee7ee, metalness:0.78, roughness:0.24});
-  const teamGlow = new THREE.MeshStandardMaterial({color:0x8af7ff, emissive:0x35dfff, emissiveIntensity:1.25, metalness:0.25, roughness:0.22});
   part(new THREE.BoxGeometry(0.39,0.13,0.075), visor, 0, 2.08, 0.255);
   part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, -0.115, 2.08, 0.3);
   part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, 0.115, 2.08, 0.3);
