@@ -867,9 +867,9 @@ function loop() {
       // Stable third-person chase camera; keep the explorer visible.
       const horizontal = Math.cos(cameraPitch) * cameraDistance;
       const desiredCamera = new THREE.Vector3(
-        target.x + Math.sin(target.rotation.y + Math.PI + cameraYaw) * horizontal,
+        target.x + Math.sin(cameraTarget.rotation.y + Math.PI + cameraYaw) * horizontal,
         target.y + 2.2 + Math.sin(cameraPitch) * cameraDistance,
-        target.z + Math.cos(target.rotation.y + Math.PI + cameraYaw) * horizontal
+        target.z + Math.cos(cameraTarget.rotation.y + Math.PI + cameraYaw) * horizontal
       );
       camera.position.lerp(desiredCamera, 0.22);
       camera.lookAt(target.x, target.y + 1.1 + jumpHeight * 0.2, target.z);
