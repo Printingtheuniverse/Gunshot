@@ -187,8 +187,8 @@ let selectedAbility = "Dash";
 let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
-let cameraPitch = 0.34;
-let cameraDistance = 12;
+let cameraPitch = 0.32;
+let cameraDistance = 19;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -292,8 +292,8 @@ renderer.domElement.addEventListener("pointerdown", e => {
 });
 renderer.domElement.addEventListener("pointermove", e => {
   if (!cameraDragging) return;
-  cameraYaw -= (e.clientX - lastPointerX) * 0.008;
-  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch - (e.clientY - lastPointerY) * 0.004));
+  cameraYaw += (e.clientX - lastPointerX) * 0.008;
+  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch + (e.clientY - lastPointerY) * 0.004));
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
 renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
@@ -302,7 +302,7 @@ renderer.domElement.addEventListener("wheel", e => {
   if (currentState !== "playing") return;
   e.preventDefault();
   // Smoothly adjust the third-person camera distance with the mouse wheel.
-  cameraDistance = Math.max(8, Math.min(28, cameraDistance + Math.sign(e.deltaY) * 1.5));
+  cameraDistance = Math.max(10, Math.min(42, cameraDistance + Math.sign(e.deltaY) * 2));
 }, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
@@ -336,7 +336,7 @@ redLight.position.set(15, 5, 8);
 scene.add(redLight);
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(120, 80),
+  new THREE.PlaneGeometry(180, 120),
   new THREE.MeshStandardMaterial({
     color: 0x53616b,
     metalness: 0.22,
@@ -347,7 +347,7 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(120, 48, 0x607f91, 0x344956);
+const grid = new THREE.GridHelper(180, 72, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
@@ -372,12 +372,12 @@ function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
 }
 
 // Arena walls and glowing trim
-addBox(0, 2, -40, 120, 4, 1, 0x344653);
-addBox(0, 2, 40, 120, 4, 1, 0x17263a);
-addBox(-60, 2, 0, 1, 4, 80, 0x17263a);
-addBox(60, 2, 0, 1, 4, 80, 0x17263a);
-addBox(0, 3.8, -39.4, 118, 0.12, 0.12, 0x5a9cb5, 0x163847);
-addBox(0, 3.8, 39.4, 118, 0.12, 0.12, 0xc77969, 0x3d201d);
+addBox(0, 2, -60, 180, 4, 1, 0x344653);
+addBox(0, 2, 60, 180, 4, 1, 0x17263a);
+addBox(-90, 2, 0, 1, 4, 120, 0x17263a);
+addBox(90, 2, 0, 1, 4, 120, 0x17263a);
+addBox(0, 3.8, -59.4, 178, 0.12, 0.12, 0x5a9cb5, 0x163847);
+addBox(0, 3.8, 59.4, 178, 0.12, 0.12, 0xc77969, 0x3d201d);
 
 // Cover crates
 for (const [x, z] of [
@@ -731,8 +731,8 @@ function updatePlayers() {
     if (!model) model = makePlayer(p);
 
     // Server coordinates remain 800 x 500, mapped onto the 3D floor.
-    const x = (p.x - 400) * 0.12;
-    const z = (p.y - 250) * 0.12;
+    const x = (p.x - 400) * 0.18;
+    const z = (p.y - 250) * 0.18;
     model.position.set(x, 0, z);
 
     const material = teamMaterials[p.team] || teamMaterials[0];
@@ -857,14 +857,14 @@ function loop() {
         const dz = -Math.cos(angle) * f - Math.sin(angle) * side;
         const proposedX = me.x + dx * moveSpeed;
         const proposedY = me.y + dz * moveSpeed;
-        const nextX = (proposedX - 400) * 0.12, nextZ = (proposedY - 250) * 0.12;
-        const currentX = (me.x - 400) * 0.12, currentZ = (me.y - 250) * 0.12;
+        const nextX = (proposedX - 400) * 0.18, nextZ = (proposedY - 250) * 0.18;
+        const currentX = (me.x - 400) * 0.18, currentZ = (me.y - 250) * 0.18;
         const crates = [[-18,-10],[-8,8],[8,-8],[18,10],[-24,5],[24,-5],[0,-16],[0,16]];
         const blocked = (wx,wz) => crates.some(([cx,cz]) => Math.abs(wx-cx)<2.47 && Math.abs(wz-cz)<2.47);
-        if (Math.abs(nextX)<58.5 && Math.abs(nextZ)<38.5 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
+        if (Math.abs(nextX)<70 && Math.abs(nextZ)<48 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
         else {
-          if (Math.abs(nextX)<58.5 && !blocked(nextX,currentZ)) me.x=proposedX;
-          if (Math.abs(nextZ)<38.5 && !blocked(currentX,nextZ)) me.y=proposedY;
+          if (Math.abs(nextX)<70 && !blocked(nextX,currentZ)) me.x=proposedX;
+          if (Math.abs(nextZ)<48 && !blocked(currentX,nextZ)) me.y=proposedY;
         }
         moveFacing = Math.atan2(dx, dz);
         const movingModel = playerObjects.get(playerId);
@@ -880,8 +880,8 @@ function loop() {
       if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
-      const worldX = (me.x - 400) * 0.12;
-      const worldZ = (me.y - 250) * 0.12;
+      const worldX = (me.x - 400) * 0.18;
+      const worldZ = (me.y - 250) * 0.18;
       const now = performance.now();
       if (matchMode === "Zone Control" && now - lastObjectiveScoreAt > 5000) {
         const zone = controlZones.find(z => Math.hypot(worldX-z.position.x, worldZ-z.position.z) < 2.6);
@@ -920,7 +920,7 @@ function loop() {
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
-      emergencyOperator.position.set((fallback.x - 400) * 0.12, 0, (fallback.y - 250) * 0.12);
+      emergencyOperator.position.set((fallback.x - 400) * 0.18, 0, (fallback.y - 250) * 0.18);
       const target = emergencyOperator.position;
       const horizontal = Math.cos(cameraPitch) * cameraDistance;
       const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
@@ -930,7 +930,7 @@ function loop() {
   }
 
   lastFrameTime = performance.now();
-  collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.12; });
+  collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.18; });
   renderer.render(scene, camera);
 }
 
