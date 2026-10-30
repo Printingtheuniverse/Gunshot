@@ -29,7 +29,8 @@ function makeRoom(id, hostName) {
     mode: null,
     map: null,
     countdown: 0,
-    scores: [0, 0, 0, 0]
+    scores: [0, 0, 0, 0],
+    lastShotAt: new Map()
   };
 }
 
@@ -223,6 +224,31 @@ io.on("connection", socket => {
     player.x = Math.max(15, Math.min(785, Number(data.x) || player.x));
     player.y = Math.max(15, Math.min(485, Number(data.y) || player.y));
 
+    io.to(room.id).emit("players", room.players.map(p => ({
+      id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp
+    })));
+  });
+
+  socket.on("shoot", () => {
+    const room = findRoomForSocket(socket);
+    const shooter = getPlayer(room, socket.id);
+    if (!room || !shooter || room.state !== "playing") return;
+    const now = Date.now();
+    if (now - (room.lastShotAt.get(socket.id) || 0) < 350) return;
+    room.lastShotAt.set(socket.id, now);
+    const candidates = room.players
+      .filter(p => p.id !== shooter.id && p.team !== shooter.team && p.hp > 0)
+      .map(p => ({ player: p, distance: Math.hypot(p.x - shooter.x, p.y - shooter.y) }))
+      .filter(hit => hit.distance <= 180)
+      .sort((a,b) => a.distance - b.distance);
+    const target = candidates[0]?.player || null;
+    if (target) target.hp = Math.max(0, target.hp - 25);
+    io.to(room.id).emit("shotFired", {
+      shooterId: shooter.id, targetId: target?.id || null,
+      from: { x: shooter.x, y: shooter.y },
+      to: target ? { x: target.x, y: target.y } : null,
+      hit: !!target
+    });
     io.to(room.id).emit("players", room.players.map(p => ({
       id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp
     })));
