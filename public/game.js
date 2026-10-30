@@ -629,6 +629,36 @@ function makePlayer(p) {
   part(new THREE.BoxGeometry(0.28,0.055,0.07), accent, 0.52, 1.83, 0.16);
   part(new THREE.BoxGeometry(0.28,0.08,0.035), accent, 0, 1.77, -0.412);
 
+  // Signature operator redesign: a larger sealed helmet, panoramic visor,
+  // reinforced chest core, shoulder shells, and readable backpack silhouette.
+  const helmetShell = new THREE.MeshStandardMaterial({color:0xe4f1f5,metalness:0.78,roughness:0.2});
+  const visorGlass = new THREE.MeshStandardMaterial({color:0x061b2a,metalness:0.62,roughness:0.12,emissive:0x073b55,emissiveIntensity:1.15});
+  const signal = new THREE.MeshStandardMaterial({color:0x9af7ff,emissive:0x27dfff,emissiveIntensity:2.1,metalness:0.3,roughness:0.18});
+  // Helmet crown and broad luminous face shield.
+  part(new THREE.SphereGeometry(0.31,20,14), helmetShell, 0, 2.13, -0.015).scale.set(1.08,0.94,0.98);
+  part(new THREE.BoxGeometry(0.49,0.2,0.105), visorGlass, 0, 2.08, 0.275);
+  part(new THREE.BoxGeometry(0.39,0.025,0.035), signal, 0, 2.205, 0.292);
+  part(new THREE.BoxGeometry(0.09,0.12,0.045), signal, -0.31, 2.08, 0.08);
+  part(new THREE.BoxGeometry(0.09,0.12,0.045), signal, 0.31, 2.08, 0.08);
+  // Chest reactor and layered chest frame.
+  part(new THREE.BoxGeometry(0.48,0.48,0.09), deepArmor, 0, 1.49, 0.245);
+  part(new THREE.BoxGeometry(0.3,0.32,0.075), helmetShell, 0, 1.51, 0.305);
+  part(new THREE.OctahedronGeometry(0.13,1), signal, 0, 1.53, 0.37);
+  part(new THREE.BoxGeometry(0.18,0.055,0.035), material, -0.34, 1.57, 0.27);
+  part(new THREE.BoxGeometry(0.18,0.055,0.035), material, 0.34, 1.57, 0.27);
+  // Shoulder shells and compact thruster/backpack fins create a distinct silhouette.
+  part(new THREE.SphereGeometry(0.32,16,12), helmetShell, -0.56, 1.76, -0.015).scale.set(1.08,0.72,0.9);
+  part(new THREE.SphereGeometry(0.32,16,12), helmetShell, 0.56, 1.76, -0.015).scale.set(1.08,0.72,0.9);
+  part(new THREE.BoxGeometry(0.22,0.62,0.28), deepArmor, -0.34, 1.57, -0.47);
+  part(new THREE.BoxGeometry(0.22,0.62,0.28), deepArmor, 0.34, 1.57, -0.47);
+  part(new THREE.BoxGeometry(0.12,0.42,0.08), signal, -0.34, 1.57, -0.625);
+  part(new THREE.BoxGeometry(0.12,0.42,0.08), signal, 0.34, 1.57, -0.625);
+  // Reinforced forearm guards and boot caps add detail at normal gameplay distance.
+  part(new THREE.BoxGeometry(0.22,0.42,0.24), helmetShell, -0.54, 1.24, 0.12);
+  part(new THREE.BoxGeometry(0.22,0.42,0.24), helmetShell, 0.54, 1.24, 0.12);
+  part(new THREE.BoxGeometry(0.29,0.16,0.28), material, -0.2, 0.18, 0.22);
+  part(new THREE.BoxGeometry(0.29,0.16,0.28), material, 0.2, 0.18, 0.22);
+
   // Explorer beacon: a harmless glowing navigation orb carried by each explorer.
   const beacon = new THREE.Group();
   const beaconCore = new THREE.Mesh(
