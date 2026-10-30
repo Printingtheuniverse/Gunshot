@@ -696,7 +696,7 @@ function updatePlayers() {
 
     const material = teamMaterials[p.team] || teamMaterials[0];
     model.children.forEach(child => {
-      if (child.geometry.type === "TorusGeometry") child.material = material;
+      if (child.geometry?.type === "TorusGeometry") child.material = material;
     });
 
     if (!nameSprites.has(p.id)) {
