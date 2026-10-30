@@ -187,8 +187,8 @@ let selectedAbility = "Dash";
 let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
-let cameraPitch = 0.18;
-let cameraDistance = 15;
+let cameraPitch = 0.34;
+let cameraDistance = 12;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -663,21 +663,32 @@ function makePlayer(p) {
 
 function makeNameSprite(text) {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 64;
+  canvas.width = 512;
+  canvas.height = 112;
   const c = canvas.getContext("2d");
-  c.fillStyle = "rgba(5,10,25,0.8)";
-  c.fillRect(0, 0, 256, 64);
-  c.font = "bold 28px sans-serif";
+  const label = String(text || "Player").slice(0, 18).toUpperCase();
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = "rgba(4, 13, 27, 0.88)";
+  c.beginPath();
+  c.roundRect(8, 8, 496, 96, 22);
+  c.fill();
+  c.strokeStyle = "rgba(99, 230, 255, 0.9)";
+  c.lineWidth = 5;
+  c.stroke();
+  c.font = "bold 42px sans-serif";
   c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.shadowColor = "rgba(99, 230, 255, 0.8)";
+  c.shadowBlur = 10;
   c.fillStyle = "#ffffff";
-  c.fillText(String(text).slice(0, 18), 128, 42);
+  c.fillText(label, 256, 58, 450);
 
   const texture = new THREE.CanvasTexture(canvas);
   const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: texture, transparent: true })
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
   );
-  sprite.scale.set(3.2, 0.8, 1);
+  sprite.scale.set(4.1, 0.9, 1);
+  sprite.renderOrder = 10;
   return sprite;
 }
 
@@ -701,7 +712,7 @@ function updatePlayers() {
 
     if (!nameSprites.has(p.id)) {
       const label = makeNameSprite(p.name || "Player");
-      label.position.set(0, 3, 0);
+      label.position.set(0, 3.25, 0);
       model.add(label);
       nameSprites.set(p.id, label);
     }
