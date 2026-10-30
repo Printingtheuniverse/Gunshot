@@ -194,6 +194,7 @@ let hasMovedFacing = false;
 let cameraDragging = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
+let lastPointerDownAt = 0;
 let jumpVelocity = 0;
 let abilityCooldown = 0;
 let abilityRequested = false;
@@ -284,10 +285,10 @@ function resizeArena() {
 window.addEventListener("resize", resizeArena);
 renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
 renderer.domElement.addEventListener("pointerdown", e => {
-  if (currentState !== "playing" || e.button !== 2) return;
+  if (currentState !== "playing" || (e.button !== 0 && e.button !== 2)) return;
   e.preventDefault();
   renderer.domElement.focus();
-  cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY;
+  cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY; lastPointerDownAt = performance.now();
   renderer.domElement.setPointerCapture?.(e.pointerId);
 });
 renderer.domElement.addEventListener("pointermove", e => {
@@ -765,8 +766,7 @@ const pointer = new THREE.Vector2();
 const cyanGlowForShot = new THREE.MeshBasicMaterial({ color: 0x8df5ff });
 const amberGlowForShot = new THREE.MeshBasicMaterial({ color: 0xffbb73 });
 
-// Explore the arena by collecting luminous data crystals. Clicking an explorer
-// no longer tags opponents; only crystal discoveries contribute to team score.
+// Click to fire; crystal collection remains available when clicking a crystal.
 function addDataCrystal(x, z, color = 0x8df5ff) {
   const crystal = new THREE.Group();
   const gem = new THREE.Mesh(
@@ -791,6 +791,8 @@ function addDataCrystal(x, z, color = 0x8df5ff) {
 
 renderer.domElement.addEventListener("click", event => {
   if (currentState !== "playing") return;
+  if (performance.now() - lastPointerDownAt > 220) return;
+  socket.emit("shoot");
   const rect = renderer.domElement.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -812,6 +814,7 @@ renderer.domElement.addEventListener("click", event => {
 document.addEventListener("keydown", e => {
   if (!e.key) return;
   const key = e.key.toLowerCase();
+  if (key === "f" && !e.repeat && currentState === "playing") socket.emit("shoot");
   if ((key === " " || e.code === "Space") && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
   if (key === "e" && !e.repeat && currentState === "playing") abilityRequested = true;
   keys[key] = true;
