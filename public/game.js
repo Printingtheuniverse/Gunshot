@@ -504,12 +504,12 @@ function makePlayer(p) {
   const group = new THREE.Group();
   const material = teamMaterials[p.team] || teamMaterials[0];
   const dark = new THREE.MeshStandardMaterial({
-    color: 0x253847,
-    metalness: 0.58,
-    roughness: 0.32
+    color: 0x111d2b,
+    metalness: 0.78,
+    roughness: 0.24
   });
   // Declare shared suit materials before any armor parts use them.
-  const trim = new THREE.MeshStandardMaterial({color:0xcee7ee,metalness:0.78,roughness:0.24});
+  const trim = new THREE.MeshStandardMaterial({color:0xb9cbd8,metalness:0.86,roughness:0.18});
   const teamGlow = new THREE.MeshStandardMaterial({color:0x8af7ff,emissive:0x35dfff,emissiveIntensity:1.25,metalness:0.25,roughness:0.22});
 
   function part(geometry, mat, x, y, z) {
@@ -531,7 +531,7 @@ function makePlayer(p) {
 
   // Extra silhouette details make the arena avatars feel like distinct sci-fi explorers.
   const armor = new THREE.MeshStandardMaterial({
-    color: 0xb8cbd5, metalness: 0.72, roughness: 0.24
+    color: 0x9eafbd, metalness: 0.82, roughness: 0.2
   });
   const deepArmor = new THREE.MeshStandardMaterial({
     color: 0x101e2b, metalness: 0.62, roughness: 0.3
@@ -659,6 +659,47 @@ function makePlayer(p) {
   part(new THREE.BoxGeometry(0.22,0.42,0.24), helmetShell, 0.54, 1.24, 0.12);
   part(new THREE.BoxGeometry(0.29,0.16,0.28), material, -0.2, 0.18, 0.22);
   part(new THREE.BoxGeometry(0.29,0.16,0.28), material, 0.2, 0.18, 0.22);
+
+  // NEUROVOID-inspired visual language: graphite undersuit, sculpted ceramic
+  // armor, sharp panel breaks, and restrained cyan/violet signal lighting.
+  const voidGraphite = new THREE.MeshStandardMaterial({color:0x071321,metalness:0.86,roughness:0.22});
+  const pearlCeramic = new THREE.MeshStandardMaterial({color:0xdce8ef,metalness:0.76,roughness:0.19});
+  const smokedGlass = new THREE.MeshStandardMaterial({color:0x020d19,metalness:0.72,roughness:0.1,emissive:0x06243b,emissiveIntensity:0.9});
+  const voidSignal = new THREE.MeshStandardMaterial({color:0x9df8ff,emissive:0x25cfff,emissiveIntensity:2.1,metalness:0.35,roughness:0.16});
+  const violetSignal = new THREE.MeshStandardMaterial({color:0xb7a4ff,emissive:0x684cff,emissiveIntensity:1.5,metalness:0.28,roughness:0.2});
+  // Helmet becomes a sealed, layered pilot shell with a wide dark faceplate.
+  part(new THREE.SphereGeometry(0.34,24,18), pearlCeramic, 0, 2.08, 0.015).scale.set(1.02,0.96,0.92);
+  part(new THREE.BoxGeometry(0.48,0.19,0.075), smokedGlass, 0, 2.095, 0.285);
+  part(new THREE.BoxGeometry(0.33,0.025,0.025), voidSignal, 0, 2.19, 0.33);
+  part(new THREE.BoxGeometry(0.075,0.12,0.08), voidGraphite, -0.29, 2.04, 0.04);
+  part(new THREE.BoxGeometry(0.075,0.12,0.08), voidGraphite, 0.29, 2.04, 0.04);
+  // Layered chest yoke, central luminous identity core, and split abdominal plates.
+  part(new THREE.BoxGeometry(0.68,0.16,0.16), voidGraphite, 0, 1.79, 0.22);
+  part(new THREE.BoxGeometry(0.25,0.31,0.09), pearlCeramic, 0, 1.51, 0.32);
+  part(new THREE.OctahedronGeometry(0.105,1), voidSignal, 0, 1.53, 0.39);
+  part(new THREE.BoxGeometry(0.17,0.055,0.035), violetSignal, -0.22, 1.31, 0.29);
+  part(new THREE.BoxGeometry(0.17,0.055,0.035), violetSignal, 0.22, 1.31, 0.29);
+  // Angular shoulder caps and forearm shells create a cleaner, more graphic outline.
+  const shoulderL = part(new THREE.OctahedronGeometry(0.29,0), pearlCeramic,-0.56,1.77,0.02);
+  shoulderL.scale.set(1.18,0.78,0.92);
+  const shoulderR = part(new THREE.OctahedronGeometry(0.29,0), pearlCeramic,0.56,1.77,0.02);
+  shoulderR.scale.set(1.18,0.78,0.92);
+  part(new THREE.BoxGeometry(0.09,0.28,0.055), voidSignal, -0.56,1.77,0.205);
+  part(new THREE.BoxGeometry(0.09,0.28,0.055), voidSignal, 0.56,1.77,0.205);
+  part(new THREE.BoxGeometry(0.25,0.34,0.16), voidGraphite,-0.55,1.22,0.11);
+  part(new THREE.BoxGeometry(0.25,0.34,0.16), voidGraphite,0.55,1.22,0.11);
+  part(new THREE.BoxGeometry(0.09,0.2,0.035), pearlCeramic,-0.55,1.22,0.205);
+  part(new THREE.BoxGeometry(0.09,0.2,0.035), pearlCeramic,0.55,1.22,0.205);
+  // Backpack spine and paired vertical status lights.
+  part(new THREE.BoxGeometry(0.42,0.62,0.16), voidGraphite,0,1.57,-0.43);
+  part(new THREE.BoxGeometry(0.08,0.4,0.045), violetSignal,-0.13,1.58,-0.525);
+  part(new THREE.BoxGeometry(0.08,0.4,0.045), voidSignal,0.13,1.58,-0.525);
+  // Distinct visor/signal tint per operator variant while preserving team identity.
+  if (variant === 1 || variant === 4) {
+    part(new THREE.BoxGeometry(0.13,0.035,0.035), violetSignal,0,2.095,0.335);
+  } else {
+    part(new THREE.BoxGeometry(0.13,0.035,0.035), voidSignal,0,2.095,0.335);
+  }
 
   // Explorer beacon: a harmless glowing navigation orb carried by each explorer.
   const beacon = new THREE.Group();
