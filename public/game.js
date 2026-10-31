@@ -192,6 +192,8 @@ let cameraDistance = 19;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
+let cameraDragMoved = false;
+let lastGestureWasDrag = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
 let lastPointerDownAt = 0;
@@ -274,7 +276,7 @@ renderer.shadowMap.autoUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
-renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair";
+renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair;touch-action:none;user-select:none";
 function resizeArena() {
   const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
   const height = Math.max(480, Math.min(window.innerHeight * 0.78, width * 0.72));
@@ -288,17 +290,20 @@ renderer.domElement.addEventListener("pointerdown", e => {
   if (currentState !== "playing" || (e.button !== 0 && e.button !== 2)) return;
   e.preventDefault();
   renderer.domElement.focus();
-  cameraDragging = true; lastPointerX = e.clientX; lastPointerY = e.clientY; lastPointerDownAt = performance.now();
+  cameraDragging = true; cameraDragMoved = false; lastPointerX = e.clientX; lastPointerY = e.clientY; lastPointerDownAt = performance.now();
   renderer.domElement.setPointerCapture?.(e.pointerId);
 });
 renderer.domElement.addEventListener("pointermove", e => {
   if (!cameraDragging) return;
-  cameraYaw += (e.clientX - lastPointerX) * 0.008;
-  cameraPitch = Math.max(0.08, Math.min(0.78, cameraPitch + (e.clientY - lastPointerY) * 0.004));
+  const dx = e.clientX - lastPointerX;
+  const dy = e.clientY - lastPointerY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) cameraDragMoved = true;
+  cameraYaw -= dx * 0.008;
+  cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + dy * 0.004));
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
-renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; });
-renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; });
+renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; lastGestureWasDrag = cameraDragMoved; });
+renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; lastGestureWasDrag = true; });
 renderer.domElement.addEventListener("wheel", e => {
   if (currentState !== "playing") return;
   e.preventDefault();
@@ -832,7 +837,7 @@ function addDataCrystal(x, z, color = 0x8df5ff) {
 
 renderer.domElement.addEventListener("click", event => {
   if (currentState !== "playing") return;
-  if (performance.now() - lastPointerDownAt > 220) return;
+  if (lastGestureWasDrag || performance.now() - lastPointerDownAt > 220) { lastGestureWasDrag = false; return; }
   socket.emit("shoot");
   const rect = renderer.domElement.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
