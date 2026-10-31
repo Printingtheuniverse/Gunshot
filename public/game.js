@@ -189,6 +189,9 @@ let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.32;
 let cameraDistance = 19;
+let targetCameraDistance = 19;
+let cameraYawVelocity = 0;
+let cameraPitchVelocity = 0;
 let moveFacing = 0;
 let hasMovedFacing = false;
 let cameraDragging = false;
@@ -298,8 +301,10 @@ renderer.domElement.addEventListener("pointermove", e => {
   const dx = e.clientX - lastPointerX;
   const dy = e.clientY - lastPointerY;
   if (Math.abs(dx) + Math.abs(dy) > 3) cameraDragMoved = true;
-  cameraYaw -= dx * 0.008;
-  cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + dy * 0.004));
+  cameraYaw -= dx * 0.007;
+  cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + dy * 0.0035));
+  cameraYawVelocity = -dx * 0.0009;
+  cameraPitchVelocity = dy * 0.00045;
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
 renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; lastGestureWasDrag = cameraDragMoved; });
@@ -308,7 +313,7 @@ renderer.domElement.addEventListener("wheel", e => {
   if (currentState !== "playing") return;
   e.preventDefault();
   // Smoothly adjust the third-person camera distance with the mouse wheel.
-  cameraDistance = Math.max(10, Math.min(42, cameraDistance + Math.sign(e.deltaY) * 2));
+  targetCameraDistance = Math.max(9, Math.min(46, targetCameraDistance + Math.sign(e.deltaY) * 2.5));
 }, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
@@ -952,6 +957,13 @@ function loop() {
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
+      if (!cameraDragging) {
+        cameraYaw += cameraYawVelocity;
+        cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + cameraPitchVelocity));
+        cameraYawVelocity *= 0.88;
+        cameraPitchVelocity *= 0.88;
+      }
+      cameraDistance += (targetCameraDistance - cameraDistance) * 0.16;
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
       // Stable third-person chase camera; keep the explorer visible.
@@ -967,6 +979,7 @@ function loop() {
       if (localModel) localModel.visible = true;
       emergencyOperator.visible = false;
     } else {
+      cameraDistance += (targetCameraDistance - cameraDistance) * 0.16;
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = true;
       emergencyOperator.position.set((fallback.x - 400) * 0.18, 0, (fallback.y - 250) * 0.18);
