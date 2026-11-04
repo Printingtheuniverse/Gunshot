@@ -392,3 +392,17 @@ button:active:not(:disabled){transform:translateY(0) scale(.985)}
 .avatar-figure{filter:drop-shadow(0 0 24px color-mix(in srgb,var(--avatar-accent),transparent 45%)) drop-shadow(0 14px 18px #0009);}
 .avatar-body{border:1px solid #b8f8ff55;background-image:linear-gradient(135deg,#d9f8ff,#668aa7 42%,#162b42 78%,var(--avatar-accent));}
 @media(max-width:650px){#game .arena-frame{height:78vh;min-height:520px;}}
+
+
+/* Visual upgrade: sharper character showcase and more dimensional lobby surfaces. */
+.cinematic-banner{
+  background:radial-gradient(ellipse at 76% 48%,rgba(73,205,255,.22),transparent 35%),linear-gradient(112deg,#06101d 0%,#102b46 48%,#090f25 100%);
+}
+.banner-character-halo{background:radial-gradient(circle,rgba(103,230,255,.32),rgba(91,119,255,.12) 42%,transparent 72%);filter:blur(2px)}
+.banner-figure,.avatar-figure{filter:drop-shadow(0 0 24px rgba(91,225,255,.35)) drop-shadow(0 18px 18px rgba(0,0,0,.62))}
+.hero-panel{background:radial-gradient(ellipse at 50% 42%,rgba(68,157,220,.28),transparent 43%),radial-gradient(ellipse at 50% 100%,rgba(30,77,115,.45),transparent 58%),linear-gradient(145deg,#10243e,#071323 78%)}
+.avatar-head,.avatar-body,.avatar-arm,.avatar-leg{border-color:rgba(206,246,255,.38);box-shadow:inset 2px 2px 0 rgba(255,255,255,.4),inset -6px -7px 0 rgba(1,10,22,.48),0 9px 20px rgba(0,0,0,.32)}
+.avatar-figure .visor{box-shadow:0 0 12px var(--avatar-accent),inset 0 0 8px rgba(255,255,255,.5)}
+.side-panel,.hero-panel,.cinematic-banner,.play-dock{backdrop-filter:blur(14px) saturate(1.16)}
+.panel,.card,.side-panel,.play-dock{box-shadow:0 18px 48px rgba(0,0,0,.34),inset 0 1px rgba(210,247,255,.08)}
+.nav-button.selected,.banner-play,.primary{box-shadow:0 0 24px rgba(83,218,255,.22),inset 0 1px rgba(255,255,255,.28)}
