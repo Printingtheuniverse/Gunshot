@@ -301,9 +301,9 @@ renderer.domElement.addEventListener("pointermove", e => {
   const dx = e.clientX - lastPointerX;
   const dy = e.clientY - lastPointerY;
   if (Math.abs(dx) + Math.abs(dy) > 3) cameraDragMoved = true;
-  cameraYaw -= dx * 0.007;
+  cameraYaw += dx * 0.007;
   cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + dy * 0.0035));
-  cameraYawVelocity = -dx * 0.0009;
+  cameraYawVelocity = dx * 0.0009;
   cameraPitchVelocity = dy * 0.00045;
   lastPointerX = e.clientX; lastPointerY = e.clientY;
 });
@@ -350,8 +350,8 @@ const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(180, 120),
   new THREE.MeshStandardMaterial({
     color: 0x53616b,
-    metalness: 0.22,
-    roughness: 0.82
+    metalness: 0.48,
+    roughness: 0.32
   })
 );
 floor.rotation.x = -Math.PI / 2;
@@ -361,6 +361,30 @@ scene.add(floor);
 const grid = new THREE.GridHelper(180, 72, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
+
+// Distant sci-fi skyline, orbital bridge, and a luminous moon add depth beyond the arena walls.
+const skylineMaterial = new THREE.MeshStandardMaterial({color:0x182d42,metalness:0.72,roughness:0.3,emissive:0x07182c,emissiveIntensity:0.7});
+for (let i=0;i<18;i++) {
+  const x = -82 + i*9.6;
+  const height = 9 + ((i*17)%13);
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(3.2,height,3.2),skylineMaterial);
+  tower.position.set(x,height/2,-72-(i%3)*5);
+  tower.castShadow = true;
+  scene.add(tower);
+  const beacon = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.9,0.18),new THREE.MeshBasicMaterial({color:i%2?0x49dfff:0xff8b75}));
+  beacon.position.set(x,height+0.35,-72-(i%3)*5);
+  scene.add(beacon);
+}
+const orbitalBridge = new THREE.Mesh(new THREE.TorusGeometry(39,0.42,10,120,Math.PI*1.18),new THREE.MeshStandardMaterial({color:0x59758b,metalness:0.86,roughness:0.22,emissive:0x12364c,emissiveIntensity:0.8}));
+orbitalBridge.position.set(0,24,-88);
+orbitalBridge.rotation.x = Math.PI/2;
+scene.add(orbitalBridge);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(12,40,28),new THREE.MeshStandardMaterial({color:0x9fb9d0,roughness:0.92,metalness:0.02,emissive:0x263c59,emissiveIntensity:0.32}));
+moon.position.set(48,39,-105);
+scene.add(moon);
+const moonHalo = new THREE.Mesh(new THREE.SphereGeometry(12.8,32,24),new THREE.MeshBasicMaterial({color:0x4d9bd0,transparent:true,opacity:0.08,side:THREE.BackSide}));
+moonHalo.position.copy(moon.position);
+scene.add(moonHalo);
 
 const baseEnvironmentObjects = [];
 function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
@@ -959,6 +983,8 @@ function loop() {
     if (cameraTarget) {
       if (!cameraDragging) {
         cameraYaw += cameraYawVelocity;
+        // Ease the orbit offset back to center so the camera naturally settles behind the explorer.
+        cameraYaw *= 0.975;
         cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + cameraPitchVelocity));
         cameraYawVelocity *= 0.88;
         cameraPitchVelocity *= 0.88;
