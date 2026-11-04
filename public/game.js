@@ -289,31 +289,25 @@ function resizeArena() {
 }
 window.addEventListener("resize", resizeArena);
 renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
-renderer.domElement.addEventListener("pointerdown", e => {
-  if (currentState !== "playing" || (e.button !== 0 && e.button !== 2)) return;
-  e.preventDefault();
-  renderer.domElement.focus();
-  cameraDragging = true; cameraDragMoved = false; lastPointerX = e.clientX; lastPointerY = e.clientY; lastPointerDownAt = performance.now();
-  renderer.domElement.setPointerCapture?.(e.pointerId);
+// Click once to capture the mouse; camera look then follows mouse movement
+// continuously. Escape releases the pointer. No click-and-hold dragging.
+renderer.domElement.addEventListener("click", () => {
+  if (currentState === "playing" && document.pointerLockElement !== renderer.domElement) {
+    renderer.domElement.requestPointerLock?.();
+  }
 });
-renderer.domElement.addEventListener("pointermove", e => {
-  if (!cameraDragging) return;
-  const dx = e.clientX - lastPointerX;
-  const dy = e.clientY - lastPointerY;
-  if (Math.abs(dx) + Math.abs(dy) > 3) cameraDragMoved = true;
-  cameraYaw += dx * 0.007;
-  cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + dy * 0.0035));
-  cameraYawVelocity = dx * 0.0009;
-  cameraPitchVelocity = dy * 0.00045;
-  lastPointerX = e.clientX; lastPointerY = e.clientY;
+document.addEventListener("pointerlockchange", () => {
+  cameraDragging = document.pointerLockElement === renderer.domElement;
 });
-renderer.domElement.addEventListener("pointerup", () => { cameraDragging = false; lastGestureWasDrag = cameraDragMoved; });
-renderer.domElement.addEventListener("pointercancel", () => { cameraDragging = false; lastGestureWasDrag = true; });
+document.addEventListener("mousemove", e => {
+  if (!cameraDragging || currentState !== "playing") return;
+  cameraYaw += e.movementX * 0.0025;
+  cameraPitch = Math.max(-1.15, Math.min(1.15, cameraPitch - e.movementY * 0.0022));
+});
 renderer.domElement.addEventListener("wheel", e => {
   if (currentState !== "playing") return;
   e.preventDefault();
-  // Smoothly adjust the third-person camera distance with the mouse wheel.
-  targetCameraDistance = Math.max(9, Math.min(46, targetCameraDistance + Math.sign(e.deltaY) * 2.5));
+  // First-person view keeps a fixed eye position; wheel input is ignored.
 }, {passive:false});
 
 scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
@@ -981,39 +975,25 @@ function loop() {
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     if (cameraTarget) {
-      if (!cameraDragging) {
-        cameraYaw += cameraYawVelocity;
-        cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + cameraPitchVelocity));
-        cameraYawVelocity *= 0.88;
-        cameraPitchVelocity *= 0.88;
-      }
-      cameraDistance += (targetCameraDistance - cameraDistance) * 0.16;
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
-      // cameraYaw is the single world-space heading used by both movement and camera.
-      // Place the camera exactly opposite that heading so it stays behind the explorer.
-      const horizontal = Math.cos(cameraPitch) * cameraDistance;
-      const behindAngle = cameraYaw + Math.PI;
-      const desiredCamera = new THREE.Vector3(
-        target.x + Math.sin(behindAngle) * horizontal,
-        target.y + 2.2 + Math.sin(cameraPitch) * cameraDistance,
-        target.z + Math.cos(behindAngle) * horizontal
+      // First-person eye camera: cameraYaw is shared with WASD movement.
+      camera.position.set(target.x, target.y + 1.72 + jumpHeight, target.z);
+      const lookDirection = new THREE.Vector3(
+        Math.sin(cameraYaw) * Math.cos(cameraPitch),
+        Math.sin(cameraPitch),
+        Math.cos(cameraYaw) * Math.cos(cameraPitch)
       );
-      camera.position.lerp(desiredCamera, 0.22);
-      camera.lookAt(target.x, target.y + 1.1 + jumpHeight * 0.2, target.z);
+      camera.lookAt(camera.position.clone().add(lookDirection));
       const localModel = playerObjects.get(playerId);
-      if (localModel) localModel.visible = true;
+      if (localModel) localModel.visible = false;
       emergencyOperator.visible = false;
     } else {
-      cameraDistance += (targetCameraDistance - cameraDistance) * 0.16;
       const fallback = targetPlayer || { x: 400, y: 250 };
-      emergencyOperator.visible = true;
-      emergencyOperator.position.set((fallback.x - 400) * 0.18, 0, (fallback.y - 250) * 0.18);
-      const target = emergencyOperator.position;
-      const horizontal = Math.cos(cameraPitch) * cameraDistance;
-      const desiredCamera = new THREE.Vector3(target.x + Math.sin(cameraYaw) * horizontal, target.y + 3 + Math.sin(cameraPitch) * cameraDistance, target.z + Math.cos(cameraYaw) * horizontal);
-      camera.position.lerp(desiredCamera, 0.12);
-      camera.lookAt(target.x, 1.15 + jumpHeight * 0.2, target.z);
+      emergencyOperator.visible = false;
+      const target = new THREE.Vector3((fallback.x - 400) * 0.18, 0, (fallback.y - 250) * 0.18);
+      camera.position.set(target.x, target.y + 1.72, target.z);
+      camera.lookAt(camera.position.clone().add(new THREE.Vector3(Math.sin(cameraYaw)*Math.cos(cameraPitch),Math.sin(cameraPitch),Math.cos(cameraYaw)*Math.cos(cameraPitch))));
     }
   }
 
