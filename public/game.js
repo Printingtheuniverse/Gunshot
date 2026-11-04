@@ -265,6 +265,935 @@ function setMapTheme(mapName) {
 scene.background = new THREE.Color(0x17212b);
 scene.fog = new THREE.Fog(0x17212b, 48, 125);
 
+// Atmospheric starfield: a lightweight distant particle layer adds scale and depth.
+const starPositions = new Float32Array(900 * 3);
+for (let i = 0; i < 900; i++) {
+  starPositions[i * 3] = ((i * 7919) % 240) - 120;
+  starPositions[i * 3 + 1] = 12 + ((i * 3571) % 100);
+  starPositions[i * 3 + 2] = -35 - ((i * 1877) % 150);
+}
+const starGeometry = new THREE.BufferGeometry();
+starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+const starMaterial = new THREE.PointsMaterial({ color: 0xb9eaff, size: 0.34, transparent: true, opacity: 0.72, sizeAttenuation: true, depthWrite: false });
+const starfield = new THREE.Points(starGeometry, starMaterial);
+scene.add(starfield);
+
+
+const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 260);
+camera.position.set(0, 31, 38);
+camera.lookAt(0, 0, 0);
+// Reuse the canvas already present in index.html. Do not nest a canvas
+// inside another canvas; that creates an invisible/zero-sized render surface.
+const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.physicallyCorrectLights = true;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair;touch-action:none;user-select:none";
+function resizeArena() {
+  const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
+  const height = Math.max(480, Math.min(window.innerHeight * 0.78, width * 0.72));
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resizeArena);
+renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
+// Click once to capture the mouse; camera look then follows mouse movement
+// continuously. Escape releases the pointer. No click-and-hold dragging.
+renderer.domElement.addEventListener("click", () => {
+  if (currentState === "playing" && document.pointerLockElement !== renderer.domElement) {
+    renderer.domElement.requestPointerLock?.();
+  }
+});
+document.addEventListener("pointerlockchange", () => {
+  cameraDragging = document.pointerLockElement === renderer.domElement;
+});
+document.addEventListener("mousemove", e => {
+  if (!cameraDragging || currentState !== "playing") return;
+  cameraYaw += e.movementX * 0.0025;
+  cameraPitch = Math.max(-1.15, Math.min(1.15, cameraPitch - e.movementY * 0.0022));
+});
+renderer.domElement.addEventListener("wheel", e => {
+  if (currentState !== "playing") return;
+  e.preventDefault();
+  // First-person view keeps a fixed eye position; wheel input is ignored.
+}, {passive:false});
+
+scene.add(new THREE.HemisphereLight(0xc8d9e8, 0x52606b, 2.1));
+
+const mainLight = new THREE.DirectionalLight(0xfff3df, 3.1);
+mainLight.position.set(-8, 18, 10);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.set(2048, 2048);
+mainLight.shadow.camera.left = -65;
+mainLight.shadow.camera.right = 65;
+mainLight.shadow.camera.top = 45;
+mainLight.shadow.camera.bottom = -45;
+mainLight.shadow.bias = -0.00015;
+mainLight.shadow.normalBias = 0.025;
+scene.add(mainLight);
+
+// Cool rim lighting separates explorer silhouettes from the arena background.
+const rimLight = new THREE.DirectionalLight(0x62cfff, 2.0);
+rimLight.position.set(12, 9, -14);
+scene.add(rimLight);
+const fillLight = new THREE.DirectionalLight(0x8b9cff, 0.8);
+fillLight.position.set(4, 7, 12);
+scene.add(fillLight);
+
+const blueLight = new THREE.PointLight(0x4a9ac7, 32, 48);
+blueLight.position.set(-15, 5, -8);
+scene.add(blueLight);
+
+const redLight = new THREE.PointLight(0xc77969, 26, 48);
+redLight.position.set(15, 5, 8);
+scene.add(redLight);
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(180, 120),
+  new THREE.MeshStandardMaterial({
+    color: 0x53616b,
+    metalness: 0.48,
+    roughness: 0.32
+  })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const grid = new THREE.GridHelper(180, 72, 0x607f91, 0x344956);
+grid.position.y = 0.025;
+scene.add(grid);
+
+// Distant sci-fi skyline, orbital bridge, and a luminous moon add depth beyond the arena walls.
+const skylineMaterial = new THREE.MeshStandardMaterial({color:0x182d42,metalness:0.72,roughness:0.3,emissive:0x07182c,emissiveIntensity:0.7});
+for (let i=0;i<18;i++) {
+  const x = -82 + i*9.6;
+  const height = 9 + ((i*17)%13);
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(3.2,height,3.2),skylineMaterial);
+  tower.position.set(x,height/2,-72-(i%3)*5);
+  tower.castShadow = true;
+  scene.add(tower);
+  const beacon = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.9,0.18),new THREE.MeshBasicMaterial({color:i%2?0x49dfff:0xff8b75}));
+  beacon.position.set(x,height+0.35,-72-(i%3)*5);
+  scene.add(beacon);
+}
+const orbitalBridge = new THREE.Mesh(new THREE.TorusGeometry(39,0.42,10,120,Math.PI*1.18),new THREE.MeshStandardMaterial({color:0x59758b,metalness:0.86,roughness:0.22,emissive:0x12364c,emissiveIntensity:0.8}));
+orbitalBridge.position.set(0,24,-88);
+orbitalBridge.rotation.x = Math.PI/2;
+scene.add(orbitalBridge);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(12,40,28),new THREE.MeshStandardMaterial({color:0x9fb9d0,roughness:0.92,metalness:0.02,emissive:0x263c59,emissiveIntensity:0.32}));
+moon.position.set(48,39,-105);
+scene.add(moon);
+const moonHalo = new THREE.Mesh(new THREE.SphereGeometry(12.8,32,24),new THREE.MeshBasicMaterial({color:0x4d9bd0,transparent:true,opacity:0.08,side:THREE.BackSide}));
+moonHalo.position.copy(moon.position);
+scene.add(moonHalo);
+
+const baseEnvironmentObjects = [];
+function addBox(x, y, z, sx, sy, sz, color, emissive = 0x000000) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(sx, sy, sz),
+    new THREE.MeshStandardMaterial({
+      color,
+      metalness: 0.28,
+      roughness: 0.62,
+      emissive,
+      emissiveIntensity: emissive === 0x000000 ? 0 : 0.28
+    })
+  );
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  baseEnvironmentObjects.push(mesh);
+  return mesh;
+}
+
+// Arena walls and glowing trim
+addBox(0, 2, -60, 180, 4, 1, 0x344653);
+addBox(0, 2, 60, 180, 4, 1, 0x17263a);
+addBox(-90, 2, 0, 1, 4, 120, 0x17263a);
+addBox(90, 2, 0, 1, 4, 120, 0x17263a);
+addBox(0, 3.8, -59.4, 178, 0.12, 0.12, 0x5a9cb5, 0x163847);
+addBox(0, 3.8, 59.4, 178, 0.12, 0.12, 0xc77969, 0x3d201d);
+
+// Cover crates
+for (const [x, z] of [
+  [-18, -10], [-8, 8], [8, -8], [18, 10],
+  [-24, 5], [24, -5], [0, -16], [0, 16]
+]) {
+  addBox(x, 1.2, z, 3.5, 2.4, 3.5, 0x53636c);
+  addBox(x, 2.43, z, 3.7, 0.12, 3.7, 0x7897a5, 0x152e3a);
+}
+
+// Industrial frontier set dressing: structural steel, utility conduits, lamps, and worn floor panels.
+const steel = 0x354957;
+const darkSteel = 0x182b39;
+const neonCyan = 0x48d8f3;
+const neonAmber = 0xe7a765;
+// Heavy corner pylons with illuminated signal bands.
+for (const [x, z] of [[-34,-20],[34,-20],[-34,20],[34,20]]) {
+  addBox(x, 3.3, z, 2.1, 6.6, 2.1, darkSteel);
+  addBox(x, 6.15, z, 2.35, 0.16, 2.35, steel);
+  addBox(x, 4.8, z + (z < 0 ? 1.08 : -1.08), 1.2, 0.12, 0.08, neonCyan, neonCyan);
+  addBox(x, 2.5, z + (z < 0 ? 1.08 : -1.08), 0.75, 0.08, 0.08, neonAmber, neonAmber);
+}
+// Reinforced wall ribs and recessed service bays.
+for (const x of [-28,-18,-8,2,12,22,32]) {
+  addBox(x, 2.6, -24.05, 0.32, 5.2, 0.18, steel);
+  addBox(x, 2.6, 24.05, 0.32, 5.2, 0.18, steel);
+}
+for (const z of [-15,-5,5,15]) {
+  addBox(-39.35, 2.2, z, 0.16, 3.8, 0.28, steel);
+  addBox(39.35, 2.2, z, 0.16, 3.8, 0.28, steel);
+}
+// Ground-level light strips and modular floor plates.
+for (const z of [-21,-13,-5,3,11,19]) {
+  addBox(-29, 0.035, z, 10, 0.035, 0.09, neonCyan, 0x124c60);
+  addBox(29, 0.035, z, 10, 0.035, 0.09, neonAmber, 0x5c3218);
+}
+for (const x of [-30,-20,-10,10,20,30]) {
+  addBox(x, 0.04, 0, 0.055, 0.025, 36, 0x6a7b84);
+}
+// Utility consoles along the outer lanes.
+for (const [x, z, color] of [[-30,-8,neonCyan],[30,8,neonAmber],[-30,8,neonCyan],[30,-8,neonAmber]]) {
+  addBox(x, 0.8, z, 2.2, 1.6, 1.5, darkSteel);
+  addBox(x, 1.65, z, 2.25, 0.12, 1.55, steel);
+  addBox(x, 1.12, z + (z < 0 ? 0.77 : -0.77), 1.1, 0.28, 0.06, color, color);
+  addBox(x - 0.55, 0.25, z, 0.12, 0.35, 1.05, steel);
+  addBox(x + 0.55, 0.25, z, 0.12, 0.35, 1.05, steel);
+}
+// Low industrial gantries frame the arena without closing the play space.
+for (const x of [-20, 20]) {
+  addBox(x, 4.9, -18, 0.35, 0.25, 9, steel);
+  addBox(x, 4.9, 18, 0.35, 0.25, 9, steel);
+  addBox(x, 4.75, -18, 0.12, 0.06, 8.5, neonCyan, 0x124c60);
+  addBox(x, 4.75, 18, 0.12, 0.06, 8.5, neonAmber, 0x5c3218);
+}
+// A few metal floor grates and hazard markers give the surface scale.
+for (const [x, z] of [[-12,-20],[12,-20],[-12,20],[12,20]]) {
+  addBox(x, 0.045, z, 4.4, 0.045, 1.8, 0x263b49);
+  for (let stripe = -1; stripe <= 1; stripe++) {
+    addBox(x + stripe * 1.1, 0.073, z, 0.055, 0.018, 1.5, 0x91a4aa);
+  }
+}
+
+const teamMaterials = teamColors.map(color =>
+  new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: 0.12,
+    metalness: 0.45,
+    roughness: 0.35
+  })
+);
+
+const playerObjects = new Map();
+const nameSprites = new Map();
+
+// Always-visible local operator fallback, independent of the detailed character
+// model builder. This ensures a player is visible even if a weapon/model part fails.
+const emergencyOperator = new THREE.Group();
+const emergencyBody = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.42, 0.9, 4, 10),
+  new THREE.MeshStandardMaterial({ color: 0x35e8ff, emissive: 0x087b99, emissiveIntensity: 1.2 })
+);
+emergencyBody.position.y = 1.05;
+emergencyOperator.add(emergencyBody);
+const emergencyHead = new THREE.Mesh(
+  new THREE.SphereGeometry(0.3, 12, 10),
+  new THREE.MeshStandardMaterial({ color: 0xf4fbff, emissive: 0x399dff, emissiveIntensity: 0.5 })
+);
+emergencyHead.position.y = 1.85;
+emergencyOperator.add(emergencyHead);
+const emergencyRing = new THREE.Mesh(
+  new THREE.TorusGeometry(0.78, 0.07, 8, 28),
+  new THREE.MeshBasicMaterial({ color: 0x35e8ff })
+);
+emergencyRing.rotation.x = -Math.PI / 2;
+emergencyRing.position.y = 0.1;
+emergencyOperator.add(emergencyRing);
+emergencyOperator.visible = false;
+scene.add(emergencyOperator);
+const collectibleCrystals = [];
+let collectedCrystals = 0;
+const controlZones = [];
+const rallyCheckpoints = [];
+let activeCheckpoint = 0;
+let lastObjectiveScoreAt = 0;
+function createObjectiveRing(x, z, index) {
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.25,0.09,10,40), new THREE.MeshStandardMaterial({color:teamColors[index%teamColors.length],emissive:teamColors[index%teamColors.length],emissiveIntensity:1.3}));
+  ring.rotation.x = Math.PI/2; ring.position.set(x,0.12,z); ring.userData.objectiveIndex=index; scene.add(ring); controlZones.push(ring);
+}
+function createCheckpoint(x,z,index) {
+  const group = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8,0.12,10,36),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:1.8}));
+  ring.position.y=2.2; group.add(ring);
+  const postMat=new THREE.MeshStandardMaterial({color:0x284c60,emissive:0x147c9a,emissiveIntensity:.7});
+  for(const side of [-1,1]) {const post=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,2.2,8),postMat);post.position.set(side*1.8,1.1,0);group.add(post);}
+  group.position.set(x,0,z);group.userData.checkpointIndex=index;scene.add(group);rallyCheckpoints.push(group);
+}
+[[-22,-12],[0,0],[22,12]].forEach((p,i)=>createObjectiveRing(p[0],p[1],i));
+[[-28,-16],[-14,12],[0,-14],[15,13],[28,-10]].forEach((p,i)=>createCheckpoint(p[0],p[1],i));
+function setWeapon() {}
+
+function makePlayer(p) {
+  const group = new THREE.Group();
+  const material = teamMaterials[p.team] || teamMaterials[0];
+  const dark = new THREE.MeshStandardMaterial({
+    color: 0x111d2b,
+    metalness: 0.78,
+    roughness: 0.24
+  });
+  // Declare shared suit materials before any armor parts use them.
+  const trim = new THREE.MeshStandardMaterial({color:0xb9cbd8,metalness:0.86,roughness:0.18});
+  const teamGlow = new THREE.MeshStandardMaterial({color:0x8af7ff,emissive:0x35dfff,emissiveIntensity:1.25,metalness:0.25,roughness:0.22});
+
+  function part(geometry, mat, x, y, z) {
+    const mesh = new THREE.Mesh(geometry, mat);
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    group.add(mesh);
+    return mesh;
+  }
+
+  part(new THREE.CapsuleGeometry(0.42, 0.7, 4, 8), dark, 0, 1.2, 0);
+  part(new THREE.BoxGeometry(0.72, 0.62, 0.38), material, 0, 1.45, -0.05);
+  part(new THREE.SphereGeometry(0.28, 16, 12), dark, 0, 2.05, 0);
+  part(new THREE.BoxGeometry(0.42, 0.14, 0.18), material, 0, 2.06, 0.23);
+  part(new THREE.CylinderGeometry(0.13, 0.17, 0.65, 8), dark, -0.52, 1.35, 0);
+  part(new THREE.CylinderGeometry(0.13, 0.17, 0.65, 8), dark, 0.52, 1.35, 0);
+  part(new THREE.CylinderGeometry(0.16, 0.18, 0.65, 8), dark, -0.2, 0.38, 0);
+  part(new THREE.CylinderGeometry(0.16, 0.18, 0.65, 8), dark, 0.2, 0.38, 0);
+
+  // Extra silhouette details make the arena avatars feel like distinct sci-fi explorers.
+  const armor = new THREE.MeshStandardMaterial({
+    color: 0x9eafbd, metalness: 0.82, roughness: 0.2
+  });
+  const deepArmor = new THREE.MeshStandardMaterial({
+    color: 0x101e2b, metalness: 0.62, roughness: 0.3
+  });
+  const glow = new THREE.MeshStandardMaterial({
+    color: 0xd9fbff, emissive: 0x56dfff, emissiveIntensity: 0.85,
+    metalness: 0.25, roughness: 0.25
+  });
+  // Stable per-player silhouette variants keep every explorer visually distinct.
+  const identity = String(p.id || p.name || "scout");
+  const variant = p.id === playerId ? selectedCharacter : [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5;
+  // Shoulder plates
+  part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, -0.53, 1.72, 0);
+  part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, 0.53, 1.72, 0);
+  if (variant === 0) {
+    // Broad explorer crest
+    part(new THREE.BoxGeometry(0.46, 0.12, 0.16), deepArmor, 0, 2.28, 0);
+    part(new THREE.ConeGeometry(0.13, 0.28, 5), material, 0, 2.43, -0.02);
+  } else if (variant === 1) {
+    // Angular side fins and reinforced collar
+    part(new THREE.ConeGeometry(0.13, 0.38, 5), material, -0.29, 2.32, -0.02).rotation.z = -0.48;
+    part(new THREE.ConeGeometry(0.13, 0.38, 5), material, 0.29, 2.32, -0.02).rotation.z = 0.48;
+    part(new THREE.BoxGeometry(0.84, 0.13, 0.42), armor, 0, 1.86, -0.01);
+  } else if (variant === 2) {
+    // Compact sensor mast and side-mounted utility pack
+    part(new THREE.CylinderGeometry(0.055, 0.075, 0.36, 8), material, 0.25, 2.42, -0.02);
+    part(new THREE.SphereGeometry(0.1, 10, 8), glow, 0.25, 2.62, -0.02);
+    part(new THREE.BoxGeometry(0.18, 0.42, 0.25), armor, -0.34, 1.56, -0.28);
+  }
+  if (variant === 3) {
+    part(new THREE.TorusGeometry(0.42,0.055,8,20), glow, 0, 2.48, 0).rotation.x = Math.PI / 2;
+    part(new THREE.BoxGeometry(0.18,0.55,0.22), deepArmor, 0.42, 1.55, -0.28);
+  } else if (variant === 4) {
+    part(new THREE.ConeGeometry(0.2,0.52,6), material, 0, 2.48, -0.02);
+    part(new THREE.BoxGeometry(0.72,0.14,0.3), armor, 0, 1.88, -0.02);
+    part(new THREE.SphereGeometry(0.14,10,8), new THREE.MeshStandardMaterial({color:0xffb45e,emissive:0xff7a28,emissiveIntensity:1.4}), 0, 1.5, 0.31);
+  }
+  // Premium suit detailing: layered collar, segmented abdomen and shoulder insets.
+  part(new THREE.TorusGeometry(0.31, 0.065, 10, 28), trim, 0, 1.91, 0).rotation.x = Math.PI / 2;
+  part(new THREE.BoxGeometry(0.36, 0.12, 0.08), deepArmor, 0, 1.28, 0.225);
+  part(new THREE.BoxGeometry(0.28, 0.08, 0.07), armor, 0, 1.16, 0.235);
+  part(new THREE.BoxGeometry(0.12, 0.22, 0.065), teamGlow, -0.43, 1.73, 0.17);
+  part(new THREE.BoxGeometry(0.12, 0.22, 0.065), teamGlow, 0.43, 1.73, 0.17);
+  // Helmet side housings and a glossy, multi-layer visor.
+  part(new THREE.BoxGeometry(0.11, 0.23, 0.25), deepArmor, -0.285, 2.06, 0.015);
+  part(new THREE.BoxGeometry(0.11, 0.23, 0.25), deepArmor, 0.285, 2.06, 0.015);
+  part(new THREE.BoxGeometry(0.33, 0.035, 0.045), glow, 0, 2.155, 0.302);
+
+  // Chest badge and slim illuminated torso panel
+  part(new THREE.BoxGeometry(0.3, 0.38, 0.075), deepArmor, 0, 1.48, 0.19);
+  part(new THREE.BoxGeometry(0.12, 0.2, 0.09), glow, 0, 1.5, 0.245);
+  // Back-mounted explorer pack
+  part(new THREE.BoxGeometry(0.48, 0.56, 0.2), deepArmor, 0, 1.55, -0.29);
+  part(new THREE.BoxGeometry(0.34, 0.09, 0.08), material, 0, 1.72, -0.405);
+  // Forearm cuffs and knee guards
+  part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, -0.53, 1.1, 0);
+  part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, 0.53, 1.1, 0);
+  part(new THREE.BoxGeometry(0.29, 0.18, 0.12), armor, -0.2, 0.47, 0.13);
+  part(new THREE.BoxGeometry(0.29, 0.18, 0.12), armor, 0.2, 0.47, 0.13);
+  // Helmet fins and boots give the model a stronger silhouette.
+  part(new THREE.ConeGeometry(0.12, 0.32, 5), material, -0.22, 2.35, -0.02).rotation.z = -0.35;
+  part(new THREE.ConeGeometry(0.12, 0.32, 5), material, 0.22, 2.35, -0.02).rotation.z = 0.35;
+  part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, -0.2, 0.08, 0.08);
+  part(new THREE.BoxGeometry(0.34, 0.16, 0.42), deepArmor, 0.2, 0.08, 0.08);
+  // Layered tactical silhouette pass: visor, segmented chest plates, utility gear and shin armor.
+  const visor = new THREE.MeshStandardMaterial({color:0x0b2638, metalness:0.45, roughness:0.18, emissive:0x06283c, emissiveIntensity:0.8});
+  part(new THREE.BoxGeometry(0.39,0.13,0.075), visor, 0, 2.08, 0.255);
+  part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, -0.115, 2.08, 0.3);
+  part(new THREE.BoxGeometry(0.055,0.075,0.035), teamGlow, 0.115, 2.08, 0.3);
+  part(new THREE.BoxGeometry(0.55,0.19,0.095), armor, 0, 1.68, 0.225);
+  part(new THREE.BoxGeometry(0.13,0.12,0.045), teamGlow, 0, 1.69, 0.28);
+  part(new THREE.BoxGeometry(0.21,0.32,0.1), deepArmor, -0.37, 1.4, 0.14);
+  part(new THREE.BoxGeometry(0.21,0.32,0.1), deepArmor, 0.37, 1.4, 0.14);
+  part(new THREE.BoxGeometry(0.24,0.19,0.17), trim, -0.2, 0.7, 0.035);
+  part(new THREE.BoxGeometry(0.24,0.19,0.17), trim, 0.2, 0.7, 0.035);
+  part(new THREE.BoxGeometry(0.12,0.34,0.16), deepArmor, -0.2, 0.34, 0.02);
+  part(new THREE.BoxGeometry(0.12,0.34,0.16), deepArmor, 0.2, 0.34, 0.02);
+  part(new THREE.BoxGeometry(0.16,0.27,0.18), armor, -0.38, 1.3, -0.3);
+  part(new THREE.BoxGeometry(0.16,0.27,0.18), armor, 0.38, 1.3, -0.3);
+  part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, -0.27, 1.57, -0.43);
+  part(new THREE.CylinderGeometry(0.085,0.085,0.34,8), teamGlow, 0.27, 1.57, -0.43);
+
+
+  // Visual polish pass: layered ceramic panels, engraved seams, and luminous explorer trim.
+  const ceramic = new THREE.MeshStandardMaterial({color:0xd8e8ee,metalness:0.68,roughness:0.22});
+  const seam = new THREE.MeshStandardMaterial({color:0x142838,metalness:0.52,roughness:0.3});
+  const accent = new THREE.MeshStandardMaterial({color:0x9af7ff,emissive:0x24cfff,emissiveIntensity:1.7,metalness:0.28,roughness:0.2});
+  // Layered chest and hip plates add readable silhouette depth at arena camera distance.
+  part(new THREE.BoxGeometry(0.42,0.12,0.11), ceramic, 0, 1.82, 0.205);
+  part(new THREE.BoxGeometry(0.27,0.09,0.09), seam, 0, 1.73, 0.27);
+  part(new THREE.BoxGeometry(0.19,0.07,0.035), accent, 0, 1.73, 0.322);
+  part(new THREE.BoxGeometry(0.24,0.12,0.13), ceramic, -0.29, 0.91, 0.09);
+  part(new THREE.BoxGeometry(0.24,0.12,0.13), ceramic, 0.29, 0.91, 0.09);
+  // Fine shoulder and backpack signal strips catch the rim light.
+  part(new THREE.BoxGeometry(0.28,0.055,0.07), accent, -0.52, 1.83, 0.16);
+  part(new THREE.BoxGeometry(0.28,0.055,0.07), accent, 0.52, 1.83, 0.16);
+  part(new THREE.BoxGeometry(0.28,0.08,0.035), accent, 0, 1.77, -0.412);
+
+  // Signature operator redesign: a larger sealed helmet, panoramic visor,
+  // reinforced chest core, shoulder shells, and readable backpack silhouette.
+  const helmetShell = new THREE.MeshStandardMaterial({color:0xe4f1f5,metalness:0.78,roughness:0.2});
+  const visorGlass = new THREE.MeshStandardMaterial({color:0x061b2a,metalness:0.62,roughness:0.12,emissive:0x073b55,emissiveIntensity:1.15});
+  const signal = new THREE.MeshStandardMaterial({color:0x9af7ff,emissive:0x27dfff,emissiveIntensity:2.1,metalness:0.3,roughness:0.18});
+  // Helmet crown and broad luminous face shield.
+  part(new THREE.SphereGeometry(0.31,20,14), helmetShell, 0, 2.13, -0.015).scale.set(1.08,0.94,0.98);
+  part(new THREE.BoxGeometry(0.49,0.2,0.105), visorGlass, 0, 2.08, 0.275);
+  part(new THREE.BoxGeometry(0.39,0.025,0.035), signal, 0, 2.205, 0.292);
+  part(new THREE.BoxGeometry(0.09,0.12,0.045), signal, -0.31, 2.08, 0.08);
+  part(new THREE.BoxGeometry(0.09,0.12,0.045), signal, 0.31, 2.08, 0.08);
+  // Chest reactor and layered chest frame.
+  part(new THREE.BoxGeometry(0.48,0.48,0.09), deepArmor, 0, 1.49, 0.245);
+  part(new THREE.BoxGeometry(0.3,0.32,0.075), helmetShell, 0, 1.51, 0.305);
+  part(new THREE.OctahedronGeometry(0.13,1), signal, 0, 1.53, 0.37);
+  part(new THREE.BoxGeometry(0.18,0.055,0.035), material, -0.34, 1.57, 0.27);
+  part(new THREE.BoxGeometry(0.18,0.055,0.035), material, 0.34, 1.57, 0.27);
+  // Shoulder shells and compact thruster/backpack fins create a distinct silhouette.
+  part(new THREE.SphereGeometry(0.32,16,12), helmetShell, -0.56, 1.76, -0.015).scale.set(1.08,0.72,0.9);
+  part(new THREE.SphereGeometry(0.32,16,12), helmetShell, 0.56, 1.76, -0.015).scale.set(1.08,0.72,0.9);
+  part(new THREE.BoxGeometry(0.22,0.62,0.28), deepArmor, -0.34, 1.57, -0.47);
+  part(new THREE.BoxGeometry(0.22,0.62,0.28), deepArmor, 0.34, 1.57, -0.47);
+  part(new THREE.BoxGeometry(0.12,0.42,0.08), signal, -0.34, 1.57, -0.625);
+  part(new THREE.BoxGeometry(0.12,0.42,0.08), signal, 0.34, 1.57, -0.625);
+  // Reinforced forearm guards and boot caps add detail at normal gameplay distance.
+  part(new THREE.BoxGeometry(0.22,0.42,0.24), helmetShell, -0.54, 1.24, 0.12);
+  part(new THREE.BoxGeometry(0.22,0.42,0.24), helmetShell, 0.54, 1.24, 0.12);
+  part(new THREE.BoxGeometry(0.29,0.16,0.28), material, -0.2, 0.18, 0.22);
+  part(new THREE.BoxGeometry(0.29,0.16,0.28), material, 0.2, 0.18, 0.22);
+
+  // NEUROVOID-inspired visual language: graphite undersuit, sculpted ceramic
+  // armor, sharp panel breaks, and restrained cyan/violet signal lighting.
+  const voidGraphite = new THREE.MeshStandardMaterial({color:0x071321,metalness:0.86,roughness:0.22});
+  const pearlCeramic = new THREE.MeshStandardMaterial({color:0xdce8ef,metalness:0.76,roughness:0.19});
+  const smokedGlass = new THREE.MeshStandardMaterial({color:0x020d19,metalness:0.72,roughness:0.1,emissive:0x06243b,emissiveIntensity:0.9});
+  const voidSignal = new THREE.MeshStandardMaterial({color:0x9df8ff,emissive:0x25cfff,emissiveIntensity:2.1,metalness:0.35,roughness:0.16});
+  const violetSignal = new THREE.MeshStandardMaterial({color:0xb7a4ff,emissive:0x684cff,emissiveIntensity:1.5,metalness:0.28,roughness:0.2});
+  // Helmet becomes a sealed, layered pilot shell with a wide dark faceplate.
+  part(new THREE.SphereGeometry(0.34,24,18), pearlCeramic, 0, 2.08, 0.015).scale.set(1.02,0.96,0.92);
+  part(new THREE.BoxGeometry(0.48,0.19,0.075), smokedGlass, 0, 2.095, 0.285);
+  part(new THREE.BoxGeometry(0.33,0.025,0.025), voidSignal, 0, 2.19, 0.33);
+  part(new THREE.BoxGeometry(0.075,0.12,0.08), voidGraphite, -0.29, 2.04, 0.04);
+  part(new THREE.BoxGeometry(0.075,0.12,0.08), voidGraphite, 0.29, 2.04, 0.04);
+  // Layered chest yoke, central luminous identity core, and split abdominal plates.
+  part(new THREE.BoxGeometry(0.68,0.16,0.16), voidGraphite, 0, 1.79, 0.22);
+  part(new THREE.BoxGeometry(0.25,0.31,0.09), pearlCeramic, 0, 1.51, 0.32);
+  part(new THREE.OctahedronGeometry(0.105,1), voidSignal, 0, 1.53, 0.39);
+  part(new THREE.BoxGeometry(0.17,0.055,0.035), violetSignal, -0.22, 1.31, 0.29);
+  part(new THREE.BoxGeometry(0.17,0.055,0.035), violetSignal, 0.22, 1.31, 0.29);
+  // Angular shoulder caps and forearm shells create a cleaner, more graphic outline.
+  const shoulderL = part(new THREE.OctahedronGeometry(0.29,0), pearlCeramic,-0.56,1.77,0.02);
+  shoulderL.scale.set(1.18,0.78,0.92);
+  const shoulderR = part(new THREE.OctahedronGeometry(0.29,0), pearlCeramic,0.56,1.77,0.02);
+  shoulderR.scale.set(1.18,0.78,0.92);
+  part(new THREE.BoxGeometry(0.09,0.28,0.055), voidSignal, -0.56,1.77,0.205);
+  part(new THREE.BoxGeometry(0.09,0.28,0.055), voidSignal, 0.56,1.77,0.205);
+  part(new THREE.BoxGeometry(0.25,0.34,0.16), voidGraphite,-0.55,1.22,0.11);
+  part(new THREE.BoxGeometry(0.25,0.34,0.16), voidGraphite,0.55,1.22,0.11);
+  part(new THREE.BoxGeometry(0.09,0.2,0.035), pearlCeramic,-0.55,1.22,0.205);
+  part(new THREE.BoxGeometry(0.09,0.2,0.035), pearlCeramic,0.55,1.22,0.205);
+  // Backpack spine and paired vertical status lights.
+  part(new THREE.BoxGeometry(0.42,0.62,0.16), voidGraphite,0,1.57,-0.43);
+  part(new THREE.BoxGeometry(0.08,0.4,0.045), violetSignal,-0.13,1.58,-0.525);
+  part(new THREE.BoxGeometry(0.08,0.4,0.045), voidSignal,0.13,1.58,-0.525);
+  // Distinct visor/signal tint per operator variant while preserving team identity.
+  if (variant === 1 || variant === 4) {
+    part(new THREE.BoxGeometry(0.13,0.035,0.035), violetSignal,0,2.095,0.335);
+  } else {
+    part(new THREE.BoxGeometry(0.13,0.035,0.035), voidSignal,0,2.095,0.335);
+  }
+
+  // Explorer beacon: a harmless glowing navigation orb carried by each explorer.
+  const beacon = new THREE.Group();
+  const beaconCore = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.13, 1),
+    new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2.2,metalness:0.18,roughness:0.2})
+  );
+  beaconCore.position.set(0.48,1.35,-0.22);
+  beacon.add(beaconCore);
+  const beaconHalo = new THREE.Mesh(
+    new THREE.TorusGeometry(0.21,0.025,8,24),
+    new THREE.MeshBasicMaterial({color:0xa8a0ff})
+  );
+  beaconHalo.position.copy(beaconCore.position);
+  beaconHalo.rotation.x = Math.PI/2;
+  beacon.add(beaconHalo);
+  beacon.userData.navigationBeacon = true;
+  group.add(beacon);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.7, 0.045, 8, 32),
+    material
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.08;
+  group.add(ring);
+
+  scene.add(group);
+  playerObjects.set(p.id, group);
+  
+  return group;
+}
+
+function makeNameSprite(text) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 112;
+  const c = canvas.getContext("2d");
+  const label = String(text || "Player").slice(0, 18).toUpperCase();
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = "rgba(4, 13, 27, 0.88)";
+  c.beginPath();
+  c.roundRect(8, 8, 496, 96, 22);
+  c.fill();
+  c.strokeStyle = "rgba(99, 230, 255, 0.9)";
+  c.lineWidth = 5;
+  c.stroke();
+  c.font = "bold 42px sans-serif";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.shadowColor = "rgba(99, 230, 255, 0.8)";
+  c.shadowBlur = 10;
+  c.fillStyle = "#ffffff";
+  c.fillText(label, 256, 58, 450);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
+  );
+  sprite.scale.set(4.1, 0.9, 1);
+  sprite.renderOrder = 10;
+  return sprite;
+}
+
+function updatePlayers() {
+  const liveIds = new Set();
+
+  for (const p of players) {
+    liveIds.add(p.id);
+    let model = playerObjects.get(p.id);
+    if (!model) model = makePlayer(p);
+
+    // Server coordinates remain 800 x 500, mapped onto the 3D floor.
+    const x = (p.x - 400) * 0.18;
+    const z = (p.y - 250) * 0.18;
+    model.position.set(x, 0, z);
+
+    const material = teamMaterials[p.team] || teamMaterials[0];
+    model.children.forEach(child => {
+      if (child.geometry?.type === "TorusGeometry") child.material = material;
+    });
+
+    if (!nameSprites.has(p.id)) {
+      const label = makeNameSprite(p.name || "Player");
+      label.position.set(0, 3.25, 0);
+      model.add(label);
+      nameSprites.set(p.id, label);
+    }
+
+    // Face toward the current movement direction.
+    if (p.id === playerId && !hasMovedFacing) model.rotation.y = moveFacing;
+  }
+
+  for (const [id, model] of playerObjects) {
+    if (!liveIds.has(id)) {
+      scene.remove(model);
+      playerObjects.delete(id);
+      nameSprites.delete(id);
+    }
+  }
+}
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const cyanGlowForShot = new THREE.MeshBasicMaterial({ color: 0x8df5ff });
+const amberGlowForShot = new THREE.MeshBasicMaterial({ color: 0xffbb73 });
+
+// Click to fire; crystal collection remains available when clicking a crystal.
+function addDataCrystal(x, z, color = 0x8df5ff) {
+  const crystal = new THREE.Group();
+  const gem = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.48, 0),
+    new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:1.35, metalness:0.18, roughness:0.22})
+  );
+  gem.position.y = 0.9;
+  crystal.add(gem);
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.68, 0.025, 8, 32),
+    new THREE.MeshBasicMaterial({color})
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.12;
+  crystal.add(ring);
+  crystal.position.set(x,0,z);
+  crystal.userData.isDataCrystal = true;
+  scene.add(crystal);
+  collectibleCrystals.push(crystal);
+}
+[[-22,-15],[22,-15],[-27,13],[27,13],[0,-20],[0,20],[-12,0],[12,0]].forEach((p,i)=>addDataCrystal(p[0],p[1],[0x8df5ff,0xb8a0ff,0x8be0a2,0xffd18a][i%4]));
+
+renderer.domElement.addEventListener("click", event => {
+  if (currentState !== "playing") return;
+  if (lastGestureWasDrag || performance.now() - lastPointerDownAt > 220) { lastGestureWasDrag = false; return; }
+  socket.emit("shoot");
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObjects(collectibleCrystals, true);
+  if (!hit.length) return;
+  let crystal = hit[0].object;
+  while (crystal && !crystal.userData.isDataCrystal) crystal = crystal.parent;
+  if (!crystal || !crystal.userData.isDataCrystal) return;
+  scene.remove(crystal);
+  const index = collectibleCrystals.indexOf(crystal);
+  if (index >= 0) collectibleCrystals.splice(index,1);
+  collectedCrystals++;
+  const status = document.getElementById("arenaObjective");
+  if (status) status.textContent = "CRYSTALS FOUND // " + collectedCrystals + " / 8";
+  if (document.getElementById("matchTitle")?.textContent.startsWith("Crystal Hunt")) socket.emit("score", { team: myTeam });
+});
+
+document.addEventListener("keydown", e => {
+  if (!e.key) return;
+  const key = e.key.toLowerCase();
+  if (key === "f" && !e.repeat && currentState === "playing") socket.emit("shoot");
+  if ((key === " " || e.code === "Space") && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
+  if (key === "e" && !e.repeat && currentState === "playing") abilityRequested = true;
+  keys[key] = true;
+  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
+});
+
+document.addEventListener("keyup", e => {
+  if (!e.key) return;
+  keys[e.key.toLowerCase()] = false;
+});
+
+let lastSentX = null;
+let lastSentY = null;
+let animationStarted = false;
+
+function loop() {\n  requestAnimationFrame(loop);\n  starfield.rotation.y += 0.000025;const socket = io();
+let roomId = null;
+let playerId = null;
+let keys = {};
+let players = [];
+let currentState = "voting";
+let myTeam = 0;
+const teamColors = ["#4da3ff","#ff5c5c","#4ddc88","#ffd34d"];
+
+const $ = id => document.getElementById(id);
+const show = id => document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+
+function name() {
+  return ($("playerName").value.trim() || "Player").slice(0,18);
+}
+
+
+const characters = [
+  { name: "NOVA", description: "Frontier scout · Precision-built ceramic armor.", className: "avatar-nova" },
+  { name: "BOLT", description: "Rapid-response explorer · Angular pulse plating.", className: "avatar-bolt" },
+  { name: "MOSS", description: "Recon specialist · Rugged field-ready armor.", className: "avatar-moss" },
+  { name: "ORBIT", description: "Signal navigator · Orbital sensor crown and violet energy trim.", className: "avatar-orbit" },
+  { name: "EMBER", description: "Solar wanderer · Heat-shield plates and amber glow.", className: "avatar-ember" }
+];
+let selectedCharacter = 0;
+let selectedAvatarColor = "#63e6ff";
+
+function selectCharacter(index) {
+  selectedCharacter = (index + characters.length) % characters.length;
+  const character = characters[selectedCharacter];
+  $("characterName").textContent = character.name;
+  $("characterDescription").textContent = character.description;
+  $("characterCount").textContent = String(selectedCharacter + 1).padStart(2, "0") + " / " + String(characters.length).padStart(2, "0");
+  $("avatarFigure").className = "avatar-figure " + character.className;
+  document.querySelectorAll(".character-dots .dot").forEach((dot, i) => dot.classList.toggle("active", i === selectedCharacter));
+  $("miniAvatar").textContent = character.name.charAt(0);
+}
+
+function changeCharacter(direction) {
+  selectCharacter(selectedCharacter + direction);
+}
+
+function setAvatarColor(color, button) {
+  selectedAvatarColor = color;
+  document.documentElement.style.setProperty("--avatar-accent", color);
+  document.querySelectorAll(".swatch").forEach(swatch => swatch.classList.toggle("active", swatch === button));
+  const names = { "#63e6ff": "Neon cyan", "#a78bfa": "Violet pulse", "#ffad66": "Solar orange", "#8be0a2": "Mint glow" };
+  $("styleSummary").textContent = names[color] || "Custom color";
+}
+
+document.addEventListener("input", event => {
+  if (event.target && event.target.id === "playerName") {
+    const value = event.target.value.trim();
+    $("profileNamePreview").textContent = (value || "ARENA EXPLORER").toUpperCase().slice(0, 18);
+    $("miniAvatar").textContent = (value || "A").charAt(0).toUpperCase();
+  }
+});
+
+function showServers() {
+  if (!name()) return;
+  show("servers");
+}
+
+function createServer() {
+  socket.emit("createRoom", {name: name()});
+}
+
+function joinByCode() {
+  socket.emit("joinRoom", {id: $("roomCode").value.trim(), name: name()});
+}
+
+socket.on("connect", () => playerId = socket.id);
+
+socket.on("rooms", rooms => {
+  $("serverList").innerHTML = rooms.length ? rooms.map(r => `
+    <div class="server">
+      <span><b>${r.id}</b> — ${r.players}/${r.maxPlayers} players</span>
+      <button onclick="joinRoom('${r.id}')">JOIN</button>
+    </div>`).join("") : "<p>No servers yet. Create the first one!</p>";
+});
+
+function joinRoom(id) {
+  socket.emit("joinRoom", {id, name:name()});
+}
+
+socket.on("joinedRoom", data => {
+  roomId = data.id;
+  $("lobbyCode").textContent = roomId;
+  show("lobby");
+});
+
+socket.on("errorMessage", msg => alert(msg));
+
+socket.on("lobbyState", state => {
+  currentState = state.state;
+  $("lobbyStatus").textContent =
+    state.state === "voting" ? "Vote for the game mode and map, then ready up." :
+    state.state === "countdown" ? "Match starting..." : "Match in progress";
+
+  $("players").innerHTML = state.players.map(p => `
+    <div class="vote">
+      <span>${p.name}${p.id === playerId ? " (YOU)" : ""}</span>
+      <span>Team ${p.team + 1} ${p.ready ? "✓" : ""}</span>
+    </div>`).join("");
+
+  const availableModes = ["Zone Control","Checkpoint Rally","Crystal Hunt","Free Explore"];
+  const availableMaps = ["Luminous Gardens","Glass Dunes","Skyline Ruins","Aurora Grove"];
+  renderVotes("modeVotes", state.modeVotes, availableModes, "voteMode");
+  renderVotes("mapVotes", state.mapVotes, availableMaps, "voteMap");
+  const leader = (votes, options) => {
+    const ranked = options.map((name, index) => ({name, votes:Number(votes?.[name] || 0), index})).sort((a,b)=>b.votes-a.votes || a.index-b.index);
+    return ranked[0]?.votes ? `${ranked[0].name} (${ranked[0].votes})` : "No votes yet";
+  };
+  if ($("leadingMode")) $("leadingMode").textContent = leader(state.modeVotes, availableModes);
+  if ($("leadingMap")) $("leadingMap").textContent = leader(state.mapVotes, availableMaps);
+
+  $("readyBtn").disabled = state.state !== "voting";
+  $("readyBtn").textContent = state.players.find(p=>p.id===playerId)?.ready ? "NOT READY" : "READY";
+
+  if (state.state === "countdown") {
+    $("countdown").classList.remove("hidden");
+    $("countdown").textContent = state.countdown;
+  } else {
+    $("countdown").classList.add("hidden");
+  }
+
+  if (state.state === "playing") {
+    $("matchTitle").textContent = `${state.mode} — ${state.map}`;
+    renderScores(state.scores);
+    show("game");
+    resizeArena();
+    setMapTheme(state.map);
+  }
+});
+
+function renderVotes(id, votes, options, eventName) {
+  const container = $(id);
+  if (!container) return;
+  container.innerHTML = options.map((option, index) => `
+    <div class="vote">
+      <span>${option} — ${Number(votes?.[option] || 0)} vote(s)</span>
+      <button type="button" data-vote-option="${index}">VOTE</button>
+    </div>`).join("");
+
+  // Bind after rendering instead of interpolating quoted option names into
+  // an inline HTML attribute (which broke for names containing spaces).
+  container.querySelectorAll("button[data-vote-option]").forEach(button => {
+    button.addEventListener("click", () => {
+      const option = options[Number(button.dataset.voteOption)];
+      if (typeof window[eventName] === "function" && option !== undefined) {
+        window[eventName](option);
+      }
+    });
+  });
+}
+
+function renderScores(scores) {
+  $("scores").innerHTML = scores.map((s,i) =>
+    `<span style="color:${teamColors[i]};margin-left:10px">T${i+1}: ${s}</span>`).join("");
+}
+
+function chooseTeam(team) {
+  myTeam = team;
+  socket.emit("chooseTeam", team);
+}
+
+function voteMode(mode) {
+  socket.emit("voteMode", mode);
+}
+
+function voteMap(map) {
+  socket.emit("voteMap", map);
+}
+function chooseAbility(ability, button) {
+  selectedAbility = ability;
+  document.querySelectorAll(".ability-option").forEach(el => el.classList.toggle("selected", el === button));
+  const label = $("selectedAbilityLabel");
+  if (label) label.textContent = ability.toUpperCase();
+}
+
+function toggleReady() {
+  socket.emit("ready");
+}
+
+const arena = $("arena");
+let selectedAbility = "Dash";
+let jumpHeight = 0;
+let jumpRequested = false;
+let cameraYaw = 0;
+let cameraPitch = 0.32;
+let cameraDistance = 19;
+let targetCameraDistance = 19;
+let cameraYawVelocity = 0;
+let cameraPitchVelocity = 0;
+let moveFacing = 0;
+let hasMovedFacing = false;
+let cameraDragging = false;
+let cameraDragMoved = false;
+let lastGestureWasDrag = false;
+let lastPointerX = 0;
+let lastPointerY = 0;
+let lastPointerDownAt = 0;
+let jumpVelocity = 0;
+let abilityCooldown = 0;
+let abilityRequested = false;
+let lastFrameTime = performance.now();
+
+const scene = new THREE.Scene();
+const mapDecoration = new THREE.Group();
+scene.add(mapDecoration);
+function setMapTheme(mapName) {
+  baseEnvironmentObjects.forEach(object => { object.visible = mapName === "Luminous Gardens"; });
+  while (mapDecoration.children.length) {
+    const item = mapDecoration.children[0]; mapDecoration.remove(item);
+    item.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material) { if (Array.isArray(obj.material)) obj.material.forEach(m=>m.dispose()); else obj.material.dispose(); } });
+  }
+  const themes = {
+    "Luminous Gardens": {bg:0x102c38,fog:0x102c38,floor:0x244b45,grid:0x5be6bd,light:0xb7ffe5,accent:0x69ffc7,secondary:0x8a9cff},
+    "Glass Dunes": {bg:0x5a321b,fog:0x9b6034,floor:0xc69a5b,grid:0xe9c17a,light:0xffd49a,accent:0xffc46d,secondary:0xf18a56},
+    "Skyline Ruins": {bg:0x252b4c,fog:0x343c60,floor:0x6b6c7e,grid:0x9ba9e8,light:0xd2d6ff,accent:0x9da9ff,secondary:0xffa9da},
+    "Aurora Grove": {bg:0x102b38,fog:0x173b43,floor:0x254a42,grid:0x65cbb4,light:0xc6ffe8,accent:0x76f2b4,secondary:0xb69bff}
+  };
+  const t = themes[mapName] || themes["Luminous Gardens"];
+  scene.background.setHex(t.bg); scene.fog.color.setHex(t.fog); floor.material.color.setHex(t.floor);
+  grid.material.color.setHex(t.grid); mainLight.color.setHex(t.light); blueLight.color.setHex(t.accent); redLight.color.setHex(t.secondary);
+  grid.visible = mapName !== "Glass Dunes";
+  const mat = (color, emissive=0x000000) => new THREE.MeshStandardMaterial({color,roughness:0.82,metalness:0.08,emissive,emissiveIntensity:0.35});
+  const add = (geometry, material, x,y,z, sx=1,sy=1,sz=1) => { const m = new THREE.Mesh(geometry,material); m.position.set(x,y,z); m.scale.set(sx,sy,sz); m.castShadow=true; m.receiveShadow=true; mapDecoration.add(m); return m; };
+  if (mapName === "Glass Dunes") {
+    for (const [x,z] of [[-30,-16],[30,-12],[-25,15],[26,16]]) {
+      add(new THREE.BoxGeometry(1.8,5.5,1.8),mat(0xb9854f),x,2.75,z);
+      add(new THREE.BoxGeometry(5.4,.8,1.8),mat(0xe2b76d),x,5.2,z);
+    }
+    // Large sculpted dune ridges and rock clusters frame a broad central route.
+    for (const [x,z,sx,sz] of [[-24,-17,8,4],[24,-15,9,4],[-27,13,7,5],[27,15,8,4],[-12,20,6,3],[14,-21,7,3]]) {
+      add(new THREE.SphereGeometry(1,18,12),mat(0xd9ad69),x,-0.35,z,sx,0.7,sz);
+    }
+    for (const [x,z,s] of [[-31,-7,2.8],[-20,8,2.2],[29,4,2.6],[19,-8,2.4],[-8,-22,2.1],[8,22,2.5]]) {
+      add(new THREE.DodecahedronGeometry(1.5,1),mat(0x8c6545),x,s*0.48,z,s*1.1,s*0.85,s);
+      add(new THREE.DodecahedronGeometry(0.9,0),mat(0xb88a51),x+s*0.75,s*0.28,z-s*0.35,s*0.75,s*0.6,s*0.8);
+    }
+    add(new THREE.SphereGeometry(5,24,16),new THREE.MeshBasicMaterial({color:0xffc477}),27,20,-38);
+  } else if (mapName === "Skyline Ruins") {
+    for (const [x,z,h] of [[-30,-12,9],[-20,13,5],[23,-16,11],[31,12,7],[-4,-20,6],[8,18,9]]) {
+      add(new THREE.BoxGeometry(4,h,4),mat(0x454d70),x,h/2,z);
+      add(new THREE.BoxGeometry(5.4,.35,4.8),mat(0x9ba9e8,0x323e80),x,h,z);
+      add(new THREE.BoxGeometry(2,.18,1.8),mat(0x7ceaff,0x1c7fa5),x,h+.22,z);
+    }
+    for (const [x,z] of [[-10,-7],[11,6],[-25,5],[24,-4]]) add(new THREE.BoxGeometry(8,.5,2),mat(0x747d9c),x,2.5,z);
+    for (const [x,z] of [[-28,-17],[-20,14],[22,-16],[29,13],[-5,-19],[7,18]]) { add(new THREE.BoxGeometry(2.6,7,2.6),mat(0x666c83),x,3.5,z); add(new THREE.BoxGeometry(3.4,.45,3.4),mat(0xa5a9c3),x,7,z); }
+    for (let i=0;i<10;i++) add(new THREE.TetrahedronGeometry(1.3),mat(0x777b91),((i*13)%55)-27,.7,((i*19)%38)-19,1.3,.8,1.1);
+  } else {
+    for (let i=0;i<24;i++) {
+      const x=((i*17)%68)-34, z=((i*23)%42)-21;
+      if(Math.abs(x)<8 && Math.abs(z)<8) continue;
+      add(new THREE.CylinderGeometry(.18,.32,3,7),mat(0x335e62),x,1.5,z);
+      add(new THREE.SphereGeometry(1.6,12,9),mat(i%2?0x58bba4:0x8e83d8,i%2?0x2a967f:0x6352b5),x,3.5,z,1.1,.75,1.1);
+    }
+    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,0.78,0.82,0.78); }
+    for (let i=0;i<12;i++) add(new THREE.SphereGeometry(.14,8,6),new THREE.MeshBasicMaterial({color:t.secondary}),((i*9)%54)-27,1.4+(i%4),((i*17)%36)-18);
+  }
+  mainLight.position.set(-8, mapName==="Glass Dunes"?25:18, 10); mainLight.intensity=mapName==="Glass Dunes"?3.8:3.1;
+  resizeArena();
+}
+scene.background = new THREE.Color(0x17212b);
+scene.fog = new THREE.Fog(0x17212b, 48, 125);
+
+// Atmospheric starfield: a lightweight distant particle layer adds scale and depth.
+const starPositions = new Float32Array(900 * 3);
+for (let i = 0; i < 900; i++) {
+  starPositions[i * 3] = ((i * 7919) % 240) - 120;
+  starPositions[i * 3 + 1] = 12 + ((i * 3571) % 100);
+  starPositions[i * 3 + 2] = -35 - ((i * 1877) % 150);
+}
+const starGeometry = new THREE.BufferGeometry();
+starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+const starMaterial = new THREE.PointsMaterial({ color: 0xb9eaff, size: 0.34, transparent: true, opacity: 0.72, sizeAttenuation: true, depthWrite: false });
+const starfield = new THREE.Points(starGeometry, starMaterial);
+scene.add(starfield);
+
+
 const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 260);
 camera.position.set(0, 31, 38);
 camera.lookAt(0, 0, 0);
