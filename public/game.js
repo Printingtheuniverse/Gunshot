@@ -931,8 +931,8 @@ function loop() {
       if (forward || strafe) {
         const magnitude = Math.hypot(forward, strafe) || 1;
         const f = forward / magnitude, side = strafe / magnitude, angle = cameraYaw;
-        const dx = Math.sin(angle) * f - Math.cos(angle) * side;
-        const dz = -Math.cos(angle) * f - Math.sin(angle) * side;
+        const dx = Math.sin(angle) * f + Math.cos(angle) * side;
+        const dz = Math.cos(angle) * f - Math.sin(angle) * side;
         const proposedX = me.x + dx * moveSpeed;
         const proposedY = me.y + dz * moveSpeed;
         const nextX = (proposedX - 400) * 0.18, nextZ = (proposedY - 250) * 0.18;
