@@ -983,8 +983,6 @@ function loop() {
     if (cameraTarget) {
       if (!cameraDragging) {
         cameraYaw += cameraYawVelocity;
-        // Ease the orbit offset back to center so the camera naturally settles behind the explorer.
-        cameraYaw *= 0.975;
         cameraPitch = Math.max(0.10, Math.min(0.92, cameraPitch + cameraPitchVelocity));
         cameraYawVelocity *= 0.88;
         cameraPitchVelocity *= 0.88;
@@ -992,12 +990,14 @@ function loop() {
       cameraDistance += (targetCameraDistance - cameraDistance) * 0.16;
       emergencyOperator.visible = false;
       const target = cameraTarget.position;
-      // Stable third-person chase camera; keep the explorer visible.
+      // cameraYaw is the single world-space heading used by both movement and camera.
+      // Place the camera exactly opposite that heading so it stays behind the explorer.
       const horizontal = Math.cos(cameraPitch) * cameraDistance;
+      const behindAngle = cameraYaw + Math.PI;
       const desiredCamera = new THREE.Vector3(
-        target.x + Math.sin(cameraTarget.rotation.y + Math.PI + cameraYaw) * horizontal,
+        target.x + Math.sin(behindAngle) * horizontal,
         target.y + 2.2 + Math.sin(cameraPitch) * cameraDistance,
-        target.z + Math.cos(cameraTarget.rotation.y + Math.PI + cameraYaw) * horizontal
+        target.z + Math.cos(behindAngle) * horizontal
       );
       camera.position.lerp(desiredCamera, 0.22);
       camera.lookAt(target.x, target.y + 1.1 + jumpHeight * 0.2, target.z);
