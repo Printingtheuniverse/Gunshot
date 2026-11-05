@@ -450,3 +450,101 @@ body:before{opacity:.24;background-size:54px 54px,137px 137px;background-image:r
 .arena-frame{border-color:rgba(105,225,255,.55);box-shadow:0 0 0 1px rgba(105,225,255,.15),0 24px 70px rgba(0,0,0,.58),0 0 48px rgba(43,192,255,.14)}
 #arena{filter:contrast(1.09) saturate(1.17)}
 @media(prefers-reduced-motion:reduce){.hero-panel,.arena-frame{animation:none!important}}
+
+
+/* ORBITAL DOME lobby redesign — screenshot-matched visual treatment */
+body:has(#dashboard.active){
+ background:
+  radial-gradient(ellipse at 50% 18%,rgba(42,119,255,.28),transparent 38%),
+  radial-gradient(ellipse at 12% 44%,rgba(150,51,255,.2),transparent 34%),
+  radial-gradient(ellipse at 88% 55%,rgba(37,190,255,.18),transparent 38%),
+  linear-gradient(160deg,#020612,#08142c 48%,#030817);
+}
+.app{max-width:1740px;padding:12px 18px 18px}
+.topbar{min-height:64px;border-radius:9px;background:rgba(3,9,24,.88);border-color:#3676c9;box-shadow:0 0 28px #176bff20,inset 0 1px #b8e9ff22}
+.brand-mark{border-radius:50%;background:radial-gradient(circle,#1d8dff,#071d45 70%);color:#e9fcff;border:1px solid #72dfff;box-shadow:0 0 22px #159dff88}
+.brand-wordmark{font-size:20px;letter-spacing:2px}
+.topnav{gap:3px}
+.nav-button{border-radius:5px;color:#c3d9f7}
+.nav-button.selected,.nav-button:hover{background:linear-gradient(120deg,#0b3b72,#10234d);border-color:#4daaff;color:#fff;box-shadow:inset 0 -2px #4deaff,0 0 18px #168dff44}
+.welcome-row{display:none}
+.cinematic-banner{
+ min-height:440px;margin-top:12px;border-radius:9px;border:1px solid #397cc6;
+ background:
+  radial-gradient(ellipse at 61% 40%,rgba(36,173,255,.34),transparent 30%),
+  radial-gradient(ellipse at 77% 30%,rgba(123,81,255,.22),transparent 42%),
+  linear-gradient(110deg,#030a19 0%,#0b2346 47%,#080d26 100%);
+ box-shadow:0 22px 70px #000b,0 0 42px #168dff25;
+}
+.cinematic-banner:before{
+ z-index:0;opacity:.95;
+ background:
+  radial-gradient(circle at 72% 24%,#d8f7ff 0 1px,transparent 2px),
+  radial-gradient(circle at 61% 19%,#8edfff 0 1px,transparent 2px),
+  radial-gradient(circle at 90% 38%,#fff 0 1px,transparent 2px),
+  radial-gradient(ellipse at 72% 28%,transparent 0 19%,#58dfff22 19.2% 19.5%,transparent 20%),
+  linear-gradient(90deg,#020817 0%,#020817d9 34%,transparent 70%);
+ background-size:auto,auto,auto,auto,auto;
+}
+.banner-atmosphere{opacity:1}
+.banner-moon{width:310px;height:310px;right:19%;top:8%;background:radial-gradient(circle at 35% 30%,#d8f7ff,#5d9fd7 35%,#182e70 68%,#080b24 78%);box-shadow:0 0 65px #49bfff77}
+.banner-grid{opacity:.45}
+.banner-content{position:relative;z-index:3;max-width:58%;padding:38px 34px}
+.banner-stamp{border-color:#4b9bd0;background:#07172dd9}
+.banner-content h2.brand-hero-title{font-size:clamp(48px,6.2vw,86px);text-shadow:0 5px 24px #000,0 0 28px #238dff55}
+.brand-title-main{color:#f4f9ff}
+.brand-title-accent{color:#71eaff}
+.banner-content .brand-hero-tagline{font-size:clamp(16px,2vw,25px)!important}
+.banner-content .brand-hero-sub{color:#b3d8ff!important}
+.banner-actions{display:flex;gap:10px;flex-wrap:wrap}
+.banner-play{background:linear-gradient(110deg,#ffdf38,#ff9d08 58%,#ffca21);border:2px solid #fff07a;color:#201000;border-radius:7px;padding:15px 38px;font-size:20px;font-weight:1000;box-shadow:0 0 24px #ffb31c99,inset 0 1px #fff}
+.banner-secondary{background:#081b3c;border:1px solid #4d9eff;color:#e9f7ff;border-radius:7px;padding:14px 20px;font-weight:900}
+.banner-character{right:5%;width:34%;z-index:2}
+.banner-character-halo{width:330px;height:330px;border:1px solid #54dfff88;box-shadow:0 0 0 22px #4c9dff13,0 0 90px #249dff77}
+.banner-figure{transform:scale(1.18);filter:drop-shadow(0 0 30px #1a9fffaa) drop-shadow(0 18px 20px #000)}
+.banner-coordinate{z-index:3}
+.lobby-layout{grid-template-columns:minmax(210px,.72fr) minmax(380px,1.55fr) minmax(220px,.72fr);gap:12px;margin-top:12px}
+.side-panel,.hero-panel{border-radius:9px;border-color:#3679c5;background:linear-gradient(155deg,rgba(7,23,52,.97),rgba(4,11,29,.97));box-shadow:0 14px 42px #0009,inset 0 1px #b7e8ff20}
+.side-panel{padding:17px}
+.panel-heading h3{color:#e9f7ff}
+.panel-heading small,.fine-print{color:#91b3d7}
+.field-label,.style-label{color:#8edfff}
+.side-panel input{background:#030b1c;border-color:#315d9b;border-radius:5px}
+.profile-preview,.cosmetic-card{background:#071a38;border-color:#2e5e9a;border-radius:6px}
+.quick-link{border-radius:5px;border-color:#244e82;background:#071a35;margin:5px 0;padding:12px}
+.quick-link:hover{background:#0e2c59;border-color:#4bcfff}
+.hero-panel{min-height:390px;background:
+ radial-gradient(ellipse at 50% 75%,#1365a5 0%,transparent 44%),
+ radial-gradient(ellipse at 50% 30%,#182e69 0%,transparent 58%),
+ linear-gradient(145deg,#071b3a,#030918)}
+.hero-panel:before{opacity:.3;background:repeating-linear-gradient(0deg,transparent 0 5px,#8deaff12 6px,transparent 7px 12px)}
+.hero-glow{opacity:.22;filter:blur(65px)}
+.orbit{border-color:#5adfff66;box-shadow:0 0 20px #278dff44}
+.avatar-figure{transform:scale(1.18) rotateY(-13deg)}
+.character-arrow{border-radius:5px;background:#071b39dd;border-color:#3689ca}
+.character-footer{color:#a7d5f1}
+.dot.active{box-shadow:0 0 12px var(--avatar-accent),0 0 24px var(--avatar-accent)}
+.swatch{border-color:#102a50}
+.play-dock{border-radius:8px;background:linear-gradient(100deg,#071c3a,#09122b);border-color:#327ac5}
+.play-cta{background:linear-gradient(110deg,#45eaff,#178dff);color:#02152a;border-radius:6px;box-shadow:0 0 22px #198dff66}
+.create-cta{border-radius:6px;background:#0b2144;border-color:#397fbd}
+.dashboard-footer{color:#86b8dc}
+@media(min-width:1100px){
+ .cinematic-banner{min-height:460px}
+ .banner-content{padding-top:54px}
+ .lobby-layout{min-height:400px}
+ .hero-panel{min-height:400px}
+}
+@media(max-width:1050px){
+ .banner-content{max-width:68%}
+ .banner-character{right:-2%;width:40%}
+}
+@media(max-width:700px){
+ .app{padding:8px}
+ .cinematic-banner{min-height:460px}
+ .banner-content{max-width:100%;padding:26px 18px}
+ .banner-character{right:-7%;top:180px;width:48%;opacity:.55}
+ .banner-metrics{display:none}
+ .lobby-layout{grid-template-columns:1fr}
+ .hero-panel{grid-row:1;min-height:370px}
+}
