@@ -431,7 +431,54 @@ for (const [x, z] of [
   addBox(x, 2.43, z, 3.7, 0.12, 3.7, 0x7897a5, 0x152e3a);
 }
 
+
 // Industrial frontier set dressing: structural steel, utility conduits, lamps, and worn floor panels.
+// Signature skyline structures: illuminated orbital pylons and suspended transit arcs.
+const architecturalSteel = new THREE.MeshStandardMaterial({color:0x263f55,metalness:0.82,roughness:0.24});
+const luminousGlass = new THREE.MeshPhysicalMaterial({color:0x63dfff,metalness:0.28,roughness:0.12,transparent:true,opacity:0.42,emissive:0x126c99,emissiveIntensity:1.1,clearcoat:1,clearcoatRoughness:0.08});
+for (const side of [-1,1]) {
+  for (const z of [-34,-4,27]) {
+    const x=side*48;
+    const pylon=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.8,19,8),architecturalSteel);
+    pylon.position.set(x,9.5,z); pylon.castShadow=true; pylon.receiveShadow=true; scene.add(pylon);
+    const crown=new THREE.Mesh(new THREE.TorusGeometry(2.1,.16,10,40),new THREE.MeshBasicMaterial({color:side<0?0x43dfff:0xffa875}));
+    crown.position.set(x,18.9,z); crown.rotation.x=Math.PI/2; scene.add(crown);
+    const glass=new THREE.Mesh(new THREE.BoxGeometry(.22,12,.22),luminousGlass);
+    glass.position.set(x-side*1.35,8,z); scene.add(glass);
+  }
+}
+for (const z of [-32,30]) {
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(22,.42,12,96,Math.PI),architecturalSteel);
+  arch.position.set(0,10,z); arch.rotation.z=Math.PI; arch.scale.set(1.35,1,1); arch.castShadow=true; scene.add(arch);
+  const lightArc=new THREE.Mesh(new THREE.TorusGeometry(22,.075,8,96,Math.PI),new THREE.MeshBasicMaterial({color:0x53dfff}));
+  lightArc.position.set(0,10.15,z); lightArc.rotation.z=Math.PI; lightArc.scale.set(1.35,1,1); scene.add(lightArc);
+}
+// Precision runway inlays and reflective floor panels guide the eye toward the arena core.
+const laneMaterial=new THREE.MeshStandardMaterial({color:0x5b8da2,metalness:.72,roughness:.26,emissive:0x123b50,emissiveIntensity:.55});
+for (const x of [-13,-11,11,13]) {
+  const lane=new THREE.Mesh(new THREE.BoxGeometry(.12,.035,104),laneMaterial);
+  lane.position.set(x,.045,0); scene.add(lane);
+}
+for (let z=-48;z<=48;z+=8) {
+  const dash=new THREE.Mesh(new THREE.BoxGeometry(8,.04,.12),new THREE.MeshBasicMaterial({color:0x4fc9ec,transparent:true,opacity:.55}));
+  dash.position.set(0,.052,z); scene.add(dash);
+}
+const centerSigil=new THREE.Mesh(new THREE.TorusGeometry(5.2,.12,10,96),new THREE.MeshStandardMaterial({color:0x8cecff,metalness:.45,roughness:.2,emissive:0x1b8db5,emissiveIntensity:1.25}));
+centerSigil.rotation.x=Math.PI/2; centerSigil.position.y=.12; scene.add(centerSigil);
+const centerCore=new THREE.Mesh(new THREE.CylinderGeometry(2.7,3.5,.16,48),new THREE.MeshPhysicalMaterial({color:0x193b56,metalness:.82,roughness:.18,clearcoat:1,emissive:0x0b5475,emissiveIntensity:.7}));
+centerCore.position.y=.08; scene.add(centerCore);
+// Fine atmospheric motes catch the colored arena lights.
+const motePositions=new Float32Array(520*3);
+for(let i=0;i<520;i++){
+  motePositions[i*3]=((i*1877)%84)-42;
+  motePositions[i*3+1]=.7+((i*3253)%19);
+  motePositions[i*3+2]=((i*1297)%100)-50;
+}
+const moteGeometry=new THREE.BufferGeometry();
+moteGeometry.setAttribute("position",new THREE.BufferAttribute(motePositions,3));
+const motes=new THREE.Points(moteGeometry,new THREE.PointsMaterial({color:0x8feaff,size:.11,transparent:true,opacity:.48,depthWrite:false}));
+scene.add(motes);
+
 const steel = 0x354957;
 const darkSteel = 0x182b39;
 const neonCyan = 0x48d8f3;
@@ -914,6 +961,7 @@ let lastSentY = null;
 let animationStarted = false;
 
 function loop() {
+  motes.rotation.y += 0.00016;
   requestAnimationFrame(loop);
   starfield.rotation.y += 0.000025;
   requestAnimationFrame(loop);
