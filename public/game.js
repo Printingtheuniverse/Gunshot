@@ -1140,6 +1140,15 @@ start3DLoop();
 let selectedGear = "AURORA";
 let loadoutColor = "#63e6ff";
 const LOADOUT_STORAGE_KEY = "arenaverse.cosmeticLoadouts.v1";
+function selectWeaponStyle(style, button) {
+  document.querySelectorAll(".weapon-style-card").forEach(card => {
+    const active = card.dataset.weaponStyle === style;
+    card.classList.toggle("selected", active);
+    const state = card.querySelector(".weapon-equipped");
+    if (state) state.textContent = active ? "EQUIPPED" : "SELECT";
+  });
+  localStorage.setItem("reloadShotWeaponStyle", style);
+}
 function openLoadoutStudio() {
   const panel = $("loadoutStudio");
   if (!panel) return;
