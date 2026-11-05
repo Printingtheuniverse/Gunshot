@@ -548,3 +548,34 @@ body:has(#dashboard.active){
  .lobby-layout{grid-template-columns:1fr}
  .hero-panel{grid-row:1;min-height:370px}
 }
+
+
+/* Orbital armory — stylized energy-blaster cosmetic cards */
+.weapon-showcase{margin:14px 0 18px;padding:20px;border:1px solid #3679c5;border-radius:9px;background:linear-gradient(145deg,rgba(5,19,44,.98),rgba(3,9,25,.98));box-shadow:0 14px 42px #0009,inset 0 1px #b7e8ff20}
+.weapon-showcase-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.weapon-showcase-heading h2{margin:3px 0;color:#f2f9ff;font-size:25px;letter-spacing:2px}
+.weapon-showcase-heading h2 span{color:#70eaff}
+.weapon-showcase-heading .sub{margin:4px 0;color:#9bbddd;font-size:13px}
+.arsenal-status{white-space:nowrap;color:#80e9ff;font-size:10px;letter-spacing:1.4px;border:1px solid #327db1;border-radius:4px;padding:8px 10px;background:#061a32}
+.arsenal-status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#62ffc1;box-shadow:0 0 10px #62ffc1;margin-right:7px}
+.weapon-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.weapon-style-card{display:flex;align-items:center;gap:14px;min-width:0;text-align:left;padding:14px;border:1px solid #244d7c;border-radius:7px;background:linear-gradient(130deg,#091d3c,#050e23);color:#eaf8ff;cursor:pointer;transition:.18s}
+.weapon-style-card:hover,.weapon-style-card.selected{border-color:#61dcff;box-shadow:0 0 22px #168dff35,inset 0 0 20px #178cff14;transform:translateY(-2px)}
+.weapon-art{position:relative;display:block;flex:0 0 128px;height:66px;filter:drop-shadow(0 0 10px var(--weapon-glow))}
+.weapon-art:before{content:"";position:absolute;left:12px;top:23px;width:87px;height:22px;background:linear-gradient(180deg,#d9f7ff,#547b9d 48%,#142b4d);clip-path:polygon(0 18%,78% 18%,100% 42%,100% 68%,69% 82%,0 82%);border:1px solid #d8f7ff}
+.weapon-art:after{content:"";position:absolute;left:96px;top:28px;width:28px;height:9px;background:var(--weapon-glow);box-shadow:0 0 16px var(--weapon-glow);clip-path:polygon(0 0,100% 30%,100% 70%,0 100%)}
+.weapon-art .weapon-barrel{position:absolute;left:17px;top:18px;width:74px;height:5px;background:#d9f5ff;border-radius:5px;box-shadow:0 0 7px var(--weapon-glow)}
+.weapon-art .weapon-core{position:absolute;left:49px;top:27px;width:25px;height:10px;border-radius:4px;background:var(--weapon-glow);box-shadow:0 0 15px var(--weapon-glow)}
+.weapon-art .weapon-grip{position:absolute;left:54px;top:42px;width:14px;height:19px;background:linear-gradient(90deg,#152844,#8db7d6);clip-path:polygon(0 0,100% 0,78% 100%,22% 100%)}
+.weapon-art .weapon-wing{position:absolute;left:25px;top:44px;width:30px;height:8px;background:#91bad8;clip-path:polygon(0 0,100% 0,78% 100%,12% 100%)}
+.nebula-art{--weapon-glow:#5deaff}
+.solar-art{--weapon-glow:#ffb74d}
+.phase-art{--weapon-glow:#b78aff}
+.solar-art .weapon-core,.solar-art:after{background:#ffb74d}
+.phase-art .weapon-core,.phase-art:after{background:#b78aff}
+.weapon-style-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+.weapon-style-copy strong{font-size:12px;letter-spacing:1.2px}
+.weapon-style-copy small{color:#8eafd1;font-size:10px}
+.weapon-equipped{font-size:9px;letter-spacing:1.4px;color:#67eaff}
+.weapon-style-card:not(.selected) .weapon-equipped{color:#91a9c5}
+@media(max-width:760px){.weapon-style-grid{grid-template-columns:1fr}.weapon-showcase-heading{align-items:flex-start;flex-direction:column}.weapon-style-card{min-height:84px}}
