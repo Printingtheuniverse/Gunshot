@@ -312,8 +312,8 @@ const planetRingA = new THREE.Mesh(new THREE.TorusGeometry(22,0.72,8,128),ringGo
 planetRingA.scale.y=0.28; planetRingA.rotation.x=0.12; orbitalWorld.add(planetRingA);
 const planetRingB = new THREE.Mesh(new THREE.TorusGeometry(26,0.22,6,128),new THREE.MeshBasicMaterial({color:0x65dfff,transparent:true,opacity:0.7,side:THREE.DoubleSide}));
 planetRingB.scale.y=0.28; planetRingB.rotation.x=0.12; orbitalWorld.add(planetRingB);
-const moon = new THREE.Mesh(new THREE.SphereGeometry(4.2,24,18),new THREE.MeshStandardMaterial({color:0x9aaec5,roughness:0.95,metalness:0.02}));
-moon.position.set(-42,18,188); scene.add(moon);
+const orbitalMoon = new THREE.Mesh(new THREE.SphereGeometry(4.2,24,18),new THREE.MeshStandardMaterial({color:0x9aaec5,roughness:0.95,metalness:0.02}));
+orbitalMoon.position.set(-42,18,188); scene.add(orbitalMoon);
 const distantSun = new THREE.Group();
 distantSun.position.set(-105,82,190);
 const sunDisc = new THREE.Mesh(new THREE.SphereGeometry(7,24,18),new THREE.MeshBasicMaterial({color:0x9beaff}));
@@ -425,6 +425,49 @@ const floor = new THREE.Mesh(
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
+
+// Procedural high-frequency arena surface: brushed alloy grain, fine panel seams,
+// edge markings and tiny fasteners. Generated locally, so no external asset load.
+const floorCanvas = document.createElement("canvas");
+floorCanvas.width = 512; floorCanvas.height = 512;
+const floorCtx = floorCanvas.getContext("2d");
+floorCtx.fillStyle = "#d8e1e6"; floorCtx.fillRect(0,0,512,512);
+for(let i=0;i<18000;i++){
+  const x=(i*7919)%512, y=(i*3571)%512, shade=150+((i*13)%80);
+  floorCtx.fillStyle="rgba("+shade+","+shade+","+shade+",0.12)";
+  floorCtx.fillRect(x,y,1+(i%3),1);
+}
+floorCtx.strokeStyle="rgba(30,68,88,.22)"; floorCtx.lineWidth=2;
+for(let x=0;x<=512;x+=128){floorCtx.beginPath();floorCtx.moveTo(x,0);floorCtx.lineTo(x,512);floorCtx.stroke();}
+for(let y=0;y<=512;y+=128){floorCtx.beginPath();floorCtx.moveTo(0,y);floorCtx.lineTo(512,y);floorCtx.stroke();}
+floorCtx.strokeStyle="rgba(255,255,255,.48)"; floorCtx.lineWidth=1;
+for(let x=8;x<512;x+=128)for(let y=8;y<512;y+=128){
+  floorCtx.beginPath();floorCtx.arc(x,y,3,0,Math.PI*2);floorCtx.stroke();
+  floorCtx.fillStyle="rgba(22,52,70,.25)";floorCtx.fillRect(x+10,y+10,24,2);
+}
+const floorTexture = new THREE.CanvasTexture(floorCanvas);
+floorTexture.wrapS=floorTexture.wrapT=THREE.RepeatWrapping;
+floorTexture.repeat.set(12,9);
+floorTexture.colorSpace=THREE.SRGBColorSpace;
+floorTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+floor.material.map=floorTexture;
+floor.material.needsUpdate=true;
+
+const terrainDetails = new THREE.Group();
+scene.add(terrainDetails);
+const panelMetal = new THREE.MeshStandardMaterial({color:0x617b8c,metalness:.78,roughness:.32});
+const panelGlow = new THREE.MeshStandardMaterial({color:0x6deaff,emissive:0x159fc9,emissiveIntensity:1.15,metalness:.38,roughness:.2});
+for(let x=-80;x<=80;x+=16){
+  for(let z=-48;z<=48;z+=16){
+    if(Math.abs(x)<7 && Math.abs(z)<7) continue;
+    const plate=new THREE.Mesh(new THREE.BoxGeometry(7.4,.035,7.4),panelMetal);
+    plate.position.set(x,.018,z); plate.receiveShadow=true; terrainDetails.add(plate);
+    for(const side of [-1,1]){
+      const seam=new THREE.Mesh(new THREE.BoxGeometry(.055,.025,5.9),panelGlow);
+      seam.position.set(x+side*3.55,.045,z); terrainDetails.add(seam);
+    }
+  }
+}
 
 const grid = new THREE.GridHelper(240, 96, 0x607f91, 0x344956);
 grid.position.y = 0.025;
@@ -602,6 +645,17 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
+function beaconLightPulse(){
+  const pulse=1.35+Math.sin(performance.now()*0.0022)*0.38;
+  for(const model of playerObjects.values()){
+    model.traverse(part=>{
+      if(part.userData.navigationBeacon && part.children[0]){
+        part.children[0].scale.setScalar(0.92+Math.sin(performance.now()*0.003)*0.12);
+        part.children[1].rotation.z+=0.012;
+      }
+    });
+  }
+}
 
 // Always-visible local operator fallback, independent of the detailed character
 // model builder. This ensures a player is visible even if a weapon/model part fails.
@@ -735,6 +789,15 @@ function makePlayer(p) {
   // Back-mounted explorer pack
   part(new THREE.BoxGeometry(0.48, 0.56, 0.2), deepArmor, 0, 1.55, -0.29);
   part(new THREE.BoxGeometry(0.34, 0.09, 0.08), material, 0, 1.72, -0.405);
+  // Micro-details: segmented utility belt, luminous boot rails and wrist status bars.
+  part(new THREE.BoxGeometry(0.62,0.11,0.13), deepArmor, 0, 1.02, 0.12);
+  part(new THREE.BoxGeometry(0.16,0.075,0.045), signal, -0.24, 1.02, 0.205);
+  part(new THREE.BoxGeometry(0.16,0.075,0.045), signal, 0.24, 1.02, 0.205);
+  part(new THREE.BoxGeometry(0.055,0.22,0.045), signal, -0.66, 1.2, 0.12);
+  part(new THREE.BoxGeometry(0.055,0.22,0.045), signal, 0.66, 1.2, 0.12);
+  part(new THREE.BoxGeometry(0.32,0.045,0.045), signal, -0.2, 0.09, 0.27);
+  part(new THREE.BoxGeometry(0.32,0.045,0.045), signal, 0.2, 0.09, 0.27);
+
   // Forearm cuffs and knee guards
   part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, -0.53, 1.1, 0);
   part(new THREE.CylinderGeometry(0.17, 0.17, 0.15, 8), material, 0.53, 1.1, 0);
@@ -1032,6 +1095,10 @@ function loop() {
   planetClouds.rotation.y -= 0.000035;
   planetRingA.rotation.z += 0.000006;
   planetRingB.rotation.z -= 0.000009;
+  const atmospherePulse = 0.88 + Math.sin(performance.now()*0.0007)*0.12;
+  blueLight.intensity = 32 * atmospherePulse;
+  redLight.intensity = 26 * (1.12-atmospherePulse*0.14);
+  beaconLightPulse();
 
   if (currentState === "playing") {
     // Recover if the socket ID or player-list event arrived late.
