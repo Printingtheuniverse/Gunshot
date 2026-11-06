@@ -20,7 +20,9 @@ const characters = [
   { name: "BOLT", description: "Rapid-response explorer · Angular pulse plating.", className: "avatar-bolt" },
   { name: "MOSS", description: "Recon specialist · Rugged field-ready armor.", className: "avatar-moss" },
   { name: "ORBIT", description: "Signal navigator · Orbital sensor crown and violet energy trim.", className: "avatar-orbit" },
-  { name: "EMBER", description: "Solar wanderer · Heat-shield plates and amber glow.", className: "avatar-ember" }
+  { name: "EMBER", description: "Solar wanderer · Heat-shield plates and amber glow.", className: "avatar-ember" },
+  { name: "AURORA", description: "Glacier navigator · Frosted alloy armor and polar light.", className: "avatar-aurora" },
+  { name: "CIPHER", description: "Signal phantom · Stealth plating and spectral violet trim.", className: "avatar-cipher" }
 ];
 let selectedCharacter = 0;
 let selectedAvatarColor = "#63e6ff";
@@ -44,7 +46,7 @@ function setAvatarColor(color, button) {
   selectedAvatarColor = color;
   document.documentElement.style.setProperty("--avatar-accent", color);
   document.querySelectorAll(".swatch").forEach(swatch => swatch.classList.toggle("active", swatch === button));
-  const names = { "#63e6ff": "Neon cyan", "#a78bfa": "Violet pulse", "#ffad66": "Solar orange", "#8be0a2": "Mint glow" };
+  const names = { "#63e6ff": "Neon cyan", "#a78bfa": "Violet pulse", "#ffad66": "Solar orange", "#8be0a2": "Mint glow", "#ff78c8": "Rose flare", "#ffd36e": "Starlight gold" };
   $("styleSummary").textContent = names[color] || "Custom color";
 }
 
@@ -802,6 +804,20 @@ function makePlayer(p) {
     part(new THREE.ConeGeometry(0.2,0.52,6), material, 0, 2.48, -0.02);
     part(new THREE.BoxGeometry(0.72,0.14,0.3), armor, 0, 1.88, -0.02);
     part(new THREE.SphereGeometry(0.14,10,8), new THREE.MeshStandardMaterial({color:0xffb45e,emissive:0xff7a28,emissiveIntensity:1.4}), 0, 1.5, 0.31);
+  } else if (variant === 5) {
+    // Aurora explorer: luminous polar halo and swept shoulder fins.
+    part(new THREE.TorusGeometry(0.38,0.045,8,24), glow, 0, 2.48, -0.02).rotation.x = Math.PI / 2;
+    part(new THREE.ConeGeometry(0.12,0.48,5), material, -0.58, 1.86, -0.08).rotation.z = -0.9;
+    part(new THREE.ConeGeometry(0.12,0.48,5), material, 0.58, 1.86, -0.08).rotation.z = 0.9;
+    part(new THREE.OctahedronGeometry(0.16,1), teamGlow, 0, 1.52, 0.31);
+  } else if (variant === 6) {
+    // Cipher explorer: twin sensor masts and angular side armor.
+    for (const side of [-1,1]) {
+      part(new THREE.CylinderGeometry(0.035,0.055,0.42,8), material, side*0.22, 2.42, -0.03);
+      part(new THREE.SphereGeometry(0.085,10,8), glow, side*0.22, 2.65, -0.03);
+      part(new THREE.BoxGeometry(0.2,0.42,0.28), deepArmor, side*0.42, 1.56, -0.26);
+    }
+    part(new THREE.BoxGeometry(0.42,0.08,0.08), glow, 0, 2.16, 0.29);
   }
   // Premium suit detailing: layered collar, segmented abdomen and shoulder insets.
   part(new THREE.TorusGeometry(0.31, 0.065, 10, 28), trim, 0, 1.91, 0).rotation.x = Math.PI / 2;
