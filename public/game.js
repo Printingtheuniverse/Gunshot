@@ -57,7 +57,15 @@ document.addEventListener("input", event => {
 });
 
 function showServers() {
-  if (!name()) return;
+  // The command-center PLAY buttons must work for first-time visitors too.
+  // Previously an empty name field caused a silent return, making every
+  // PLAY / QUICK MATCH button appear broken.
+  const input = $("playerName");
+  if (input && !input.value.trim()) input.value = "Explorer";
+  const playerName = name();
+  if ($("profileNamePreview")) $("profileNamePreview").textContent = playerName.toUpperCase();
+  if ($("miniAvatar")) $("miniAvatar").textContent = playerName.charAt(0).toUpperCase();
+  if ($("commandPlayerName")) $("commandPlayerName").textContent = playerName.toUpperCase();
   show("servers");
 }
 
