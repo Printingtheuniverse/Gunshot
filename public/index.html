@@ -23,6 +23,29 @@
         <div class="profile-chip"><span class="online-dot"></span><span>PLAYER PROFILE<small>Guest session</small></span></div>
       </header>
 
+      <section class="command-center" aria-label="RELOAD-SHOT command center">
+        <div class="command-stars"></div><div class="command-planet"></div><div class="command-tower"></div>
+        <aside class="command-left">
+          <button class="command-play" onclick="showServers()"><span>▶</span> PLAY</button>
+          <button onclick="showServers()"><span>♟</span> LOBBY</button>
+          <button onclick="openLoadoutStudio()"><span>⚔</span> LOADOUT</button>
+          <button onclick="openShop()"><span>🛒</span> SHOP</button>
+          <button onclick="document.querySelector('.topbar').scrollIntoView({behavior:'smooth'})"><span>⚙</span> SETTINGS</button>
+          <button onclick="openQuests()"><span>🏆</span> LEADERBOARD</button>
+        </aside>
+        <div class="command-operator" aria-hidden="true"><div class="operator-aura"></div><div class="operator-helmet"><i></i></div><div class="operator-body"><i></i><b></b></div><div class="operator-arm"></div><div class="operator-rifle"><i></i></div><div class="operator-leg leg-a"></div><div class="operator-leg leg-b"></div></div>
+        <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1>RELOAD<span>-SHOT</span></h1><small>AIM · SHOOT · DOMINATE</small></div>
+        <aside class="command-right">
+          <div class="command-profile"><span class="profile-emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div></div>
+          <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button onclick="openQuests()">VIEW MISSIONS</button></div></div>
+          <div class="command-score"><h3>🏆 FRONTIER BOARD</h3><p><b>01</b> ShadowX <strong>12,450</strong></p><p><b>02</b> ProGamerYT <strong>11,230</strong></p><p><b>03</b> NovaRift <strong>10,980</strong></p><small>DEMO DISPLAY · NOT LIVE SCORES</small></div>
+        </aside>
+        <div class="command-map"><div><strong>NEW MAP: ORBITAL DOME</strong><small>Explore the ultimate arena!</small></div><button onclick="showServers()">PLAY NOW ›</button></div>
+        <button class="command-quickmatch" onclick="showServers()"><span>◎</span><strong>QUICK MATCH</strong><small>Find an open arena</small></button>
+        <div class="command-online"><i></i> ONLINE · MULTIPLAYER</div>
+        <div class="command-footer">RELOAD-SHOT — THE ULTIMATE 3D ARENA SHOOTER <span>v1.0.0</span></div>
+      </section>
+
       <div class="welcome-row">
         <div><p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p><h1>ENTER THE <span>ARENA.</span></h1><p class="sub">Explore luminous worlds, master movement, and discover hidden arena routes.</p></div>
         <div class="season-chip"><span>✦</span><div>SEASON 01<small>THE FIRST FRONTIER</small></div></div>
