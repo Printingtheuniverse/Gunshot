@@ -267,6 +267,58 @@
     }, 1200);
   })();
 </script>
+<script>
+  // Keep dashboard navigation responsive if multiplayer or WebGL startup fails.
+  (() => {
+    const byId = id => document.getElementById(id);
+    const showScreen = id => document.querySelectorAll(".screen").forEach(screen => screen.classList.toggle("active", screen.id === id));
+    window.show = window.show || showScreen;
+    window.showServers = window.showServers || (() => {
+      const field = byId("playerName");
+      if (field && !field.value.trim()) field.value = "Explorer";
+      const player = (field?.value || "Explorer").trim().slice(0, 18);
+      if (byId("profileNamePreview")) byId("profileNamePreview").textContent = player.toUpperCase();
+      if (byId("miniAvatar")) byId("miniAvatar").textContent = player.charAt(0).toUpperCase();
+      if (byId("commandPlayerName")) byId("commandPlayerName").textContent = player.toUpperCase();
+      showScreen("servers");
+    });
+    window.openLoadoutStudio = window.openLoadoutStudio || (() => {
+      byId("loadoutStudio")?.classList.remove("hidden");
+      byId("loadoutStudio")?.scrollIntoView({behavior:"smooth",block:"center"});
+    });
+    window.closeLoadoutStudio = window.closeLoadoutStudio || (() => byId("loadoutStudio")?.classList.add("hidden"));
+    window.openShop = window.openShop || (() => byId("shopPanel")?.scrollIntoView({behavior:"smooth",block:"start"}));
+    window.openQuests = window.openQuests || (() => byId("questPanel")?.scrollIntoView({behavior:"smooth",block:"start"}));
+    window.selectCharacter = window.selectCharacter || (index => {
+      const chars = ["NOVA","BOLT","MOSS","ORBIT","EMBER"];
+      const i = ((index % chars.length) + chars.length) % chars.length;
+      if (byId("characterName")) byId("characterName").textContent = chars[i];
+      if (byId("characterCount")) byId("characterCount").textContent = String(i+1).padStart(2,"0")+" / 05";
+      if (byId("miniAvatar")) byId("miniAvatar").textContent = chars[i][0];
+      const figure = byId("avatarFigure");
+      if (figure) {
+        figure.classList.remove("avatar-nova","avatar-bolt","avatar-moss","avatar-orbit","avatar-ember");
+        figure.classList.add("avatar-"+chars[i].toLowerCase());
+      }
+    });
+    window.changeCharacter = window.changeCharacter || (direction => {
+      const current = ["NOVA","BOLT","MOSS","ORBIT","EMBER"].indexOf(byId("characterName")?.textContent || "NOVA");
+      window.selectCharacter(current + direction);
+    });
+    window.setAvatarColor = window.setAvatarColor || ((color, button) => {
+      document.documentElement.style.setProperty("--avatar-accent", color);
+      document.querySelectorAll(".swatch").forEach(item => item.classList.toggle("active", item === button));
+    });
+    window.chooseGear = window.chooseGear || ((gear, button) => {
+      document.querySelectorAll(".gear-card").forEach(card => card.classList.toggle("selected", card === button));
+      document.documentElement.dataset.loadoutGear = String(gear).toLowerCase();
+    });
+    window.chooseLoadoutColor = window.chooseLoadoutColor || ((color, button) => {
+      document.documentElement.style.setProperty("--avatar-accent", color);
+      document.querySelectorAll("#loadoutStudio .swatch").forEach(item => item.classList.toggle("active", item === button));
+    });
+  })();
+</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="game.js?v=20261104-camera-heading-v16"></script>
