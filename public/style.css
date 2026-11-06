@@ -663,3 +663,21 @@ body:has(#dashboard.active){
 @media(max-width:460px){.armory-grid{grid-template-columns:1fr 1fr;gap:8px}.armory-card{padding:9px}.armory-art{height:76px}.armory-card h3{font-size:11px}.armory-card p{font-size:10px}}
 /* Larger orbital playfield and more distant atmospheric depth */
 #arena{min-height:620px}
+
+
+/* Cinematic character visibility, command center and arena HUD */
+.hero-panel{min-height:470px;background:radial-gradient(ellipse at 52% 55%,#14517a 0%,#102d48 34%,#071827 76%)}
+.character-stage{inset:68px 0 20px;background:radial-gradient(ellipse at 50% 74%,#1d9acb30,transparent 48%)}
+.avatar-figure{transform:rotateY(-13deg) scale(1.2);filter:drop-shadow(0 0 26px color-mix(in srgb,var(--char-color),transparent 52%)) drop-shadow(0 16px 22px #0009)}
+.stage-shadow{width:220px;height:30px;background:#000a;box-shadow:0 0 28px #26cfff38}
+.command-score{border-color:#63dfff;background:linear-gradient(145deg,#0b2341f2,#050e20f5);box-shadow:0 0 0 1px #3ba6e522,0 12px 30px #000a,inset 0 0 26px #1675a51c}
+.command-score h3{font-size:14px;letter-spacing:1.1px;color:#b8f3ff}
+.command-score p{padding:10px 5px;border-top-color:#2d5a7d;font-variant-numeric:tabular-nums}
+.command-score p b{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:6px;background:#173b5b;color:#b9edff}
+.command-score p strong{color:#8deaff}
+.arena-frame{border:2px solid #58e7ff;box-shadow:0 0 0 1px #7eefff24,0 0 44px #1bbfe53b,inset 0 0 32px #1b9db01a}
+#scores{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border:1px solid #2e7897;border-radius:12px;background:linear-gradient(110deg,#071a2b,#102c43);box-shadow:0 0 22px #1ac9ef20}
+#scores span{margin:0!important;padding:6px 10px;border:1px solid #2e627d;border-radius:8px;background:#0a2134;font-size:12px;font-weight:900;letter-spacing:.6px}
+.weapon-hud{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0;padding:11px 14px;border:1px solid #28627b;border-radius:12px;background:linear-gradient(110deg,#081a2b,#102a40);box-shadow:0 8px 24px #0005}
+.weapon-status,.weapon-controls{font-size:11px;font-weight:900;letter-spacing:1px;color:#a9f3ff}
+@media(max-width:700px){.hero-panel{min-height:420px}.avatar-figure{transform:rotateY(-13deg) scale(1.08)}.weapon-hud{padding:9px}}
