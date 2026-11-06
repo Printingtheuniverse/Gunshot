@@ -229,6 +229,11 @@ function setMapTheme(mapName) {
     "Aurora Grove": {bg:0x102b38,fog:0x173b43,floor:0x254a42,grid:0x65cbb4,light:0xc6ffe8,accent:0x76f2b4,secondary:0xb69bff}
   };
   const t = themes[mapName] || themes["Luminous Gardens"];
+  scene.background.setHex(t.bg); scene.fog.color.setHex(t.fog); floor.material.color.setHex(t.floor);
+  grid.material.color.setHex(t.grid); mainLight.color.setHex(t.light); blueLight.color.setHex(t.accent); redLight.color.setHex(t.secondary);
+  grid.visible = mapName !== "Glass Dunes";
+  const mat = (color, emissive=0x000000) => new THREE.MeshStandardMaterial({color,roughness:0.82,metalness:0.08,emissive,emissiveIntensity:0.35});
+  const add = (geometry, material, x,y,z, sx=1,sy=1,sz=1) => { const m = new THREE.Mesh(geometry,material); m.position.set(x,y,z); m.scale.set(sx,sy,sz); m.castShadow=true; m.receiveShadow=true; mapDecoration.add(m); return m; };
   // Far perimeter beacons and monumental gates make the arena feel like a world,
   // not a small boxed room. These sit outside the central combat routes.
   const perimeterMat = new THREE.MeshStandardMaterial({color:0x203e57,metalness:0.78,roughness:0.24,emissive:0x0b4260,emissiveIntensity:0.65});
@@ -238,11 +243,7 @@ function setMapTheme(mapName) {
     add(new THREE.TorusGeometry(2.3*scale,.13,8,28),beaconMat,x,10.2*scale,z,1,1,1);
     add(new THREE.BoxGeometry(3.8,.24,3.8),perimeterMat,x,13*scale,z);
   }
-  scene.background.setHex(t.bg); scene.fog.color.setHex(t.fog); floor.material.color.setHex(t.floor);
-  grid.material.color.setHex(t.grid); mainLight.color.setHex(t.light); blueLight.color.setHex(t.accent); redLight.color.setHex(t.secondary);
-  grid.visible = mapName !== "Glass Dunes";
-  const mat = (color, emissive=0x000000) => new THREE.MeshStandardMaterial({color,roughness:0.82,metalness:0.08,emissive,emissiveIntensity:0.35});
-  const add = (geometry, material, x,y,z, sx=1,sy=1,sz=1) => { const m = new THREE.Mesh(geometry,material); m.position.set(x,y,z); m.scale.set(sx,sy,sz); m.castShadow=true; m.receiveShadow=true; mapDecoration.add(m); return m; };
+
   if (mapName === "Glass Dunes") {
     for (const [x,z] of [[-30,-16],[30,-12],[-25,15],[26,16]]) {
       add(new THREE.BoxGeometry(1.8,5.5,1.8),mat(0xb9854f),x,2.75,z);
@@ -299,6 +300,7 @@ scene.add(starfield);
 const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 260);
 camera.position.set(0, 31, 38);
 camera.lookAt(0, 0, 0);
+scene.add(camera);
 // Reuse the canvas already present in index.html. Do not nest a canvas
 // inside another canvas; that creates an invisible/zero-sized render surface.
 const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
@@ -1037,8 +1039,8 @@ function loop() {
       if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
-      const worldX = (me.x - 400) * 0.18;
-      const worldZ = (me.y - 250) * 0.18;
+      const worldX = (me.x - 400) * 0.23;
+      const worldZ = (me.y - 250) * 0.23;
       const now = performance.now();
       if (matchMode === "Zone Control" && now - lastObjectiveScoreAt > 5000) {
         const zone = controlZones.find(z => Math.hypot(worldX-z.position.x, worldZ-z.position.z) < 2.6);
