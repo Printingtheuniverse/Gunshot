@@ -176,6 +176,15 @@ function renderPlayerLeaderboard(roster) {
     (Number(b.eliminations)||0) - (Number(a.eliminations)||0) ||
     String(a.name||"").localeCompare(String(b.name||""))
   ).slice(0,5);
+  const localPlayer = (roster || []).find(player => player.id === playerId);
+  const healthRoot = $("playerHealth");
+  if (healthRoot) {
+    const hp = Math.max(0, Math.min(100, Number(localPlayer?.hp ?? 100)));
+    const value = healthRoot.querySelector("strong");
+    const fill = healthRoot.querySelector("em");
+    if (value) value.textContent = hp + "%";
+    if (fill) fill.style.width = hp + "%";
+  }
   root.replaceChildren();
   const heading = document.createElement("strong");
   heading.className = "player-leaderboard-title";
