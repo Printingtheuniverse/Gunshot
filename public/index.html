@@ -256,6 +256,17 @@
   </main>
 
 <div id="loadingCredit" class="loading-credit" role="status"><span class="loading-mark">R</span><span>RELOAD-SHOT<small>MADE BY QASIM A</small></span></div>
+<script>
+  // Keep a failed 3D engine from leaving the loading cover over the whole dashboard.
+  (() => {
+    const splash = document.getElementById("loadingCredit");
+    if (!splash) return;
+    window.setTimeout(() => {
+      splash.classList.add("done");
+      window.setTimeout(() => splash.remove(), 450);
+    }, 1200);
+  })();
+</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="game.js?v=20261104-camera-heading-v16"></script>
