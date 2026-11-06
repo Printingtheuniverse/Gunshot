@@ -167,6 +167,39 @@ function renderScores(scores) {
     `<span style="color:${teamColors[i]};margin-left:10px">T${i+1}: ${s}</span>`).join("");
 }
 
+function renderPlayerLeaderboard(roster) {
+  const root = $("playerLeaderboard");
+  if (!root) return;
+  const ranked = [...(roster || [])].sort((a,b) =>
+    (Number(b.eliminations)||0) - (Number(a.eliminations)||0) ||
+    String(a.name||"").localeCompare(String(b.name||""))
+  ).slice(0,5);
+  root.replaceChildren();
+  const heading = document.createElement("strong");
+  heading.className = "player-leaderboard-title";
+  heading.textContent = "MATCH LEADERBOARD";
+  root.appendChild(heading);
+  if (!ranked.length) {
+    const empty = document.createElement("span");
+    empty.className = "player-leaderboard-empty";
+    empty.textContent = "Waiting for explorers...";
+    root.appendChild(empty);
+    return;
+  }
+  ranked.forEach((player,index) => {
+    const item = document.createElement("span");
+    item.className = "player-leaderboard-entry" + (player.id === playerId ? " is-you" : "");
+    const rank = document.createElement("b");
+    rank.textContent = String(index+1).padStart(2,"0");
+    const name = document.createElement("span");
+    name.textContent = String(player.name || "Explorer").slice(0,18) + (player.id === playerId ? " · YOU" : "");
+    const score = document.createElement("strong");
+    score.textContent = String(Number(player.eliminations)||0) + " ELIMS";
+    item.append(rank,name,score);
+    root.appendChild(item);
+  });
+}
+
 function chooseTeam(team) {
   myTeam = team;
   socket.emit("chooseTeam", team);
@@ -1241,6 +1274,7 @@ socket.on("matchStarted", data => {
 socket.on("players", data => {
   players = data;
   updatePlayers();
+  renderPlayerLeaderboard(data);
 });
 socket.on("chatMessage", data => {
   const feed = $("chatMessages");
