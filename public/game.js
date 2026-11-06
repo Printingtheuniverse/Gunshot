@@ -280,8 +280,49 @@ function setMapTheme(mapName) {
   mainLight.position.set(-8, mapName==="Glass Dunes"?25:18, 10); mainLight.intensity=mapName==="Glass Dunes"?3.8:3.1;
   resizeArena();
 }
-scene.background = new THREE.Color(0x17212b);
+scene.background = new THREE.Color(0x071326);
 scene.fog = new THREE.Fog(0x17212b, 85, 235);
+
+// Cinematic orbital sky: procedural atmospheric gradient, distant ringed world,
+// and layered orbital rings. Built from geometry/shaders—no external assets.
+const skyDome = new THREE.Mesh(
+  new THREE.SphereGeometry(220, 48, 32),
+  new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    vertexShader: 'varying vec3 vDirection; void main(){ vDirection=normalize(position); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vDirection; void main(){ float h=max(vDirection.y,0.0); vec3 horizon=vec3(0.035,0.12,0.22); vec3 zenith=vec3(0.008,0.018,0.065); float band=pow(max(0.0,1.0-abs(vDirection.y-0.18)*3.0),5.0); vec3 aurora=mix(vec3(0.02,0.36,0.52),vec3(0.22,0.10,0.48),smoothstep(-0.1,0.8,vDirection.x))*band*0.42; gl_FragColor=vec4(mix(horizon,zenith,smoothstep(0.0,0.82,h))+aurora,1.0); }'
+  })
+);
+skyDome.renderOrder = -10;
+scene.add(skyDome);
+
+const orbitalWorld = new THREE.Group();
+orbitalWorld.position.set(56, 53, 158);
+scene.add(orbitalWorld);
+const planetMat = new THREE.MeshPhysicalMaterial({color:0x557eaa, roughness:0.82, metalness:0.04, clearcoat:0.25, emissive:0x102b4c, emissiveIntensity:0.32});
+const planet = new THREE.Mesh(new THREE.SphereGeometry(16, 48, 32), planetMat);
+orbitalWorld.add(planet);
+const planetClouds = new THREE.Mesh(
+  new THREE.SphereGeometry(16.12, 48, 32),
+  new THREE.MeshBasicMaterial({color:0x8bdcff, transparent:true, opacity:0.12, wireframe:true})
+);
+orbitalWorld.add(planetClouds);
+const ringGold = new THREE.MeshStandardMaterial({color:0x9ec9e7, metalness:0.62, roughness:0.28, emissive:0x173c62, emissiveIntensity:0.55, side:THREE.DoubleSide});
+const planetRingA = new THREE.Mesh(new THREE.TorusGeometry(22,0.72,8,128),ringGold);
+planetRingA.scale.y=0.28; planetRingA.rotation.x=0.12; orbitalWorld.add(planetRingA);
+const planetRingB = new THREE.Mesh(new THREE.TorusGeometry(26,0.22,6,128),new THREE.MeshBasicMaterial({color:0x65dfff,transparent:true,opacity:0.7,side:THREE.DoubleSide}));
+planetRingB.scale.y=0.28; planetRingB.rotation.x=0.12; orbitalWorld.add(planetRingB);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(4.2,24,18),new THREE.MeshStandardMaterial({color:0x9aaec5,roughness:0.95,metalness:0.02}));
+moon.position.set(-42,18,188); scene.add(moon);
+const distantSun = new THREE.Group();
+distantSun.position.set(-105,82,190);
+const sunDisc = new THREE.Mesh(new THREE.SphereGeometry(7,24,18),new THREE.MeshBasicMaterial({color:0x9beaff}));
+distantSun.add(sunDisc);
+for(const [radius,opacity] of [[10,.18],[14,.09],[20,.045]]) {
+  const halo=new THREE.Mesh(new THREE.SphereGeometry(radius,24,18),new THREE.MeshBasicMaterial({color:0x3caeff,transparent:true,opacity,depthWrite:false}));
+  distantSun.add(halo);
+}
+scene.add(distantSun);
 
 // Atmospheric starfield adds distant scale without affecting player controls.
 const starPositions = new Float32Array(900 * 3);
@@ -304,7 +345,7 @@ scene.add(camera);
 // Reuse the canvas already present in index.html. Do not nest a canvas
 // inside another canvas; that creates an invisible/zero-sized render surface.
 const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
 renderer.physicallyCorrectLights = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -984,10 +1025,13 @@ let lastSentY = null;
 let animationStarted = false;
 
 function loop() {
+  requestAnimationFrame(loop);
   motes.rotation.y += 0.00016;
-  requestAnimationFrame(loop);
   starfield.rotation.y += 0.000025;
-  requestAnimationFrame(loop);
+  orbitalWorld.rotation.y += 0.000018;
+  planetClouds.rotation.y -= 0.000035;
+  planetRingA.rotation.z += 0.000006;
+  planetRingB.rotation.z -= 0.000009;
 
   if (currentState === "playing") {
     // Recover if the socket ID or player-list event arrived late.
