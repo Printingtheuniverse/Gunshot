@@ -634,3 +634,32 @@ body:has(#dashboard.active){
 .command-footer{position:absolute;bottom:2%;left:32%;right:27%;text-align:center;color:#b4cce8;font-size:10px;letter-spacing:1px}.command-footer span{float:right}
 @media(max-width:760px){.command-center{height:auto;min-height:880px}.command-title{top:3%;left:4%}.command-right{top:16%;right:3%;width:44%}.command-profile{padding:7px}.profile-emblem{width:38px;height:38px}.command-score{display:none}.command-left{top:19%;left:3%;width:43%;gap:5px}.command-left button{padding:9px;font-size:10px}.command-left .command-play{padding:12px;font-size:18px}.command-operator{height:37%;width:47%;bottom:24%;left:53%}.command-map{bottom:7%;width:46%;min-height:90px}.command-quickmatch{bottom:7%;right:3%;width:44%;padding:12px}.command-footer{display:none}.command-online{bottom:2%}}
 @media(max-width:430px){.command-center{min-height:950px}.command-right{top:18%;width:46%}.command-reward{padding:7px}.command-reward>span{font-size:20px}.command-map{width:94%;bottom:15%}.command-quickmatch{width:94%;bottom:6%;right:3%}.command-operator{left:51%;bottom:31%;height:31%}.command-title h1{font-size:27px}}
+
+
+/* Frontier Armory — unlockable fictional energy blasters */
+.armory-panel{margin:26px auto 34px;max-width:1500px;padding:clamp(18px,2.5vw,34px);border:1px solid rgba(88,205,255,.28);border-radius:18px;background:linear-gradient(135deg,rgba(7,20,39,.97),rgba(12,34,60,.94) 55%,rgba(26,18,54,.94));box-shadow:0 18px 60px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06)}
+.armory-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}
+.armory-heading h2{margin:4px 0 8px;font-size:clamp(22px,3vw,34px);letter-spacing:.04em}
+.armory-heading h2 span{color:#75e9ff;text-shadow:0 0 20px rgba(76,213,255,.45)}
+.armory-wallet{flex:0 0 auto;padding:12px 18px;border:1px solid rgba(255,202,103,.35);border-radius:12px;color:#ffd27b;background:rgba(255,190,80,.08);font-weight:800}
+.armory-wallet strong{font-size:22px;margin:0 4px}
+.armory-wallet small{font-size:10px;letter-spacing:.12em}
+.armory-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.armory-card{position:relative;overflow:hidden;min-width:0;padding:14px;border:1px solid rgba(119,190,229,.22);border-radius:14px;background:linear-gradient(155deg,rgba(18,43,68,.92),rgba(5,16,31,.96));transition:transform .2s,border-color .2s,box-shadow .2s}
+.armory-card:hover,.armory-card.equipped{transform:translateY(-3px);border-color:rgba(100,224,255,.72);box-shadow:0 10px 28px rgba(21,169,220,.12)}
+.armory-art{height:104px;position:relative;display:grid;place-items:center;margin-bottom:10px;border-radius:10px;background:radial-gradient(ellipse,rgba(64,177,231,.2),transparent 68%),linear-gradient(120deg,rgba(20,53,78,.4),rgba(10,21,40,.6))}
+.armory-art:before{content:"";width:68%;height:17px;border-radius:5px 13px 5px 5px;background:linear-gradient(180deg,#d5e9f1,#415b72 45%,#102235 75%);box-shadow:0 0 18px var(--gun-glow),inset 0 2px rgba(255,255,255,.6);transform:skewY(-8deg)}
+.armory-art:after{content:"";position:absolute;width:34%;height:7px;left:20%;top:56%;border-radius:8px;background:var(--gun-glow);box-shadow:0 0 13px var(--gun-glow);transform:skewY(-8deg)}
+.armory-core{position:absolute;z-index:1;width:17px;height:17px;left:48%;top:43%;border:3px solid #d7f8ff;border-radius:50%;background:var(--gun-glow);box-shadow:0 0 16px 5px var(--gun-glow)}
+.armory-card h3{margin:7px 0 4px;font-size:14px;letter-spacing:.08em}
+.armory-card p{min-height:34px;margin:0 0 12px;color:#a8bfd1;font-size:12px}
+.armory-card .armory-cost{display:block;margin-bottom:9px;color:#ffd27b;font-size:12px;font-weight:800}
+.armory-card button{width:100%;padding:10px;border:1px solid rgba(92,213,255,.48);border-radius:8px;background:linear-gradient(100deg,#116b91,#263d91);color:white;font-weight:900;font-size:11px;letter-spacing:.1em;cursor:pointer}
+.armory-card button:disabled{opacity:.75;cursor:default}
+.armory-card.equipped button{background:linear-gradient(100deg,#087f78,#126a8c);border-color:#68f3d1}
+.armory-card.locked{opacity:.92}
+.armory-card .armory-state{position:absolute;top:10px;right:10px;padding:4px 7px;border-radius:5px;background:rgba(4,12,24,.78);color:#8deeff;font-size:9px;font-weight:900;letter-spacing:.1em}
+@media(max-width:850px){.armory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.armory-heading{align-items:flex-start;flex-direction:column}}
+@media(max-width:460px){.armory-grid{grid-template-columns:1fr 1fr;gap:8px}.armory-card{padding:9px}.armory-art{height:76px}.armory-card h3{font-size:11px}.armory-card p{font-size:10px}}
+/* Larger orbital playfield and more distant atmospheric depth */
+#arena{min-height:620px}
