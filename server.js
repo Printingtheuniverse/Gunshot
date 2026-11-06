@@ -114,7 +114,7 @@ function startMatch(room) {
         team: p.team,
         x: p.x,
         y: p.y,
-        hp: p.hp
+        hp: p.hp, eliminations: p.eliminations || 0
       })));
     } else {
       sendLobby(room);
@@ -137,7 +137,7 @@ io.on("connection", socket => {
 
     room.players.push({
       id: socket.id, name: clean, team: 0, ready: false,
-      x: 400, y: 250, hp: 100
+      x: 400, y: 250, hp: 100, eliminations: 0
     });
 
     socket.join(id);
@@ -156,7 +156,7 @@ io.on("connection", socket => {
     const clean = String(name || "Player").slice(0, 18);
     room.players.push({
       id: socket.id, name: clean, team: room.players.length % 4, ready: false,
-      x: 360 + Math.random()*80, y: 220 + Math.random()*60, hp: 100
+      x: 360 + Math.random()*80, y: 220 + Math.random()*60, hp: 100, eliminations: 0
     });
 
     socket.join(room.id);
@@ -225,7 +225,7 @@ io.on("connection", socket => {
     player.y = Math.max(15, Math.min(485, Number(data.y) || player.y));
 
     io.to(room.id).emit("players", room.players.map(p => ({
-      id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp
+      id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp, eliminations: p.eliminations || 0
     })));
   });
 
@@ -242,7 +242,11 @@ io.on("connection", socket => {
       .filter(hit => hit.distance <= 180)
       .sort((a,b) => a.distance - b.distance);
     const target = candidates[0]?.player || null;
-    if (target) target.hp = Math.max(0, target.hp - 25);
+    if (target) {
+      const previousHp = target.hp;
+      target.hp = Math.max(0, target.hp - 25);
+      if (previousHp > 0 && target.hp === 0) shooter.eliminations = (shooter.eliminations || 0) + 1;
+    }
     io.to(room.id).emit("shotFired", {
       shooterId: shooter.id, targetId: target?.id || null,
       from: { x: shooter.x, y: shooter.y },
@@ -250,7 +254,7 @@ io.on("connection", socket => {
       hit: !!target
     });
     io.to(room.id).emit("players", room.players.map(p => ({
-      id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp
+      id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp, eliminations: p.eliminations || 0
     })));
   });
 
