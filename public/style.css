@@ -681,3 +681,12 @@ body:has(#dashboard.active){
 .weapon-hud{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0;padding:11px 14px;border:1px solid #28627b;border-radius:12px;background:linear-gradient(110deg,#081a2b,#102a40);box-shadow:0 8px 24px #0005}
 .weapon-status,.weapon-controls{font-size:11px;font-weight:900;letter-spacing:1px;color:#a9f3ff}
 @media(max-width:700px){.hero-panel{min-height:420px}.avatar-figure{transform:rotateY(-13deg) scale(1.08)}.weapon-hud{padding:9px}}
+
+
+.player-leaderboard{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0;padding:10px 12px;border:1px solid #2e7897;border-radius:12px;background:linear-gradient(110deg,#071a2b,#102c43);box-shadow:0 8px 24px #0004}
+.player-leaderboard-title{width:100%;color:#9feeff;font-size:10px;letter-spacing:1.5px}
+.player-leaderboard-entry{display:flex;align-items:center;gap:8px;min-width:150px;padding:7px 9px;border:1px solid #244b66;border-radius:8px;background:#081a2b;color:#d9f4ff;font-size:11px}
+.player-leaderboard-entry b{color:#ffd783}
+.player-leaderboard-entry strong{margin-left:auto;color:#82eaff;font-size:10px;white-space:nowrap}
+.player-leaderboard-entry.is-you{border-color:#55eaff;background:#10354a;box-shadow:inset 0 0 0 1px #55eaff28}
+.player-leaderboard-empty{color:#9bb6c8;font-size:11px}
