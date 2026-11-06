@@ -1324,11 +1324,7 @@ const GUNS = {
   pulse: {name:"PULSE SCOUT",desc:"Balanced starter energy blaster",cost:0,color:0x55eaff,shape:"standard"},
   arc: {name:"ARC REPEATER",desc:"Rapid-response twin-core blaster",cost:120,color:0xffb65f,shape:"twin"},
   prism: {name:"PRISM LANCE",desc:"Long-range crystal energy caster",cost:220,color:0xb59aff,shape:"long"},
-  nova: {name:"NOVA BURST",desc:"Heavy radiant pulse projector",cost:320,color:0x8ce8a4,shape:"heavy"},
-  ion: {name:"ION WING",desc:"Twin-core energy emitter",cost:400,color:0x7beaff,shape:"twin"},
-  comet: {name:"COMET ARRAY",desc:"Triple-orbit pulse projector",cost:480,color:0xffdc7a,shape:"orbital"},
-  rift: {name:"RIFT BLOOM",desc:"Prismatic crystal arc caster",cost:520,color:0xb69aff,shape:"rift"},
-  glacier: {name:"GLACIER NOVA",desc:"Cool-spectrum energy projector",cost:600,color:0x9ce8ff,shape:"heavy"}
+  nova: {name:"NOVA BURST",desc:"Heavy radiant pulse projector",cost:320,color:0x8ce8a4,shape:"heavy"}
 };
 const GUN_STORAGE_KEY="reloadshot.armory.v1";
 let equippedGun="pulse";
@@ -1379,17 +1375,6 @@ function setWeaponViewmodel(){
   if(g.shape==="twin"){for(const x of [-.12,.12])add(new THREE.CylinderGeometry(.045,.055,.56,10),glow,x,.04,-.38,1,1,1);}
   if(g.shape==="long"){add(new THREE.BoxGeometry(.08,.25,.32),glow,0,.2,-.15);add(new THREE.TorusGeometry(.14,.025,8,20),glow,0,.04,-.62);}
   if(g.shape==="heavy"){add(new THREE.BoxGeometry(.36,.2,.28),edge,0,.08,-.1);add(new THREE.BoxGeometry(.08,.28,.32),glow,0,.12,-.12);}
-  if(g.shape==="orbital"){
-    const orbitRing=new THREE.Mesh(new THREE.TorusGeometry(.2,.026,8,28),glow);
-    orbitRing.position.set(0,.16,-.42);orbitRing.rotation.x=Math.PI/2;group.add(orbitRing);
-    add(new THREE.OctahedronGeometry(.15,1),edge,0,.16,-.42);
-    for(const side of [-1,1])add(new THREE.SphereGeometry(.065,10,8),glow,side*.19,.08,-.34);
-  }
-  if(g.shape==="rift"){
-    add(new THREE.OctahedronGeometry(.19,1),glow,0,.15,-.43);
-    add(new THREE.BoxGeometry(.055,.28,.34),edge,-.16,.08,-.22);
-    add(new THREE.BoxGeometry(.055,.28,.34),edge,.16,.08,-.22);
-  }
   group.position.set(.43,-.37,-.78);group.rotation.set(-.08,-.12,.02);
   camera.add(group);gunViewModel=group;
 }
