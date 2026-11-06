@@ -1175,7 +1175,7 @@ function loop() {
     const fallback = targetPlayer || { x: 400, y: 250 };
     const target = cameraTarget
       ? cameraTarget.position
-      : new THREE.Vector3((fallback.x - 400) * 0.23, 0, (fallback.y - 250) * 0.23);
+      : new THREE.Vector3((fallback.x - 400) * 0.23, jumpHeight, (fallback.y - 250) * 0.23);
     const localModel = playerObjects.get(playerId);
     if (localModel) {
       localModel.visible = true;
@@ -1190,11 +1190,11 @@ function loop() {
     const horizontalDistance = cameraDistance * Math.cos(cameraPitch * 0.25);
     const desiredCamera = new THREE.Vector3(
       target.x - Math.sin(cameraYaw) * horizontalDistance,
-      target.y + 3.1 + jumpHeight,
+      target.y + 3.1,
       target.z - Math.cos(cameraYaw) * horizontalDistance
     );
     camera.position.lerp(desiredCamera, 0.2);
-    camera.lookAt(target.x, target.y + 1.25 + jumpHeight, target.z);
+    camera.lookAt(target.x, target.y + 1.25, target.z);
   }
 
   lastFrameTime = performance.now();
