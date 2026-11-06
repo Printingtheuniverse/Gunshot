@@ -29,6 +29,7 @@
           <button class="command-play" onclick="showServers()"><span>▶</span> PLAY</button>
           <button onclick="showServers()"><span>♟</span> LOBBY</button>
           <button onclick="openLoadoutStudio()"><span>⚔</span> LOADOUT</button>
+          <button onclick="openArmory()"><span>✧</span> ARMORY</button>
           <button onclick="openShop()"><span>🛒</span> SHOP</button>
           <button onclick="document.querySelector('.topbar').scrollIntoView({behavior:'smooth'})"><span>⚙</span> SETTINGS</button>
           <button onclick="openQuests()"><span>🏆</span> LEADERBOARD</button>
@@ -123,7 +124,15 @@
         </div>
       </section>
 
-      <section id="loadoutStudio" class="loadout-studio hidden" aria-label="Equipment cosmetics studio">
+      <section id="armoryPanel" class="armory-panel" aria-label="Frontier armory">
+  <div class="armory-heading"><div><p class="eyebrow">FRONTIER ARMORY // FIELD EQUIPMENT</p><h2>CHOOSE YOUR <span>ENERGY WEAPON</span></h2><p class="sub">Unlock a sci-fi blaster with frontier credits, then equip it for your next match.</p></div><div class="armory-wallet">◉ <strong id="armoryCredits">250</strong><small> CREDITS</small></div></div>
+  <div id="armoryGrid" class="armory-grid">
+    <article class="armory-card"><div class="armory-art"><span class="armory-core"></span></div><h3>PULSE SCOUT</h3><p>Balanced starter energy blaster</p><button disabled>LOADING ARMORY…</button></article>
+  </div>
+  <p id="armoryMessage" class="fine-print" aria-live="polite">Credits and unlocks are saved on this device. No real-money purchases.</p>
+</section>
+
+<section id="loadoutStudio" class="loadout-studio hidden" aria-label="Equipment cosmetics studio">
         <div class="loadout-heading">
           <div><p class="eyebrow">PERSONALIZATION LAB</p><h2>LOADOUT <span>STUDIO</span></h2><p class="sub">Build a look that is yours. Cosmetic styles only.</p></div>
           <button class="create-cta" onclick="closeLoadoutStudio()">CLOSE ×</button>
