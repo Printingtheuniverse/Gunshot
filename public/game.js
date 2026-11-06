@@ -645,15 +645,13 @@ const teamMaterials = teamColors.map(color =>
 
 const playerObjects = new Map();
 const nameSprites = new Map();
+const navigationBeacons = new Set();
 function beaconLightPulse(){
-  const pulse=1.35+Math.sin(performance.now()*0.0022)*0.38;
-  for(const model of playerObjects.values()){
-    model.traverse(part=>{
-      if(part.userData.navigationBeacon && part.children[0]){
-        part.children[0].scale.setScalar(0.92+Math.sin(performance.now()*0.003)*0.12);
-        part.children[1].rotation.z+=0.012;
-      }
-    });
+  const time=performance.now();
+  const scale=0.92+Math.sin(time*0.003)*0.12;
+  for(const beacon of navigationBeacons){
+    beacon.children[0].scale.setScalar(scale);
+    beacon.children[1].rotation.z+=0.012;
   }
 }
 
@@ -934,6 +932,7 @@ function makePlayer(p) {
   beacon.add(beaconHalo);
   beacon.userData.navigationBeacon = true;
   group.add(beacon);
+  navigationBeacons.add(beacon);
 
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.7, 0.045, 8, 32),
@@ -1012,6 +1011,7 @@ function updatePlayers() {
   for (const [id, model] of playerObjects) {
     if (!liveIds.has(id)) {
       scene.remove(model);
+      model.traverse(object=>{if(object.userData.navigationBeacon)navigationBeacons.delete(object);});
       playerObjects.delete(id);
       nameSprites.delete(id);
     }
