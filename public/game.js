@@ -196,8 +196,8 @@ let jumpHeight = 0;
 let jumpRequested = false;
 let cameraYaw = 0;
 let cameraPitch = 0.32;
-let cameraDistance = 19;
-let targetCameraDistance = 19;
+let cameraDistance = 8.5;
+let targetCameraDistance = 8.5;
 let cameraYawVelocity = 0;
 let cameraPitchVelocity = 0;
 let moveFacing = 0;
@@ -1172,27 +1172,29 @@ function loop() {
     try { updatePlayers(); const localModel = playerObjects.get(playerId); if (localModel) localModel.position.y = jumpHeight; emergencyOperator.position.y = jumpHeight; } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
-    if (cameraTarget) {
-      emergencyOperator.visible = false;
-      const target = cameraTarget.position;
-      // First-person eye camera: cameraYaw is shared with WASD movement.
-      camera.position.set(target.x, target.y + 1.72 + jumpHeight, target.z);
-      const lookDirection = new THREE.Vector3(
-        Math.sin(cameraYaw) * Math.cos(cameraPitch),
-        Math.sin(cameraPitch),
-        Math.cos(cameraYaw) * Math.cos(cameraPitch)
-      );
-      camera.lookAt(camera.position.clone().add(lookDirection));
-      const localModel = playerObjects.get(playerId);
-      if (localModel) localModel.visible = false;
+    const fallback = targetPlayer || { x: 400, y: 250 };
+    const target = cameraTarget
+      ? cameraTarget.position
+      : new THREE.Vector3((fallback.x - 400) * 0.23, 0, (fallback.y - 250) * 0.23);
+    const localModel = playerObjects.get(playerId);
+    if (localModel) {
+      localModel.visible = true;
       emergencyOperator.visible = false;
     } else {
-      const fallback = targetPlayer || { x: 400, y: 250 };
-      emergencyOperator.visible = false;
-      const target = new THREE.Vector3((fallback.x - 400) * 0.23, 0, (fallback.y - 250) * 0.23);
-      camera.position.set(target.x, target.y + 1.72, target.z);
-      camera.lookAt(camera.position.clone().add(new THREE.Vector3(Math.sin(cameraYaw)*Math.cos(cameraPitch),Math.sin(cameraPitch),Math.cos(cameraYaw)*Math.cos(cameraPitch))));
+      emergencyOperator.visible = true;
+      emergencyOperator.position.set(target.x, jumpHeight, target.z);
     }
+    // Third-person follow camera keeps the full explorer visible during play.
+    // The viewmodel stays hidden so it cannot obscure the character.
+    if (gunViewModel) gunViewModel.visible = false;
+    const horizontalDistance = cameraDistance * Math.cos(cameraPitch * 0.25);
+    const desiredCamera = new THREE.Vector3(
+      target.x - Math.sin(cameraYaw) * horizontalDistance,
+      target.y + 3.1 + jumpHeight,
+      target.z - Math.cos(cameraYaw) * horizontalDistance
+    );
+    camera.position.lerp(desiredCamera, 0.2);
+    camera.lookAt(target.x, target.y + 1.25 + jumpHeight, target.z);
   }
 
   lastFrameTime = performance.now();
