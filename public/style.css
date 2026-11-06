@@ -690,3 +690,13 @@ body:has(#dashboard.active){
 .player-leaderboard-entry strong{margin-left:auto;color:#82eaff;font-size:10px;white-space:nowrap}
 .player-leaderboard-entry.is-you{border-color:#55eaff;background:#10354a;box-shadow:inset 0 0 0 1px #55eaff28}
 .player-leaderboard-empty{color:#9bb6c8;font-size:11px}
+
+
+.avatar-aurora{--char-color:#9ce8ff;transform:rotateY(14deg) scale(1.04)}
+.avatar-aurora .avatar-head{background:linear-gradient(130deg,#f3ffff,#93d7ec,#244d70);border-color:#b8f6ff}
+.avatar-aurora .visor{background:linear-gradient(90deg,#0c2945,#a4f4ff,#0c2945)}
+.avatar-aurora .avatar-body{background:linear-gradient(110deg,#e8fbff,#7db4ca 42%,#234763 44%,#102b43)}
+.avatar-cipher{--char-color:#b69aff;transform:rotateY(-16deg) scale(1.03)}
+.avatar-cipher .avatar-head{background:linear-gradient(130deg,#e7ddff,#7562ad,#242044);border-color:#c4aaff}
+.avatar-cipher .visor{background:linear-gradient(90deg,#18133b,#b69aff,#18133b)}
+.avatar-cipher .avatar-body{background:linear-gradient(110deg,#d6caff,#7665a9 42%,#302b55 44%,#15162f)}
