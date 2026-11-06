@@ -229,6 +229,15 @@ function setMapTheme(mapName) {
     "Aurora Grove": {bg:0x102b38,fog:0x173b43,floor:0x254a42,grid:0x65cbb4,light:0xc6ffe8,accent:0x76f2b4,secondary:0xb69bff}
   };
   const t = themes[mapName] || themes["Luminous Gardens"];
+  // Far perimeter beacons and monumental gates make the arena feel like a world,
+  // not a small boxed room. These sit outside the central combat routes.
+  const perimeterMat = new THREE.MeshStandardMaterial({color:0x203e57,metalness:0.78,roughness:0.24,emissive:0x0b4260,emissiveIntensity:0.65});
+  const beaconMat = new THREE.MeshBasicMaterial({color:t.accent});
+  for (const [x,z,scale] of [[-66,-43,1],[0,-48,1.25],[66,-43,1],[-72,0,.9],[72,0,.9],[-66,43,1],[0,48,1.25],[66,43,1]]) {
+    add(new THREE.BoxGeometry(2.8,13*scale,2.8),perimeterMat,x,6.5*scale,z);
+    add(new THREE.TorusGeometry(2.3*scale,.13,8,28),beaconMat,x,10.2*scale,z,1,1,1);
+    add(new THREE.BoxGeometry(3.8,.24,3.8),perimeterMat,x,13*scale,z);
+  }
   scene.background.setHex(t.bg); scene.fog.color.setHex(t.fog); floor.material.color.setHex(t.floor);
   grid.material.color.setHex(t.grid); mainLight.color.setHex(t.light); blueLight.color.setHex(t.accent); redLight.color.setHex(t.secondary);
   grid.visible = mapName !== "Glass Dunes";
@@ -271,7 +280,7 @@ function setMapTheme(mapName) {
   resizeArena();
 }
 scene.background = new THREE.Color(0x17212b);
-scene.fog = new THREE.Fog(0x17212b, 48, 125);
+scene.fog = new THREE.Fog(0x17212b, 85, 235);
 
 // Atmospheric starfield adds distant scale without affecting player controls.
 const starPositions = new Float32Array(900 * 3);
@@ -338,10 +347,10 @@ const mainLight = new THREE.DirectionalLight(0xfff3df, 3.1);
 mainLight.position.set(-8, 18, 10);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
-mainLight.shadow.camera.left = -65;
-mainLight.shadow.camera.right = 65;
-mainLight.shadow.camera.top = 45;
-mainLight.shadow.camera.bottom = -45;
+mainLight.shadow.camera.left = -105;
+mainLight.shadow.camera.right = 105;
+mainLight.shadow.camera.top = 75;
+mainLight.shadow.camera.bottom = -75;
 mainLight.shadow.bias = -0.00015;
 mainLight.shadow.normalBias = 0.025;
 scene.add(mainLight);
@@ -363,7 +372,7 @@ redLight.position.set(15, 5, 8);
 scene.add(redLight);
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(180, 120),
+  new THREE.PlaneGeometry(240, 170),
   new THREE.MeshStandardMaterial({
     color: 0x53616b,
     metalness: 0.48,
@@ -374,7 +383,7 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(180, 72, 0x607f91, 0x344956);
+const grid = new THREE.GridHelper(240, 96, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
@@ -731,7 +740,11 @@ function makePlayer(p) {
   // reinforced chest core, shoulder shells, and readable backpack silhouette.
   const helmetShell = new THREE.MeshStandardMaterial({color:0xe4f1f5,metalness:0.78,roughness:0.2});
   const visorGlass = new THREE.MeshStandardMaterial({color:0x061b2a,metalness:0.62,roughness:0.12,emissive:0x073b55,emissiveIntensity:1.15});
-  const signal = new THREE.MeshStandardMaterial({color:0x9af7ff,emissive:0x27dfff,emissiveIntensity:2.1,metalness:0.3,roughness:0.18});
+  const operatorAccents = [
+    [0x55eaff,0x16b9ed],[0xffbd65,0xff7b2c],[0x8be6a6,0x2aa875],[0xb9a2ff,0x7959ed],[0xff91b9,0xe34b83]
+  ];
+  const operatorAccent = operatorAccents[variant] || operatorAccents[0];
+  const signal = new THREE.MeshStandardMaterial({color:operatorAccent[0],emissive:operatorAccent[1],emissiveIntensity:2.0,metalness:0.3,roughness:0.18});
   // Helmet crown and broad luminous face shield.
   part(new THREE.SphereGeometry(0.31,20,14), helmetShell, 0, 2.13, -0.015).scale.set(1.08,0.94,0.98);
   part(new THREE.BoxGeometry(0.49,0.2,0.105), visorGlass, 0, 2.08, 0.275);
@@ -870,8 +883,8 @@ function updatePlayers() {
     if (!model) model = makePlayer(p);
 
     // Server coordinates remain 800 x 500, mapped onto the 3D floor.
-    const x = (p.x - 400) * 0.18;
-    const z = (p.y - 250) * 0.18;
+    const x = (p.x - 400) * 0.23;
+    const z = (p.y - 250) * 0.23;
     model.position.set(x, 0, z);
 
     const material = teamMaterials[p.team] || teamMaterials[0];
@@ -1001,14 +1014,14 @@ function loop() {
         const dz = Math.cos(angle) * f - Math.sin(angle) * side;
         const proposedX = me.x + dx * moveSpeed;
         const proposedY = me.y + dz * moveSpeed;
-        const nextX = (proposedX - 400) * 0.18, nextZ = (proposedY - 250) * 0.18;
-        const currentX = (me.x - 400) * 0.18, currentZ = (me.y - 250) * 0.18;
+        const nextX = (proposedX - 400) * 0.23, nextZ = (proposedY - 250) * 0.23;
+        const currentX = (me.x - 400) * 0.23, currentZ = (me.y - 250) * 0.23;
         const crates = [[-18,-10],[-8,8],[8,-8],[18,10],[-24,5],[24,-5],[0,-16],[0,16]];
         const blocked = (wx,wz) => crates.some(([cx,cz]) => Math.abs(wx-cx)<2.47 && Math.abs(wz-cz)<2.47);
-        if (Math.abs(nextX)<70 && Math.abs(nextZ)<48 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
+        if (Math.abs(nextX)<88 && Math.abs(nextZ)<55 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
         else {
-          if (Math.abs(nextX)<70 && !blocked(nextX,currentZ)) me.x=proposedX;
-          if (Math.abs(nextZ)<48 && !blocked(currentX,nextZ)) me.y=proposedY;
+          if (Math.abs(nextX)<88 && !blocked(nextX,currentZ)) me.x=proposedX;
+          if (Math.abs(nextZ)<55 && !blocked(currentX,nextZ)) me.y=proposedY;
         }
         moveFacing = Math.atan2(dx, dz);
         const movingModel = playerObjects.get(playerId);
@@ -1063,7 +1076,7 @@ function loop() {
     } else {
       const fallback = targetPlayer || { x: 400, y: 250 };
       emergencyOperator.visible = false;
-      const target = new THREE.Vector3((fallback.x - 400) * 0.18, 0, (fallback.y - 250) * 0.18);
+      const target = new THREE.Vector3((fallback.x - 400) * 0.23, 0, (fallback.y - 250) * 0.23);
       camera.position.set(target.x, target.y + 1.72, target.z);
       camera.lookAt(camera.position.clone().add(new THREE.Vector3(Math.sin(cameraYaw)*Math.cos(cameraPitch),Math.sin(cameraPitch),Math.cos(cameraYaw)*Math.cos(cameraPitch))));
     }
@@ -1087,6 +1100,7 @@ socket.on("matchStarted", data => {
   show("game");
   resizeArena();
   setMapTheme(data.map);
+  setWeaponViewmodel();
   collectedCrystals = 0;
   activeCheckpoint = 0;
   lastObjectiveScoreAt = 0;
@@ -1157,6 +1171,65 @@ function selectWeaponStyle(style, button) {
   });
   localStorage.setItem("reloadShotWeaponStyle", style);
 }
+const GUNS = {
+  pulse: {name:"PULSE SCOUT",desc:"Balanced starter energy blaster",cost:0,color:0x55eaff,shape:"standard"},
+  arc: {name:"ARC REPEATER",desc:"Rapid-response twin-core blaster",cost:120,color:0xffb65f,shape:"twin"},
+  prism: {name:"PRISM LANCE",desc:"Long-range crystal energy caster",cost:220,color:0xb59aff,shape:"long"},
+  nova: {name:"NOVA BURST",desc:"Heavy radiant pulse launcher",cost:320,color:0x8ce8a4,shape:"heavy"}
+};
+const GUN_STORAGE_KEY="reloadshot.armory.v1";
+let equippedGun="pulse";
+let ownedGuns=["pulse"];
+let gunViewModel=null;
+function readGunInventory(){
+  try{const saved=JSON.parse(localStorage.getItem(GUN_STORAGE_KEY)||"{}");ownedGuns=Array.isArray(saved.owned)?[...new Set(["pulse",...saved.owned.filter(id=>GUNS[id])])]:["pulse"];equippedGun=ownedGuns.includes(saved.equipped)?saved.equipped:"pulse";}
+  catch{ownedGuns=["pulse"];equippedGun="pulse";}
+}
+function saveGunInventory(){localStorage.setItem(GUN_STORAGE_KEY,JSON.stringify({owned:ownedGuns,equipped:equippedGun}));}
+function openArmory(){const panel=$("armoryPanel");if(panel){panel.scrollIntoView({behavior:"smooth",block:"start"});renderArmory();}}
+function renderArmory(){
+  const grid=$("armoryGrid");if(!grid)return;
+  const wallet=readShop();if($("armoryCredits"))$("armoryCredits").textContent=wallet.credits;
+  grid.innerHTML=Object.entries(GUNS).map(([id,g])=>{
+    const owned=ownedGuns.includes(id),equipped=equippedGun===id;
+    const glow="#"+g.color.toString(16).padStart(6,"0");
+    return '<article class="armory-card '+(equipped?"equipped":owned?"":"locked")+'" style="--gun-glow:'+glow+'"><span class="armory-state">'+(equipped?"EQUIPPED":owned?"UNLOCKED":"LOCKED")+'</span><div class="armory-art"><span class="armory-core"></span></div><h3>'+g.name+'</h3><p>'+g.desc+'</p><span class="armory-cost">'+(g.cost?g.cost+" ◉ CREDITS":"FREE STARTER")+'</span><button onclick="'+(owned?'equipGun(\''+id+'\')':'buyGun(\''+id+'\')')+'">'+(equipped?"CURRENTLY EQUIPPED":owned?"EQUIP WEAPON": "UNLOCK · "+g.cost+" ◉")+'</button></article>';
+  }).join("");
+}
+function buyGun(id){
+  const gun=GUNS[id];if(!gun||ownedGuns.includes(id))return;
+  const wallet=readShop();if(wallet.credits<gun.cost){$("armoryMessage").textContent="Not enough credits yet. Earn more in the Quest Board or Style Shop.";return;}
+  wallet.credits-=gun.cost;saveShop(wallet);ownedGuns.push(id);equippedGun=id;saveGunInventory();setWeaponViewmodel();renderArmory();
+  $("armoryMessage").textContent=gun.name+" unlocked and equipped. Ready for your next match!";
+}
+function equipGun(id){
+  if(!GUNS[id]||!ownedGuns.includes(id))return;
+  equippedGun=id;saveGunInventory();setWeaponViewmodel();renderArmory();
+  $("armoryMessage").textContent=GUNS[id].name+" equipped for your next match.";
+}
+function setWeaponViewmodel(){
+  if(typeof camera==="undefined"||!camera)return;
+  if(gunViewModel){camera.remove(gunViewModel);gunViewModel.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}
+  const g=GUNS[equippedGun]||GUNS.pulse;
+  const group=new THREE.Group();
+  const shell=new THREE.MeshStandardMaterial({color:0x263d52,metalness:.88,roughness:.2});
+  const edge=new THREE.MeshStandardMaterial({color:0xc8e1ed,metalness:.82,roughness:.18});
+  const glow=new THREE.MeshStandardMaterial({color:g.color,emissive:g.color,emissiveIntensity:2.1,metalness:.22,roughness:.18});
+  const add=(geo,mat,x,y,z,sx=1,sy=1,sz=1)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;group.add(m);};
+  const long=g.shape==="long"||g.shape==="heavy";
+  add(new THREE.BoxGeometry(long?.19:.23,.18,long?.92:.64),shell,0,0,0);
+  add(new THREE.BoxGeometry(.13,.12,long?1.02:.68),edge,0,.08,-.04);
+  add(new THREE.BoxGeometry(.08,.08,long?.74:.45),glow,0,.12,-.16);
+  add(new THREE.BoxGeometry(.13,.25,.18),shell,0,-.18,.12);
+  add(new THREE.CylinderGeometry(.075,.075,.06,12),glow,0,.02,-.52,1,1,1);
+  add(new THREE.BoxGeometry(.32,.07,.22),edge,0,.12,.2);
+  if(g.shape==="twin"){for(const x of [-.12,.12])add(new THREE.CylinderGeometry(.045,.055,.56,10),glow,x,.04,-.38,1,1,1);}
+  if(g.shape==="long"){add(new THREE.BoxGeometry(.08,.25,.32),glow,0,.2,-.15);add(new THREE.TorusGeometry(.14,.025,8,20),glow,0,.04,-.62);}
+  if(g.shape==="heavy"){add(new THREE.BoxGeometry(.36,.2,.28),edge,0,.08,-.1);add(new THREE.BoxGeometry(.08,.28,.32),glow,0,.12,-.12);}
+  group.position.set(.43,-.37,-.78);group.rotation.set(-.08,-.12,.02);
+  camera.add(group);gunViewModel=group;
+}
+
 function openLoadoutStudio() {
   const panel = $("loadoutStudio");
   if (!panel) return;
@@ -1259,7 +1332,7 @@ function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"sta
 function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
 function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
 function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" frontier credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" style unlocked.":".");saveShop(data);}
-document.addEventListener("DOMContentLoaded",renderShop);
+document.addEventListener("DOMContentLoaded",()=>{renderShop();readGunInventory();renderArmory();});
 
 
 /* Quest board: one-time browser-local prototype rewards. */
