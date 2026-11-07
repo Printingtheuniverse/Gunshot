@@ -126,7 +126,7 @@
         </div>
       </section>
 
-      <section id="armoryPanel" class="armory-panel" aria-label="Frontier armory">
+      <section id="armoryPanel" class="armory-panel panel-page" aria-label="Frontier armory"><button class="panel-back" onclick="closePanel()">← BACK</button>
   <div class="armory-heading"><div><p class="eyebrow">FRONTIER ARMORY // FIELD EQUIPMENT</p><h2>CHOOSE YOUR <span>ENERGY WEAPON</span></h2><p class="sub">Unlock a sci-fi blaster with frontier credits, then equip it for your next match.</p></div><div class="armory-wallet">◉ <strong id="armoryCredits">250</strong><small> CREDITS</small></div></div>
   <div id="armoryGrid" class="armory-grid">
     <article class="armory-card"><div class="armory-art"><span class="armory-core"></span></div><h3>PULSE SCOUT</h3><p>Balanced starter energy blaster</p><button disabled>LOADING ARMORY…</button></article>
@@ -134,7 +134,7 @@
   <p id="armoryMessage" class="fine-print" aria-live="polite">Credits and unlocks are saved on this device. No real-money purchases.</p>
 </section>
 
-<section id="loadoutStudio" class="loadout-studio hidden" aria-label="Equipment cosmetics studio">
+<section id="loadoutStudio" class="loadout-studio panel-page hidden" aria-label="Equipment cosmetics studio"><button class="panel-back" onclick="closePanel()">← BACK</button>
         <div class="loadout-heading">
           <div><p class="eyebrow">PERSONALIZATION LAB</p><h2>LOADOUT <span>STUDIO</span></h2><p class="sub">Build a look that is yours. Cosmetic styles only.</p></div>
           <button class="create-cta" onclick="closeLoadoutStudio()">CLOSE ×</button>
@@ -163,7 +163,7 @@
         <div class="saved-loadouts"><div class="saved-title"><div><h3>SAVED LOADOUTS</h3><small>Stored on this device</small></div><span id="savedLoadoutCount">0 / 5</span></div><div id="savedLoadoutList" class="saved-loadout-list"><p class="fine-print">No saved looks yet. Customize a style and save it above.</p></div></div>
       </section>
 
-      <section id="questPanel" class="quest-panel">
+      <section id="questPanel" class="quest-panel panel-page"><button class="panel-back" onclick="closePanel()">← BACK</button>
         <div class="quest-heading"><div><p class="eyebrow">FRONTIER ASSIGNMENTS</p><h2>QUEST <span>BOARD</span></h2><p class="sub">Claim daily credits and complete missions for more rewards.</p></div><div class="quest-total">◉ <strong id="questCredits">250</strong><small> CREDITS</small></div></div>
         <div class="daily-reward-panel">
           <div class="daily-reward-icon">🎁</div>
@@ -173,7 +173,7 @@
         <div id="questList" class="quest-list"></div>
         <p class="fine-print">Your credits, daily claim, and mission rewards are saved in this browser on this device. They are game points, not real money.</p>
       </section>
-      <section id="shopPanel" class="shop-panel">
+      <section id="shopPanel" class="shop-panel panel-page"><button class="panel-back" onclick="closePanel()">← BACK</button>
         <div class="shop-heading"><div><p class="eyebrow">FRONTIER COSMETIC EXCHANGE</p><h2>THE <span>STYLE SHOP</span></h2><p class="sub">Unlock explorer suits, trails, badges, and profile effects with credits.</p></div><div class="coin-wallet">◉ <strong id="coinBalance">250</strong><small> CREDITS</small></div></div>
         <div class="shop-grid">
           <article class="shop-item" data-shop-id="aurora"><div class="shop-item-art aurora-art">✧</div><h3>AURORA SHELL</h3><p>Icy explorer suit accent</p><div class="shop-buy-row"><strong>120 ◉</strong><button>UNLOCK</button></div></article>
@@ -202,7 +202,7 @@
       <footer class="dashboard-footer"><span>RELOAD-SHOT <span class="footer-muted">• COMMUNITY PLAYGROUND</span></span><span>EXPLORE • MOVE • DISCOVER.</span></footer>
     </section>
 
-    <section id="servers" class="screen">
+    <section id="leaderboardPanel" class="panel-page"><button class="panel-back" onclick="closePanel()">← BACK</button><h2>LIVE FRONTIER LEADERBOARD</h2><p>Connected players ranked by session XP.</p><div id="fullLeaderboard" class="frontier-board">Waiting for connected explorers…</div></section><section id="servers" class="screen">
       <h2>SERVER BROWSER</h2>
       <div class="row">
         <button onclick="createServer()">+ CREATE SERVER</button>
