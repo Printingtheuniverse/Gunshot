@@ -30,6 +30,35 @@ const characters = [
 let selectedCharacter = 0;
 let selectedAvatarColor = "#63e6ff";
 
+const EXPLORER_PROFILE_KEY = "reloadShotExplorerProfileV1";
+function saveExplorerProfile() {
+  try {
+    localStorage.setItem(EXPLORER_PROFILE_KEY, JSON.stringify({
+      name: ($("playerName")?.value || "").trim().slice(0,18),
+      character: selectedCharacter,
+      color: selectedAvatarColor
+    }));
+  } catch (error) {}
+}
+function restoreExplorerProfile() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(EXPLORER_PROFILE_KEY) || "null");
+    if (!saved || typeof saved !== "object") return;
+    const allowedColors = ["#63e6ff","#a78bfa","#ffad66","#8be0a2","#ff78c8","#ffd36e"];
+    const input = $("playerName");
+    if (input && typeof saved.name === "string") input.value = saved.name.slice(0,18);
+    const playerName = (input?.value || "").trim();
+    if ($("profileNamePreview")) $("profileNamePreview").textContent = (playerName || "ARENA EXPLORER").toUpperCase();
+    if ($("miniAvatar") && playerName) $("miniAvatar").textContent = playerName.charAt(0).toUpperCase();
+    if ($("commandPlayerName") && playerName) $("commandPlayerName").textContent = playerName.toUpperCase();
+    if (Number.isInteger(saved.character)) selectCharacter(saved.character);
+    if (allowedColors.includes(saved.color)) {
+      const swatch = [...document.querySelectorAll(".swatch")].find(item => item.getAttribute("style")?.includes(saved.color));
+      setAvatarColor(saved.color, swatch || null);
+    }
+  } catch (error) {}
+}
+
 function selectCharacter(index) {
   selectedCharacter = (index + characters.length) % characters.length;
   const character = characters[selectedCharacter];
@@ -39,6 +68,7 @@ function selectCharacter(index) {
   $("avatarFigure").className = "avatar-figure " + character.className;
   document.querySelectorAll(".character-dots .dot").forEach((dot, i) => dot.classList.toggle("active", i === selectedCharacter));
   $("miniAvatar").textContent = character.name.charAt(0);
+  saveExplorerProfile();
 }
 
 function changeCharacter(direction) {
@@ -51,6 +81,7 @@ function setAvatarColor(color, button) {
   document.querySelectorAll(".swatch").forEach(swatch => swatch.classList.toggle("active", swatch === button));
   const names = { "#63e6ff": "Neon cyan", "#a78bfa": "Violet pulse", "#ffad66": "Solar orange", "#8be0a2": "Mint glow", "#ff78c8": "Rose flare", "#ffd36e": "Starlight gold" };
   $("styleSummary").textContent = names[color] || "Custom color";
+  saveExplorerProfile();
 }
 
 document.addEventListener("input", event => {
@@ -58,6 +89,7 @@ document.addEventListener("input", event => {
     const value = event.target.value.trim();
     $("profileNamePreview").textContent = (value || "ARENA EXPLORER").toUpperCase().slice(0, 18);
     $("miniAvatar").textContent = (value || "A").charAt(0).toUpperCase();
+    saveExplorerProfile();
   }
 });
 
@@ -1703,6 +1735,7 @@ window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgr
 const originalOpenLoadout=window.openLoadoutStudio;
 window.openLoadoutStudio=function(){if(originalOpenLoadout)originalOpenLoadout();markQuestProgress("loadout");};
 document.addEventListener("DOMContentLoaded",()=>{
+  restoreExplorerProfile();
   renderShop();readGunInventory();renderArmory();renderQuests();renderDailyReward();
   const splash=$("loadingCredit");
   if(splash){setTimeout(()=>{splash.classList.add("done");setTimeout(()=>splash.remove(),450);},1400);}
