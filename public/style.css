@@ -760,3 +760,5 @@ html[data-shop-visor="prism"] .visor{box-shadow:0 0 18px #d98cff,0 0 32px #68eaf
 html[data-shop-banner="cometwing"] #avatarFigure:after{content:"✧";position:absolute;right:-38px;top:18px;color:#9ceeff;font-size:42px;text-shadow:0 0 18px #48cfff}
 html[data-shop-companion="drone"] #miniAvatar:after{content:"◉";position:absolute;right:-9px;top:-8px;color:#8df5d5;font-size:12px;text-shadow:0 0 9px #55f0c7}
 html[data-shop-title="pioneer"] .command-profile strong:after{content:" · PIONEER";color:#ffe69b;font-size:9px;letter-spacing:.08em}
+
+body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.panel-page-active{display:block!important;position:fixed!important;z-index:1000;inset:0;overflow:auto;padding:32px;background:radial-gradient(ellipse at 50% 0%,#123d5a 0%,#071522 58%,#030912 100%)}.panel-back{display:inline-flex;margin:0 0 24px;padding:11px 18px;border:1px solid #64dfff77;border-radius:10px;background:#0c2941;color:#dffaff;font-weight:900}.full-frontier-board{max-width:900px;margin:24px auto;padding:24px;border:1px solid #5bdfff55;border-radius:18px;background:#061727cc}
