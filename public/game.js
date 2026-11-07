@@ -1534,6 +1534,8 @@ function applyShopCosmetics(data){
   document.documentElement.dataset.shopSuit=data.equipped.suit||"";
   document.documentElement.dataset.shopTrail=data.equipped.trail||"";
   document.documentElement.dataset.shopBadge=data.equipped.badge||"";
+  document.documentElement.dataset.shopNameplate=data.equipped.nameplate||"";
+  document.documentElement.dataset.shopEmote=data.equipped.emote||"";
 }
 function renderShop(){
   const data=readShop();
