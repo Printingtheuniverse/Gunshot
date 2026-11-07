@@ -12,6 +12,23 @@ const PORT = process.env.PORT || 3000;
 const MAX_PLAYERS = 16;
 
 const rooms = new Map();
+const sessionStats = new Map();
+
+function ensureSessionPlayer(id, name) {
+  const current = sessionStats.get(id) || {id, name: "Explorer", points: 0, eliminations: 0, matches: 0};
+  current.name = String(name || current.name || "Explorer").slice(0,18);
+  sessionStats.set(id, current);
+  publishFrontierLeaderboard();
+  return current;
+}
+
+function publishFrontierLeaderboard() {
+  const rows = [...sessionStats.values()]
+    .sort((a,b) => b.points-a.points || b.eliminations-a.eliminations || a.name.localeCompare(b.name))
+    .slice(0,10)
+    .map((p,index) => ({rank:index+1,name:p.name,points:p.points,eliminations:p.eliminations,matches:p.matches}));
+  io.emit("frontierLeaderboard", rows);
+}
 const colors = ["#4da3ff", "#ff5c5c", "#4ddc88", "#ffd34d"];
 const modes = ["Zone Control", "Checkpoint Rally", "Crystal Hunt", "Free Explore"];
 const maps = ["Luminous Gardens", "Glass Dunes", "Skyline Ruins", "Aurora Grove"];
@@ -101,6 +118,12 @@ function startMatch(room) {
       clearInterval(timer);
       room.state = "playing";
       room.countdown = 0;
+      room.players.forEach(player => {
+        const stats = ensureSessionPlayer(player.id, player.name);
+        stats.matches += 1;
+        stats.points += 50;
+      });
+      publishFrontierLeaderboard();
       sendLobby(room);
 
       io.to(room.id).emit("matchStarted", {
@@ -124,9 +147,11 @@ function startMatch(room) {
 
 io.on("connection", socket => {
   socket.emit("rooms", roomList());
+  publishFrontierLeaderboard();
 
   socket.on("createRoom", ({ name }) => {
     const clean = String(name || "Player").slice(0, 18);
+    ensureSessionPlayer(socket.id, clean);
     let id;
     do id = Math.random().toString(36).slice(2, 7).toUpperCase();
     while (rooms.has(id));
@@ -154,6 +179,7 @@ io.on("connection", socket => {
     if (room.state === "playing") return socket.emit("errorMessage", "Match already started.");
 
     const clean = String(name || "Player").slice(0, 18);
+    ensureSessionPlayer(socket.id, clean);
     room.players.push({
       id: socket.id, name: clean, team: room.players.length % 4, ready: false,
       x: 360 + Math.random()*80, y: 220 + Math.random()*60, hp: 100, eliminations: 0
@@ -245,7 +271,13 @@ io.on("connection", socket => {
     if (target) {
       const previousHp = target.hp;
       target.hp = Math.max(0, target.hp - 25);
-      if (previousHp > 0 && target.hp === 0) shooter.eliminations = (shooter.eliminations || 0) + 1;
+      if (previousHp > 0 && target.hp === 0) {
+        shooter.eliminations = (shooter.eliminations || 0) + 1;
+        const stats = ensureSessionPlayer(shooter.id, shooter.name);
+        stats.eliminations += 1;
+        stats.points += 100;
+        publishFrontierLeaderboard();
+      }
     }
     io.to(room.id).emit("shotFired", {
       shooterId: shooter.id, targetId: target?.id || null,
