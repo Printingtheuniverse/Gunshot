@@ -860,3 +860,15 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .command-left{top:27%!important}
 .command-right{top:25%!important}
 }
+
+
+/* Keep the arena tagline clear of the PLAY button and left menu */
+@media(min-width:761px){
+  .command-title{left:22%!important;top:15%!important;width:48%;text-align:center}
+  .command-title>span,.command-title small{display:block;text-align:center}
+  .command-title h1{white-space:nowrap}
+}
+@media(max-width:760px){
+  .command-title{left:4%!important;right:4%;width:auto;text-align:center}
+  .command-title>span,.command-title small{display:block;text-align:center}
+}
