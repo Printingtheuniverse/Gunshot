@@ -818,3 +818,25 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .command-quickmatch{bottom:8%;width:46%}
 .command-bottom-status{display:none}
 }
+
+
+/* Restore a visible top navigation/header strip */
+@media(min-width:761px){
+#dashboard>.topbar{display:flex!important;position:absolute;z-index:30;top:0;left:0;right:0;height:66px;align-items:center;justify-content:space-between;gap:18px;padding:8px 2.5%;background:linear-gradient(180deg,#020817ee,#06162dcc);border-bottom:1px solid #55cfff55;box-shadow:0 8px 25px #0007}
+#dashboard>.topbar .brand{display:flex;flex:0 0 auto}
+#dashboard>.topbar .topnav{display:flex;flex:1;justify-content:center;gap:7px}
+#dashboard>.topbar .nav-button{padding:8px 11px;font-size:11px;background:#0a1d35;border:1px solid #3a79a8;border-radius:5px;color:#dff6ff}
+#dashboard>.topbar .profile-chip{display:flex;flex:0 0 auto}
+.command-title{top:13%!important}
+.command-right{top:12%!important}
+.command-left{top:29%!important}
+}
+@media(max-width:760px){
+#dashboard>.topbar{display:flex!important;position:absolute;z-index:30;top:0;left:0;right:0;min-height:56px;padding:7px 10px;align-items:center;justify-content:space-between;background:#030b1beF;border-bottom:1px solid #55cfff55}
+#dashboard>.topbar .topnav{display:none}
+#dashboard>.topbar .brand-wordmark{font-size:14px}
+#dashboard>.topbar .profile-chip{display:flex}
+.command-title{top:10%!important}
+.command-left{top:25%!important}
+.command-right{top:23%!important}
+}
