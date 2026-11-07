@@ -862,13 +862,13 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 }
 
 
-/* Keep the arena tagline clear of the PLAY button and left menu */
+/* Put the tagline back with the upper-left title, clear of the PLAY menu */
 @media(min-width:761px){
-  .command-title{left:22%!important;top:15%!important;width:48%;text-align:center}
-  .command-title>span,.command-title small{display:block;text-align:center}
-  .command-title h1{white-space:nowrap}
+  .command-title{left:3%!important;top:12%!important;width:auto!important;text-align:left!important}
+  .command-title>span,.command-title small{display:block;text-align:left!important}
+  .command-title h1{white-space:normal}
 }
 @media(max-width:760px){
-  .command-title{left:4%!important;right:4%;width:auto;text-align:center}
+  .command-title{left:4%!important;right:4%;top:12%!important;width:auto;text-align:center}
   .command-title>span,.command-title small{display:block;text-align:center}
 }
