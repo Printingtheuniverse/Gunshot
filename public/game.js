@@ -1713,24 +1713,35 @@ function renderQuests(){
     const description=document.createElement("p");description.textContent=quest.description+" · "+quest.goal;
     const row=document.createElement("div");row.className="quest-reward";
     const reward=document.createElement("strong");reward.textContent="+"+quest.reward+" ◉ CREDITS";
-    const button=document.createElement("button");button.className="quest-claim";button.disabled=claimed||!done;
+    const button=document.createElement("button");button.type="button";button.className="quest-claim";button.dataset.questId=quest.id;button.disabled=claimed||!done;
     button.textContent=claimed?"CLAIMED REWARD":done?"CLAIM REWARD":"IN PROGRESS";
-    button.addEventListener("click",()=>claimQuest(quest.id));
     row.append(reward,button);card.append(title,description,row);list.appendChild(card);
   });
 }
 function claimQuest(id){
   const quest=QUESTS.find(item=>item.id===id);
-  if(!quest)return;
+  const feedback=$("questFeedback");
+  if(!quest){if(feedback)feedback.textContent="That mission could not be found. Refresh and try again.";return;}
   const progress=readQuests();
-  if(progress.claimed.includes(id)){renderQuests();return;}
-  if(id!=="welcome"&&!progress.progress.includes(id))return;
-  progress.claimed.push(id);
-  localStorage.setItem(QUEST_KEY,JSON.stringify(progress));
-  const wallet=readShop();wallet.credits+=quest.reward;saveShop(wallet);
-  $("shopMessage").textContent=quest.title+" reward collected: +"+quest.reward+" credits.";
-  renderQuests();
+  if(progress.claimed.includes(id)){if(feedback)feedback.textContent="CLAIMED REWARD — this mission reward was already collected.";renderQuests();return;}
+  if(id!=="welcome"&&!progress.progress.includes(id)){if(feedback)feedback.textContent="Complete this mission before claiming its reward.";return;}
+  try{
+    const wallet=readShop();
+    progress.claimed.push(id);
+    localStorage.setItem(QUEST_KEY,JSON.stringify(progress));
+    wallet.credits+=quest.reward;
+    localStorage.setItem(SHOP_KEY,JSON.stringify(wallet));
+    renderShop();renderArmory();renderQuests();
+    if(feedback)feedback.textContent="REWARD CLAIMED: +"+quest.reward+" credits added!";
+    const message=$("shopMessage");if(message)message.textContent=quest.title+" reward collected: +"+quest.reward+" credits.";
+  }catch(error){
+    if(feedback)feedback.textContent="Could not save this reward in this browser. Check storage settings and try again.";
+  }
 }
+document.addEventListener("click",event=>{
+  const button=event.target.closest("#questList button[data-quest-id]");
+  if(button&&!button.disabled)claimQuest(button.dataset.questId);
+});
 const originalOpenShop=window.openShop;
 window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgress("shopvisit");};
 const originalOpenLoadout=window.openLoadoutStudio;
