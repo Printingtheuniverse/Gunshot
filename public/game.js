@@ -1583,6 +1583,8 @@ function renderShop(){
   const data=readShop();
   const balance=$("coinBalance");
   if(balance)balance.textContent=data.credits;
+  const dashboardBalance=$("dashboardCredits");
+  if(dashboardBalance)dashboardBalance.textContent=data.credits;
   document.querySelectorAll(".shop-item[data-shop-id]").forEach(card=>{
     const id=card.dataset.shopId,item=SHOP_ITEMS[id],button=card.querySelector("button");
     if(!item||!button)return;
