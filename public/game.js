@@ -1398,7 +1398,7 @@ function readGunInventory(){
   catch{ownedGuns=["pulse"];equippedGun="pulse";}
 }
 function saveGunInventory(){localStorage.setItem(GUN_STORAGE_KEY,JSON.stringify({owned:ownedGuns,equipped:equippedGun}));}
-function openArmory(){const panel=$("armoryPanel");if(panel){panel.scrollIntoView({behavior:"smooth",block:"start"});renderArmory();}}
+function openArmory(){openPanel("armoryPanel");renderArmory();}
 function renderArmory(){
   const grid=$("armoryGrid");if(!grid)return;
   const wallet=readShop();if($("armoryCredits"))$("armoryCredits").textContent=wallet.credits;
