@@ -164,20 +164,28 @@
       </section>
 
       <section id="questPanel" class="quest-panel">
-        <div class="quest-heading"><div><p class="eyebrow">FRONTIER ASSIGNMENTS</p><h2>QUEST <span>BOARD</span></h2><p class="sub">Complete missions to earn credits and rewards.</p></div><div class="quest-total">◉ <strong id="questCredits">250</strong><small> CREDITS</small></div></div>
+        <div class="quest-heading"><div><p class="eyebrow">FRONTIER ASSIGNMENTS</p><h2>QUEST <span>BOARD</span></h2><p class="sub">Claim daily credits and complete missions for more rewards.</p></div><div class="quest-total">◉ <strong id="questCredits">250</strong><small> CREDITS</small></div></div>
+        <div class="daily-reward-panel">
+          <div class="daily-reward-icon">🎁</div>
+          <div class="daily-reward-copy"><strong>DAILY FRONTIER DROP</strong><span id="dailyRewardStatus">Your daily reward is ready: 50–120 credits.</span><small id="dailyStreak">CURRENT STREAK: 0 DAYS</small></div>
+          <button id="dailyClaimButton" class="daily-claim-button" onclick="claimDailyReward()">CLAIM DAILY REWARD</button>
+        </div>
         <div id="questList" class="quest-list"></div>
-        <p class="fine-print">Quest progress is currently saved in this browser. Match-based objectives are prototypes and may require server-side tracking for reliable rewards.</p>
+        <p class="fine-print">Your credits, daily claim, and mission rewards are saved in this browser on this device. They are game points, not real money.</p>
       </section>
       <section id="shopPanel" class="shop-panel">
-        <div class="shop-heading"><div><p class="eyebrow">FRONTIER EXCHANGE</p><h2>THE <span>STYLE SHOP</span></h2><p class="sub">Discover explorer looks, luminous trails, and color themes.</p></div><div class="coin-wallet">◉ <strong id="coinBalance">250</strong><small> CREDITS</small></div></div>
+        <div class="shop-heading"><div><p class="eyebrow">FRONTIER COSMETIC EXCHANGE</p><h2>THE <span>STYLE SHOP</span></h2><p class="sub">Unlock explorer suits, trails, badges, and profile effects with credits.</p></div><div class="coin-wallet">◉ <strong id="coinBalance">250</strong><small> CREDITS</small></div></div>
         <div class="shop-grid">
-          <article class="shop-item"><div class="shop-item-art rifle-art">╱━◈━━</div><h3>ARCTIC PULSE</h3><p>Frost-metal rifle finish</p><div class="shop-buy-row"><strong>150 ◉</strong><button onclick="buyShopItem('arctic',150)">UNLOCK</button></div></article>
-          <article class="shop-item"><div class="shop-item-art gold-art">╱━◆━━</div><h3>SUNFORGED</h3><p>Warm alloy rifle finish</p><div class="shop-buy-row"><strong>300 ◉</strong><button onclick="buyShopItem('sunforged',300)">UNLOCK</button></div></article>
-          <article class="shop-item"><div class="shop-item-art void-art">╱━⬡━━</div><h3>VOID CIRCUIT</h3><p>Reactive neon finish</p><div class="shop-buy-row"><strong>450 ◉</strong><button onclick="buyShopItem('void',450)">UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="aurora"><div class="shop-item-art aurora-art">✧</div><h3>AURORA SHELL</h3><p>Icy explorer suit accent</p><div class="shop-buy-row"><strong>120 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="comet"><div class="shop-item-art comet-art">☄</div><h3>COMET TRAIL</h3><p>A luminous trail for your explorer</p><div class="shop-buy-row"><strong>160 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="starlight"><div class="shop-item-art starlight-art">✦</div><h3>STARLIGHT BADGE</h3><p>A bright profile emblem</p><div class="shop-buy-row"><strong>90 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="nebula"><div class="shop-item-art nebula-art">◈</div><h3>NEBULA SUIT</h3><p>Violet cosmic suit theme</p><div class="shop-buy-row"><strong>220 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="holo"><div class="shop-item-art holo-art">▱</div><h3>HOLO NAMEPLATE</h3><p>A holographic profile frame</p><div class="shop-buy-row"><strong>140 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="orbit"><div class="shop-item-art orbit-art">◎</div><h3>ORBIT VICTORY</h3><p>A celebratory victory effect</p><div class="shop-buy-row"><strong>180 ◉</strong><button>UNLOCK</button></div></article>
         </div>
-        <div class="promo-row"><div><h3>HAVE A PROMO CODE?</h3><p>Enter a code to claim frontier credits or a bonus finish.</p></div><div class="promo-controls"><input id="promoInput" maxlength="24" placeholder="ENTER CODE" aria-label="Promo code"><button onclick="redeemPromo()">REDEEM</button></div></div>
-        <p id="shopMessage" class="fine-print" aria-live="polite">Prototype shop: credits and unlocks are stored in this browser only. They are not real money or server-secured purchases.</p>
-        <div id="ownedItems" class="owned-items"></div>
+        <p id="equippedCosmetics" class="owned-items">No shop cosmetics equipped yet.</p>
+        <p id="shopMessage" class="fine-print" aria-live="polite">Credits and cosmetic unlocks are saved in this browser only. No real-money purchases.</p>
+        <div id="ownedItems" class="owned-items">No cosmetics unlocked yet.</div>
       </section>
 
       <section class="play-dock">
