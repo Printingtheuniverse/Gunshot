@@ -135,6 +135,7 @@ socket.on("lobbyState", state => {
   }
 
   if (state.state === "playing") {
+    markQuestProgress("firstmatch");
     $("matchTitle").textContent = `${state.mode} — ${state.map}`;
     renderScores(state.scores);
     show("game");
@@ -1495,29 +1496,171 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* Local prototype credits/shop. Replace with server-backed accounts before public monetization. */
+/* Browser-local game credits and cosmetic rewards. No real-money purchases. */
 const SHOP_KEY = "reloadshot.shop.v1";
-const PROMO_KEY = "reloadshot.promos.v1";
-const SHOP_ITEMS = { arctic: "ARCTIC PULSE", sunforged: "SUNFORGED", void: "VOID CIRCUIT" };
-const PROMO_CODES = { FRONTIER100: { credits: 100 }, RELOADBONUS: { credits: 250 }, SCOUTDROP: { credits: 50, item: "arctic" } };
-function readShop(){ try { return JSON.parse(localStorage.getItem(SHOP_KEY)) || {credits:250,owned:[]}; } catch { return {credits:250,owned:[]}; } }
-function saveShop(data){ localStorage.setItem(SHOP_KEY,JSON.stringify(data)); renderShop(); }
-function openShop(){ $("shopPanel").scrollIntoView({behavior:"smooth",block:"start"}); renderShop(); }
-function renderShop(){ const data=readShop(); const balance=$("coinBalance"); if(!balance)return; balance.textContent=data.credits; document.querySelectorAll(".shop-item").forEach((card,i)=>{const id=Object.keys(SHOP_ITEMS)[i];const button=card.querySelector("button");const owned=data.owned.includes(id);button.disabled=owned;button.textContent=owned?"OWNED":"UNLOCK";}); $("ownedItems").textContent=data.owned.length?"UNLOCKED FINISHES: "+data.owned.map(id=>SHOP_ITEMS[id]).join(" · "):"No finishes unlocked yet."; }
-function buyShopItem(id,cost){const data=readShop();if(!SHOP_ITEMS[id])return;if(data.owned.includes(id)){ $("shopMessage").textContent="You already own this finish.";return;}if(data.credits<cost){$("shopMessage").textContent="Not enough credits yet. Try a promo code.";return;}data.credits-=cost;data.owned.push(id);$("shopMessage").textContent=SHOP_ITEMS[id]+" unlocked on this browser.";saveShop(data);}
-function redeemPromo(){const input=$("promoInput");const code=input.value.trim().toUpperCase();const used=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]");const reward=PROMO_CODES[code];if(!reward){$("shopMessage").textContent="Code not recognized.";return;}if(used.includes(code)){$("shopMessage").textContent="That code has already been used on this browser.";return;}const data=readShop();data.credits+=reward.credits||0;if(reward.item&&!data.owned.includes(reward.item))data.owned.push(reward.item);used.push(code);localStorage.setItem(PROMO_KEY,JSON.stringify(used));input.value="";$("shopMessage").textContent="Code claimed! "+(reward.credits||0)+" frontier credits added"+(reward.item?" and "+SHOP_ITEMS[reward.item]+" style unlocked.":".");saveShop(data);}
-document.addEventListener("DOMContentLoaded",()=>{renderShop();readGunInventory();renderArmory();});
+const DAILY_KEY = "reloadshot.daily.v1";
+const QUEST_KEY = "reloadshot.quests.v1";
+const SHOP_ITEMS = {
+  aurora:{name:"AURORA SHELL",description:"Icy explorer suit accent",cost:120,icon:"✧",category:"suit"},
+  comet:{name:"COMET TRAIL",description:"A luminous trail for your explorer",cost:160,icon:"☄",category:"trail"},
+  starlight:{name:"STARLIGHT BADGE",description:"A bright profile emblem",cost:90,icon:"✦",category:"badge"},
+  nebula:{name:"NEBULA SUIT",description:"Violet cosmic suit theme",cost:220,icon:"◈",category:"suit"},
+  holo:{name:"HOLO NAMEPLATE",description:"A holographic profile frame",cost:140,icon:"▱",category:"nameplate"},
+  orbit:{name:"ORBIT VICTORY",description:"A celebratory victory effect",cost:180,icon:"◎",category:"emote"}
+};
+function readShop(){
+  try {
+    const saved=JSON.parse(localStorage.getItem(SHOP_KEY)||"null")||{};
+    const owned=Array.isArray(saved.owned)?[...new Set(saved.owned.filter(id=>SHOP_ITEMS[id]))]:[];
+    const equipped=saved.equipped&&typeof saved.equipped==="object"?saved.equipped:{};
+    return {credits:Math.max(0,Math.floor(Number(saved.credits??250)||0)),owned,equipped};
+  } catch { return {credits:250,owned:[],equipped:{}}; }
+}
+function saveShop(data){
+  localStorage.setItem(SHOP_KEY,JSON.stringify(data));
+  renderShop();
+  renderQuests();
+  renderArmory();
+}
+function openShop(){
+  $("shopPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
+  renderShop();
+}
+function applyShopCosmetics(data){
+  const equipped=Object.values(data.equipped||{}).filter(id=>data.owned.includes(id));
+  const labels=equipped.map(id=>SHOP_ITEMS[id]?.name).filter(Boolean);
+  const root=$("equippedCosmetics");
+  if(root)root.textContent=labels.length?"EQUIPPED COSMETICS: "+labels.join(" · "):"No shop cosmetics equipped yet.";
+  document.documentElement.dataset.shopSuit=data.equipped.suit||"";
+  document.documentElement.dataset.shopTrail=data.equipped.trail||"";
+  document.documentElement.dataset.shopBadge=data.equipped.badge||"";
+}
+function renderShop(){
+  const data=readShop();
+  const balance=$("coinBalance");
+  if(balance)balance.textContent=data.credits;
+  document.querySelectorAll(".shop-item[data-shop-id]").forEach(card=>{
+    const id=card.dataset.shopId,item=SHOP_ITEMS[id],button=card.querySelector("button");
+    if(!item||!button)return;
+    const owned=data.owned.includes(id),equipped=data.equipped[item.category]===id;
+    button.disabled=equipped;
+    button.textContent=equipped?"EQUIPPED":owned?"EQUIP":"UNLOCK";
+    button.onclick=()=>owned?equipShopItem(id):buyShopItem(id);
+    const cost=card.querySelector(".shop-buy-row strong");
+    if(cost)cost.textContent=item.cost+" ◉";
+  });
+  const owned=$("ownedItems");
+  if(owned)owned.textContent=data.owned.length?"UNLOCKED COSMETICS: "+data.owned.map(id=>SHOP_ITEMS[id].name).join(" · "):"No cosmetics unlocked yet.";
+  applyShopCosmetics(data);
+  const armoryWallet=$("armoryCredits");
+  if(armoryWallet)armoryWallet.textContent=data.credits;
+}
+function buyShopItem(id){
+  const item=SHOP_ITEMS[id],data=readShop();
+  if(!item||data.owned.includes(id))return;
+  if(data.credits<item.cost){
+    $("shopMessage").textContent="Not enough credits yet. Complete a mission or claim your daily reward.";
+    return;
+  }
+  data.credits-=item.cost;
+  data.owned.push(id);
+  data.equipped[item.category]=id;
+  saveShop(data);
+  $("shopMessage").textContent=item.name+" unlocked and equipped!";
+}
+function equipShopItem(id){
+  const item=SHOP_ITEMS[id],data=readShop();
+  if(!item||!data.owned.includes(id))return;
+  data.equipped[item.category]=id;
+  saveShop(data);
+  $("shopMessage").textContent=item.name+" equipped!";
+}
 
+/* Daily login reward: once per local calendar day, with a small capped streak bonus. */
+function localDayKey(date=new Date()){
+  return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+}
+function readDaily(){
+  try{return JSON.parse(localStorage.getItem(DAILY_KEY)||"{}")||{};}catch{return{};}
+}
+function renderDailyReward(){
+  const saved=readDaily(),today=localDayKey();
+  const button=$("dailyClaimButton"),status=$("dailyRewardStatus"),streak=$("dailyStreak");
+  if(streak)streak.textContent="CURRENT STREAK: "+(Number(saved.streak)||0)+" DAYS";
+  const claimed=saved.lastClaim===today;
+  if(button){button.disabled=claimed;button.textContent=claimed?"CLAIMED TODAY":"CLAIM DAILY REWARD";}
+  if(status)status.textContent=claimed?"Today's reward has been collected. Come back tomorrow!":"Your daily reward is ready: 50–120 credits.";
+}
+function claimDailyReward(){
+  const saved=readDaily(),today=localDayKey();
+  if(saved.lastClaim===today){renderDailyReward();return;}
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const nextStreak=saved.lastClaim===localDayKey(yesterday)?Math.min(7,(Number(saved.streak)||0)+1):1;
+  const reward=50+(nextStreak-1)*10;
+  localStorage.setItem(DAILY_KEY,JSON.stringify({lastClaim:today,streak:nextStreak}));
+  const wallet=readShop();wallet.credits+=reward;saveShop(wallet);
+  $("shopMessage").textContent="Daily reward collected: +"+reward+" credits!";
+  renderDailyReward();
+}
 
-/* Quest board: one-time browser-local prototype rewards. */
-const QUEST_KEY="reloadshot.quests.v1";
-const QUESTS=[{id:"welcome",title:"WELCOME TO THE FRONTIER",description:"Claim your first mission reward.",reward:50,goal:"One-time starter mission"},{id:"shopvisit",title:"GEAR UP",description:"Visit the Frontier Exchange shop.",reward:40,goal:"Open the Shop"},{id:"promo",title:"CODE BREAKER",description:"Redeem a valid promo code in the Shop.",reward:75,goal:"Redeem any promo code"},{id:"loadout",title:"OPERATOR STYLE",description:"Open the Loadout Studio and check your gear.",reward:40,goal:"Open Loadout Studio"}];
-function readQuests(){try{return JSON.parse(localStorage.getItem(QUEST_KEY))||{claimed:[],progress:[]};}catch{return{claimed:[],progress:[]};}}
-function markQuestProgress(id){const data=readQuests();if(!data.progress.includes(id))data.progress.push(id);localStorage.setItem(QUEST_KEY,JSON.stringify(data));renderQuests();}
-function openQuests(){const panel=$("questPanel");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});renderQuests();}
-function renderQuests(){const list=$("questList");if(!list)return;const data=readQuests();const shop=readShop();$("questCredits").textContent=shop.credits;list.innerHTML=QUESTS.map(q=>{const claimed=data.claimed.includes(q.id);const done=q.id==="welcome"||data.progress.includes(q.id);return '<article class="quest-card"><h3>'+q.title+'</h3><p>'+q.description+'<br><span>'+q.goal+'</span></p><div class="quest-reward"><strong>+'+q.reward+' ◉ CREDITS</strong><button class="quest-claim" '+(claimed||!done?'disabled':'')+' onclick="claimQuest(\''+q.id+'\')">'+(claimed?'CLAIMED':done?'CLAIM REWARD':'IN PROGRESS')+'</button></div></article>';}).join("");}
-function claimQuest(id){const q=QUESTS.find(x=>x.id===id);if(!q)return;const data=readQuests();if(data.claimed.includes(id))return;const done=id==="welcome"||data.progress.includes(id);if(!done)return;data.claimed.push(id);localStorage.setItem(QUEST_KEY,JSON.stringify(data));const shop=readShop();shop.credits+=q.reward;saveShop(shop);renderQuests();}
-const originalOpenShop=window.openShop;window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgress("shopvisit");};
-const originalRedeemPromo=window.redeemPromo;window.redeemPromo=function(){const before=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]").length;if(originalRedeemPromo)originalRedeemPromo();const after=JSON.parse(localStorage.getItem(PROMO_KEY)||"[]").length;if(after>before)markQuestProgress("promo");};
-const originalOpenLoadout=window.openLoadoutStudio;window.openLoadoutStudio=function(){if(originalOpenLoadout)originalOpenLoadout();markQuestProgress("loadout");};
-window.addEventListener("DOMContentLoaded",()=>{renderQuests();const splash=$("loadingCredit");if(splash){setTimeout(()=>{splash.classList.add("done");setTimeout(()=>splash.remove(),450);},1400);}});
+/* One-time missions and achievements, saved in this browser. */
+const QUESTS=[
+  {id:"welcome",title:"FIRST LANDING",description:"Collect your starter mission reward.",reward:50,goal:"Available from your first visit"},
+  {id:"shopvisit",title:"STYLE EXPLORER",description:"Visit the Frontier Exchange.",reward:40,goal:"Open the cosmetic shop"},
+  {id:"loadout",title:"IDENTITY DESIGNER",description:"Visit the Loadout Studio.",reward:40,goal:"Open the Loadout Studio"},
+  {id:"firstmatch",title:"FIRST DEPLOYMENT",description:"Enter your first match.",reward:100,goal:"Join a match"}
+];
+function readQuests(){
+  try{
+    const data=JSON.parse(localStorage.getItem(QUEST_KEY)||"{}")||{};
+    return {claimed:Array.isArray(data.claimed)?data.claimed:[],progress:Array.isArray(data.progress)?data.progress:[]};
+  }catch{return{claimed:[],progress:[]};}
+}
+function markQuestProgress(id){
+  const data=readQuests();
+  if(!data.progress.includes(id)){data.progress.push(id);localStorage.setItem(QUEST_KEY,JSON.stringify(data));}
+  renderQuests();
+}
+function openQuests(){
+  $("questPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
+  renderQuests();
+}
+function renderQuests(){
+  const list=$("questList");
+  if(!list)return;
+  const data=readQuests(),wallet=readShop();
+  if($("questCredits"))$("questCredits").textContent=wallet.credits;
+  list.replaceChildren();
+  QUESTS.forEach(quest=>{
+    const claimed=data.claimed.includes(quest.id),done=quest.id==="welcome"||data.progress.includes(quest.id);
+    const card=document.createElement("article");card.className="quest-card";
+    const title=document.createElement("h3");title.textContent=quest.title;
+    const description=document.createElement("p");description.textContent=quest.description+" · "+quest.goal;
+    const row=document.createElement("div");row.className="quest-reward";
+    const reward=document.createElement("strong");reward.textContent="+"+quest.reward+" ◉ CREDITS";
+    const button=document.createElement("button");button.className="quest-claim";button.disabled=claimed||!done;
+    button.textContent=claimed?"CLAIMED":done?"CLAIM REWARD":"IN PROGRESS";
+    button.addEventListener("click",()=>claimQuest(quest.id));
+    row.append(reward,button);card.append(title,description,row);list.appendChild(card);
+  });
+}
+function claimQuest(id){
+  const quest=QUESTS.find(item=>item.id===id);
+  if(!quest)return;
+  const progress=readQuests();
+  if(progress.claimed.includes(id))return;
+  if(id!=="welcome"&&!progress.progress.includes(id))return;
+  progress.claimed.push(id);
+  localStorage.setItem(QUEST_KEY,JSON.stringify(progress));
+  const wallet=readShop();wallet.credits+=quest.reward;saveShop(wallet);
+  $("shopMessage").textContent=quest.title+" reward collected: +"+quest.reward+" credits.";
+}
+const originalOpenShop=window.openShop;
+window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgress("shopvisit");};
+const originalOpenLoadout=window.openLoadoutStudio;
+window.openLoadoutStudio=function(){if(originalOpenLoadout)originalOpenLoadout();markQuestProgress("loadout");};
+document.addEventListener("DOMContentLoaded",()=>{
+  renderShop();readGunInventory();renderArmory();renderQuests();renderDailyReward();
+  const splash=$("loadingCredit");
+  if(splash){setTimeout(()=>{splash.classList.add("done");setTimeout(()=>splash.remove(),450);},1400);}
+});
