@@ -762,3 +762,59 @@ html[data-shop-companion="drone"] #miniAvatar:after{content:"◉";position:absol
 html[data-shop-title="pioneer"] .command-profile strong:after{content:" · PIONEER";color:#ffe69b;font-size:9px;letter-spacing:.08em}
 
 body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.panel-page-active{display:block!important;position:fixed!important;z-index:1000;inset:0;overflow:auto;padding:32px;background:radial-gradient(ellipse at 50% 0%,#123d5a 0%,#071522 58%,#030912 100%)}.panel-back{display:inline-flex;margin:0 0 24px;padding:11px 18px;border:1px solid #64dfff77;border-radius:10px;background:#0c2941;color:#dffaff;font-weight:900}.full-frontier-board{max-width:900px;margin:24px auto;padding:24px;border:1px solid #5bdfff55;border-radius:18px;background:#061727cc}
+
+@media(min-width:761px){
+.app{max-width:none;padding:0;min-height:100vh;background:#030816}
+#dashboard>.topbar,#dashboard>.welcome-row,#dashboard>.lobby-layout,#dashboard>.dashboard-footer{display:none!important}
+.command-center{height:100vh;min-height:620px;max-height:none;margin:0;border:0;border-radius:0;border-bottom:1px solid #56dfff66;background:radial-gradient(ellipse at 50% 82%,#1d9bdc88 0,transparent 22%),radial-gradient(ellipse at 78% 15%,#9227c866 0,transparent 24%),radial-gradient(ellipse at 20% 12%,#3b49b888 0,transparent 30%),linear-gradient(180deg,#030716 0%,#071633 52%,#07101e 82%,#020711 100%);box-shadow:none}
+.command-center:before{content:"";position:absolute;z-index:-2;inset:40% 0 0;background:linear-gradient(180deg,transparent,#071a32 15%,#020713 100%),repeating-linear-gradient(90deg,transparent 0 8.2%,#39cfff1b 8.3% 8.45%),repeating-linear-gradient(0deg,transparent 0 58px,#54dfff20 59px 60px);transform:perspective(400px) rotateX(48deg) scale(1.5);transform-origin:bottom}
+.command-center:after{content:"";position:absolute;z-index:-2;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,transparent,#06182d88),repeating-linear-gradient(90deg,transparent 0 12%,#58dfff22 12.1% 12.25%),repeating-linear-gradient(0deg,transparent 0 30px,#58dfff18 31px 32px)}
+.command-stars{opacity:.95}
+.command-planet{width:min(52vw,680px);top:5%;opacity:.9;background:radial-gradient(circle at 34% 27%,#d8f5ff 0,#8bc8f4 12%,#376fb0 30%,#15346e 56%,#07142d 72%);box-shadow:0 0 48px #50baff,0 0 180px #227dff9c,inset -70px -45px 100px #020817}
+.command-tower{top:7%;height:67%;width:27%;filter:drop-shadow(0 0 24px #20aaff)}
+.command-title{top:4%;left:3%;z-index:6}
+.command-title>span{font-size:11px;letter-spacing:4px}
+.command-title h1{font-size:clamp(42px,5vw,76px);letter-spacing:-3px;text-shadow:0 4px 0 #183a70,0 0 28px #44baff,3px 6px 15px #000}
+.command-title small{font-size:12px;letter-spacing:4px}
+.command-left{left:1.5%;top:25%;width:clamp(190px,16.5%,255px);gap:8px}
+.command-left button{padding:13px 16px;border:1px solid #4d9de9aa;border-radius:5px;background:linear-gradient(100deg,#06162ef2,#06152bd9);font-size:clamp(13px,1.25vw,17px);box-shadow:0 6px 18px #0009,inset 0 1px #b8edff22}
+.command-left button span{font-size:24px}
+.command-left .command-play{padding:17px;font-size:clamp(23px,2.1vw,31px);border:2px solid #ffdb52;box-shadow:0 0 30px #ff9c00c0,0 8px 20px #000b}
+.command-operator{left:49%;bottom:8%;height:64%;width:clamp(260px,29%,410px);filter:drop-shadow(0 0 30px #168cffc0) drop-shadow(0 20px 24px #000b)}
+.operator-helmet{height:23%;border-width:4px;box-shadow:inset -9px -5px 15px #02091b,0 0 24px #0af,0 0 45px #0af7}
+.operator-body{background:linear-gradient(100deg,#030c1d,#a6c8e8 18%,#1b3e68 38%,#020a19 68%,#69b7e8);filter:drop-shadow(0 0 12px #38cfff55)}
+.operator-body i{box-shadow:0 0 12px #00dfff,0 0 25px #00dfff}
+.operator-leg{box-shadow:inset 0 0 14px #6bdfff44,0 0 12px #168cff55}
+.command-right{right:1.5%;top:2%;width:clamp(260px,24%,350px);gap:9px}
+.command-profile,.command-reward,.command-score{border:1px solid #58baffaa;border-radius:7px;background:linear-gradient(140deg,#07172ff2,#030b1df2);box-shadow:0 9px 28px #000b,inset 0 1px #d3f5ff25;padding:12px}
+.command-profile{display:grid;grid-template-columns:55px minmax(0,1fr) auto;gap:10px}
+.dashboard-wallet{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:62px;padding:5px 7px;border-left:1px solid #315b80;color:#ffcf66}
+.dashboard-wallet span{font-size:18px}.dashboard-wallet strong{font-size:17px}.dashboard-wallet small{font-size:8px;letter-spacing:1px;color:#b9cce2}
+.command-reward button{background:linear-gradient(90deg,#ff9e00,#ffdc34);color:#261300;border-color:#ffdc55}
+.command-score h3{font-size:14px;letter-spacing:.5px}
+.command-score p{font-size:10px;padding:6px 2px}
+.command-score>small{font-size:8px}
+.frontier-board{max-height:180px;overflow:auto}
+.frontier-board-row{display:grid;grid-template-columns:28px 1fr auto;gap:7px;padding:5px 7px;border-top:1px solid #24456a;font-size:10px}
+.frontier-board-row b{color:#ffd34e}.frontier-board-row strong{color:#8deaff}
+.command-map{left:1.5%;bottom:5%;width:clamp(270px,31%,430px);min-height:100px;border:1px solid #9c73ff;background:linear-gradient(120deg,#07172ff2,#06132be8);box-shadow:0 0 28px #147bff77}
+.command-quickmatch{right:1.5%;bottom:5%;width:clamp(270px,25%,360px);padding:18px;border:2px solid #35cfff;border-radius:10px;box-shadow:0 0 30px #08bfffbb,0 10px 24px #000a}
+.command-online{left:1.5%;bottom:1.5%;font-size:11px}
+.command-footer{bottom:1.5%;left:32%;right:30%;font-size:10px}
+.command-bottom-status{position:absolute;bottom:1.5%;right:1.5%;display:flex;gap:14px;color:#b9d6ed;font-size:9px;letter-spacing:1px}
+}
+@media(max-width:760px){
+#dashboard>.topbar,#dashboard>.welcome-row{display:none}
+.command-center{margin:0;border-radius:0;min-height:900px}
+.command-title{left:4%;top:3%}
+.command-title h1{font-size:clamp(30px,8vw,48px)}
+.command-left{top:21%;width:44%}
+.command-right{top:18%;width:48%}
+.command-profile{display:grid;grid-template-columns:40px 1fr}
+.dashboard-wallet{grid-column:1/-1;flex-direction:row;gap:8px;border-left:0;border-top:1px solid #315b80}
+.command-score{display:block;max-height:190px;overflow:auto}
+.command-operator{height:34%;width:48%;left:53%;bottom:26%}
+.command-map{bottom:8%;width:46%}
+.command-quickmatch{bottom:8%;width:46%}
+.command-bottom-status{display:none}
+}
