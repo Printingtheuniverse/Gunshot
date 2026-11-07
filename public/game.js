@@ -1714,7 +1714,7 @@ function renderQuests(){
     const row=document.createElement("div");row.className="quest-reward";
     const reward=document.createElement("strong");reward.textContent="+"+quest.reward+" ◉ CREDITS";
     const button=document.createElement("button");button.className="quest-claim";button.disabled=claimed||!done;
-    button.textContent=claimed?"CLAIMED":done?"CLAIM REWARD":"IN PROGRESS";
+    button.textContent=claimed?"CLAIMED REWARD":done?"CLAIM REWARD":"IN PROGRESS";
     button.addEventListener("click",()=>claimQuest(quest.id));
     row.append(reward,button);card.append(title,description,row);list.appendChild(card);
   });
@@ -1723,12 +1723,13 @@ function claimQuest(id){
   const quest=QUESTS.find(item=>item.id===id);
   if(!quest)return;
   const progress=readQuests();
-  if(progress.claimed.includes(id))return;
+  if(progress.claimed.includes(id)){renderQuests();return;}
   if(id!=="welcome"&&!progress.progress.includes(id))return;
   progress.claimed.push(id);
   localStorage.setItem(QUEST_KEY,JSON.stringify(progress));
   const wallet=readShop();wallet.credits+=quest.reward;saveShop(wallet);
   $("shopMessage").textContent=quest.title+" reward collected: +"+quest.reward+" credits.";
+  renderQuests();
 }
 const originalOpenShop=window.openShop;
 window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgress("shopvisit");};
