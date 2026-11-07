@@ -39,7 +39,7 @@
         <aside class="command-right">
           <div class="command-profile"><span class="profile-emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div></div>
           <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button onclick="openQuests()">VIEW MISSIONS</button></div></div>
-          <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SEASON RECORD</small></div>
+          <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
         </aside>
         <div class="command-map"><div><strong>NEW MAP: ORBITAL DOME</strong><small>Explore the ultimate arena!</small></div><button onclick="showServers()">PLAY NOW ›</button></div>
         <button class="command-quickmatch" onclick="showServers()"><span>◎</span><strong>QUICK MATCH</strong><small>Find an open arena</small></button>
@@ -182,6 +182,12 @@
           <article class="shop-item" data-shop-id="nebula"><div class="shop-item-art nebula-art">◈</div><h3>NEBULA SUIT</h3><p>Violet cosmic suit theme</p><div class="shop-buy-row"><strong>220 ◉</strong><button>UNLOCK</button></div></article>
           <article class="shop-item" data-shop-id="holo"><div class="shop-item-art holo-art">▱</div><h3>HOLO NAMEPLATE</h3><p>A holographic profile frame</p><div class="shop-buy-row"><strong>140 ◉</strong><button>UNLOCK</button></div></article>
           <article class="shop-item" data-shop-id="orbit"><div class="shop-item-art orbit-art">◎</div><h3>ORBIT VICTORY</h3><p>A celebratory victory effect</p><div class="shop-buy-row"><strong>180 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="ion"><div class="shop-item-art ion-art">ϟ</div><h3>ION AURA</h3><p>A soft electric glow around your explorer</p><div class="shop-buy-row"><strong>260 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="prism"><div class="shop-item-art prism-art">◇</div><h3>PRISM VISOR</h3><p>A shifting rainbow visor highlight</p><div class="shop-buy-row"><strong>240 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="cometwing"><div class="shop-item-art wing-art">✧</div><h3>COMET WINGS</h3><p>Decorative light fins for your profile</p><div class="shop-buy-row"><strong>320 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="drone"><div class="shop-item-art drone-art">◉</div><h3>TINY ORBITER</h3><p>A friendly cosmetic companion marker</p><div class="shop-buy-row"><strong>360 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="pioneer"><div class="shop-item-art pioneer-art">✦</div><h3>PIONEER TITLE</h3><p>A special title beneath your name</p><div class="shop-buy-row"><strong>200 ◉</strong><button>UNLOCK</button></div></article>
+          <article class="shop-item" data-shop-id="stardust"><div class="shop-item-art stardust-art">✺</div><h3>STARDUST EMOTE</h3><p>A sparkling celebration for your profile</p><div class="shop-buy-row"><strong>280 ◉</strong><button>UNLOCK</button></div></article>
         </div>
         <p id="equippedCosmetics" class="owned-items">No shop cosmetics equipped yet.</p>
         <p id="shopMessage" class="fine-print" aria-live="polite">Credits and cosmetic unlocks are saved in this browser only. No real-money purchases.</p>
