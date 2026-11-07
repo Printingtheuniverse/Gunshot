@@ -80,6 +80,39 @@ function joinByCode() {
 }
 
 socket.on("connect", () => playerId = socket.id);
+socket.on("frontierLeaderboard", rows => renderFrontierLeaderboard(rows));
+function renderFrontierLeaderboard(rows) {
+  const root = $("frontierLeaderboard");
+  if (!root) return;
+  root.replaceChildren();
+  const title = document.createElement("strong");
+  title.className = "frontier-board-title";
+  title.textContent = "LIVE FRONTIER RANKINGS";
+  root.appendChild(title);
+  const note = document.createElement("small");
+  note.className = "frontier-board-note";
+  note.textContent = "Session XP · resets when the game server restarts";
+  root.appendChild(note);
+  if (!rows || !rows.length) {
+    const empty = document.createElement("span");
+    empty.className = "frontier-board-empty";
+    empty.textContent = "Play a match to earn your first ranking points.";
+    root.appendChild(empty);
+    return;
+  }
+  rows.slice(0,5).forEach(row => {
+    const item = document.createElement("div");
+    item.className = "frontier-board-row";
+    const rank = document.createElement("b");
+    rank.textContent = "#" + row.rank;
+    const name = document.createElement("span");
+    name.textContent = String(row.name || "Explorer").slice(0,18);
+    const stat = document.createElement("strong");
+    stat.textContent = String(row.points || 0) + " XP";
+    item.append(rank,name,stat);
+    root.appendChild(item);
+  });
+}
 
 socket.on("rooms", rooms => {
   $("serverList").innerHTML = rooms.length ? rooms.map(r => `
@@ -1506,7 +1539,13 @@ const SHOP_ITEMS = {
   starlight:{name:"STARLIGHT BADGE",description:"A bright profile emblem",cost:90,icon:"✦",category:"badge"},
   nebula:{name:"NEBULA SUIT",description:"Violet cosmic suit theme",cost:220,icon:"◈",category:"suit"},
   holo:{name:"HOLO NAMEPLATE",description:"A holographic profile frame",cost:140,icon:"▱",category:"nameplate"},
-  orbit:{name:"ORBIT VICTORY",description:"A celebratory victory effect",cost:180,icon:"◎",category:"emote"}
+  orbit:{name:"ORBIT VICTORY",description:"A celebratory victory effect",cost:180,icon:"◎",category:"emote"},
+  ion:{name:"ION AURA",description:"A soft electric glow around your explorer",cost:260,icon:"ϟ",category:"aura"},
+  prism:{name:"PRISM VISOR",description:"A shifting rainbow visor highlight",cost:240,icon:"◇",category:"visor"},
+  cometwing:{name:"COMET WINGS",description:"Decorative light fins for your profile",cost:320,icon:"✧",category:"banner"},
+  drone:{name:"TINY ORBITER",description:"A friendly cosmetic companion marker",cost:360,icon:"◉",category:"companion"},
+  pioneer:{name:"PIONEER TITLE",description:"A special title beneath your name",cost:200,icon:"✦",category:"title"},
+  stardust:{name:"STARDUST EMOTE",description:"A sparkling celebration for your profile",cost:280,icon:"✺",category:"emote"}
 };
 function readShop(){
   try {
@@ -1536,6 +1575,11 @@ function applyShopCosmetics(data){
   document.documentElement.dataset.shopBadge=data.equipped.badge||"";
   document.documentElement.dataset.shopNameplate=data.equipped.nameplate||"";
   document.documentElement.dataset.shopEmote=data.equipped.emote||"";
+  document.documentElement.dataset.shopAura=data.equipped.aura||"";
+  document.documentElement.dataset.shopVisor=data.equipped.visor||"";
+  document.documentElement.dataset.shopBanner=data.equipped.banner||"";
+  document.documentElement.dataset.shopCompanion=data.equipped.companion||"";
+  document.documentElement.dataset.shopTitle=data.equipped.title||"";
 }
 function renderShop(){
   const data=readShop();
