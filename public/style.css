@@ -746,3 +746,17 @@ html[data-shop-badge="starlight"] .profile-emblem,html[data-shop-badge="starligh
 html[data-shop-nameplate="holo"] .command-profile strong{text-shadow:0 0 12px #76f3e9;border-bottom:1px solid #76f3e988}
 html[data-shop-emote="orbit"] .player-leaderboard-entry.is-you{box-shadow:0 0 0 1px #c69aff66,0 0 18px #a46dff55}
 @keyframes shopCometPulse{0%,100%{opacity:.72;transform:scaleX(.94)}50%{opacity:1;transform:scaleX(1.08)}}
+
+
+/* Additional cosmetic collection effects */
+.ion-art{color:#9df7ff;text-shadow:0 0 24px #5ceaff}
+.prism-art{color:#f1c8ff;text-shadow:0 0 22px #d18cff}
+.wing-art{color:#a7ddff;text-shadow:0 0 22px #62bfff}
+.drone-art{color:#9af5d8;text-shadow:0 0 22px #43d9b0}
+.pioneer-art{color:#ffe59b;text-shadow:0 0 22px #ffc95e}
+.stardust-art{color:#f3c5ff;text-shadow:0 0 22px #c46cff}
+html[data-shop-aura="ion"] #avatarFigure{filter:drop-shadow(0 0 28px #6beeffcc) drop-shadow(0 14px 18px #0009)}
+html[data-shop-visor="prism"] .visor{box-shadow:0 0 18px #d98cff,0 0 32px #68eaff}
+html[data-shop-banner="cometwing"] #avatarFigure:after{content:"✧";position:absolute;right:-38px;top:18px;color:#9ceeff;font-size:42px;text-shadow:0 0 18px #48cfff}
+html[data-shop-companion="drone"] #miniAvatar:after{content:"◉";position:absolute;right:-9px;top:-8px;color:#8df5d5;font-size:12px;text-shadow:0 0 9px #55f0c7}
+html[data-shop-title="pioneer"] .command-profile strong:after{content:" · PIONEER";color:#ffe69b;font-size:9px;letter-spacing:.08em}
