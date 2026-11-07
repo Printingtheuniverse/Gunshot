@@ -737,3 +737,12 @@ body:has(#dashboard.active){
   .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:420px){.shop-grid{grid-template-columns:1fr}.daily-reward-panel{padding:12px}}
+
+/* Equipped shop cosmetics visibly personalize the command-center preview. */
+html[data-shop-suit="aurora"] #avatarFigure{filter:drop-shadow(0 0 22px #9ceeffaa) drop-shadow(0 14px 18px #0009)}
+html[data-shop-suit="nebula"] #avatarFigure{filter:drop-shadow(0 0 24px #a78bfaad) drop-shadow(0 14px 18px #0009)}
+html[data-shop-trail="comet"] .stage-shadow{box-shadow:0 0 14px #4bdfff,0 0 38px #43bfff88;animation:shopCometPulse 2.2s ease-in-out infinite}
+html[data-shop-badge="starlight"] .profile-emblem,html[data-shop-badge="starlight"] #miniAvatar{border-color:#ffe69b;box-shadow:0 0 18px #ffcf6c99}
+html[data-shop-nameplate="holo"] .command-profile strong{text-shadow:0 0 12px #76f3e9;border-bottom:1px solid #76f3e988}
+html[data-shop-emote="orbit"] .player-leaderboard-entry.is-you{box-shadow:0 0 0 1px #c69aff66,0 0 18px #a46dff55}
+@keyframes shopCometPulse{0%,100%{opacity:.72;transform:scaleX(.94)}50%{opacity:1;transform:scaleX(1.08)}}
