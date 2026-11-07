@@ -857,3 +857,37 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .command-map{width:43%;bottom:7%;min-height:80px}
 .command-quickmatch{width:43%;bottom:7%;padding:10px}
 }
+
+
+/* Balanced dashboard scale: between the oversized and compact passes */
+@media(min-width:761px){
+.command-title h1{font-size:clamp(39px,4.35vw,64px)}
+.command-left{top:25%;width:clamp(180px,15.5%,235px);gap:7px}
+.command-left button{padding:11px 14px;font-size:clamp(12px,1.12vw,15px)}
+.command-left button span{font-size:22px}
+.command-left .command-play{padding:15px;font-size:clamp(21px,1.9vw,28px)}
+.command-operator{height:60%;width:clamp(245px,27%,370px);bottom:9%}
+.command-right{width:clamp(245px,22%,315px);gap:8px}
+.command-profile,.command-reward,.command-score{padding:10px}
+.command-profile{grid-template-columns:50px minmax(0,1fr) auto;gap:9px}
+.command-score h3{font-size:13px}
+.command-score p{font-size:9.5px;padding:5px 2px}
+.frontier-board{max-height:165px}
+.command-map{width:clamp(255px,29%,390px);min-height:92px;bottom:4.5%}
+.command-quickmatch{width:clamp(250px,23.5%,335px);padding:16px;bottom:4.5%}
+.command-planet{width:min(48vw,620px)}
+}
+@media(max-width:760px){
+.command-center{min-height:830px}
+.command-title h1{font-size:clamp(28px,7.2vw,44px)}
+.command-left{top:20.5%;width:42%;gap:6px}
+.command-left button{padding:9px 11px;font-size:12px}
+.command-left button span{font-size:19px}
+.command-left .command-play{padding:12px;font-size:20px}
+.command-right{top:17.5%;width:46%;gap:7px}
+.command-profile,.command-reward,.command-score{padding:9px}
+.command-score{max-height:170px}
+.command-operator{height:33%;width:45%;left:53%;bottom:25%}
+.command-map{width:45%;bottom:7.5%;min-height:88px}
+.command-quickmatch{width:45%;bottom:7.5%;padding:12px}
+}
