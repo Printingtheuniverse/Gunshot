@@ -8,6 +8,9 @@ let myTeam = 0;
 const teamColors = ["#4da3ff","#ff5c5c","#4ddc88","#ffd34d"];
 
 const $ = id => document.getElementById(id);
+function openPanel(id){document.body.classList.add("panel-open");document.querySelectorAll(".panel-page").forEach(p=>p.classList.toggle("panel-page-active",p.id===id));$(id)?.classList.remove("hidden");window.scrollTo(0,0);}
+function closePanel(){document.body.classList.remove("panel-open");document.querySelectorAll(".panel-page").forEach(p=>p.classList.remove("panel-page-active"));$("loadoutStudio")?.classList.add("hidden");window.scrollTo(0,0);}
+function openLeaderboard(){openPanel("leaderboardPanel");}
 const show = id => document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
 
 function name() {
@@ -82,9 +85,9 @@ function joinByCode() {
 socket.on("connect", () => playerId = socket.id);
 socket.on("frontierLeaderboard", rows => renderFrontierLeaderboard(rows));
 function renderFrontierLeaderboard(rows) {
-  const root = $("frontierLeaderboard");
-  if (!root) return;
-  root.replaceChildren();
+  const roots = [$("frontierLeaderboard"),$("fullLeaderboard")].filter(Boolean);
+  if (!roots.length) return;
+  roots.forEach(root=>{ root.replaceChildren();
   const title = document.createElement("strong");
   title.className = "frontier-board-title";
   title.textContent = "LIVE FRONTIER RANKINGS";
@@ -100,7 +103,7 @@ function renderFrontierLeaderboard(rows) {
     root.appendChild(empty);
     return;
   }
-  rows.slice(0,5).forEach(row => {
+  rows.slice(0,10).forEach(row => {
     const item = document.createElement("div");
     item.className = "frontier-board-row";
     const rank = document.createElement("b");
@@ -111,6 +114,7 @@ function renderFrontierLeaderboard(rows) {
     stat.textContent = String(row.points || 0) + " XP";
     item.append(rank,name,stat);
     root.appendChild(item);
+  });
   });
 }
 
@@ -1441,13 +1445,10 @@ function setWeaponViewmodel(){
 function openLoadoutStudio() {
   const panel = $("loadoutStudio");
   if (!panel) return;
-  panel.classList.remove("hidden");
-  panel.scrollIntoView({behavior:"smooth", block:"start"});
+  openPanel("loadoutStudio");
   renderSavedLoadouts();
 }
-function closeLoadoutStudio() {
-  $("loadoutStudio")?.classList.add("hidden");
-}
+function closeLoadoutStudio(){closePanel();}
 function chooseGear(gear, button) {
   selectedGear = gear;
   document.querySelectorAll(".gear-card").forEach(card => {
@@ -1561,10 +1562,7 @@ function saveShop(data){
   renderQuests();
   renderArmory();
 }
-function openShop(){
-  $("shopPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
-  renderShop();
-}
+function openShop(){openPanel("shopPanel");renderShop();}
 function applyShopCosmetics(data){
   const equipped=Object.values(data.equipped||{}).filter(id=>data.owned.includes(id));
   const labels=equipped.map(id=>SHOP_ITEMS[id]?.name).filter(Boolean);
@@ -1667,10 +1665,7 @@ function markQuestProgress(id){
   if(!data.progress.includes(id)){data.progress.push(id);localStorage.setItem(QUEST_KEY,JSON.stringify(data));}
   renderQuests();
 }
-function openQuests(){
-  $("questPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
-  renderQuests();
-}
+function openQuests(){openPanel("questPanel");renderQuests();}
 function renderQuests(){
   const list=$("questList");
   if(!list)return;
