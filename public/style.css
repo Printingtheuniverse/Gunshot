@@ -876,3 +876,7 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 /* Add breathing room between the live rankings heading and its details. */
 .command-score .frontier-board-title{display:block;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid #2d5a7d}
 .command-score .frontier-board-note{display:block;margin-top:10px}
+
+
+/* Clear breathing room below the live leaderboard heading */
+.frontier-board-spacer{display:block;height:24px;min-height:24px;width:100%;}
