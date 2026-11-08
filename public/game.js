@@ -1675,19 +1675,26 @@ function renderDailyReward(){
   if(status)status.textContent=claimed?"Today's reward has already been claimed. Come back tomorrow!":"Your daily reward is ready: 50–120 credits.";
 }
 function claimDailyReward(){
-  const saved=readDaily(),today=localDayKey();
-  if(saved.lastClaim===today){
-    const status=$("dailyRewardStatus");
-    if(status)status.textContent="CLAIMED REWARD — today's credits have already been collected.";
-    renderDailyReward();return;
+  const buttons=[$("dailyClaimButton"),$("dailyDashboardClaimButton")].filter(Boolean);
+  const status=$("dailyRewardStatus");
+  try{
+    const saved=readDaily(),today=localDayKey();
+    if(saved.lastClaim===today){
+      if(status)status.textContent="CLAIMED REWARD — today's credits have already been collected.";
+      renderDailyReward();return;
+    }
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    const nextStreak=saved.lastClaim===localDayKey(yesterday)?Math.min(7,(Number(saved.streak)||0)+1):1;
+    const reward=50+(nextStreak-1)*10;
+    const wallet=readShop();wallet.credits+=reward;
+    localStorage.setItem(DAILY_KEY,JSON.stringify({lastClaim:today,streak:nextStreak}));
+    localStorage.setItem(SHOP_KEY,JSON.stringify(wallet));
+    renderShop();renderQuests();renderArmory();renderDailyReward();
+    const message=$("shopMessage");if(message)message.textContent="Daily reward collected: +"+reward+" credits!";
+  }catch(error){
+    buttons.forEach(button=>{button.disabled=false;});
+    if(status)status.textContent="Reward could not be saved. Please check browser storage and try again.";
   }
-  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
-  const nextStreak=saved.lastClaim===localDayKey(yesterday)?Math.min(7,(Number(saved.streak)||0)+1):1;
-  const reward=50+(nextStreak-1)*10;
-  localStorage.setItem(DAILY_KEY,JSON.stringify({lastClaim:today,streak:nextStreak}));
-  const wallet=readShop();wallet.credits+=reward;saveShop(wallet);
-  const message=$("shopMessage");if(message)message.textContent="Daily reward collected: +"+reward+" credits!";
-  renderDailyReward();
 }
 
 /* One-time missions and achievements, saved in this browser. */
@@ -1757,6 +1764,7 @@ window.openShop=function(){if(originalOpenShop)originalOpenShop();markQuestProgr
 const originalOpenLoadout=window.openLoadoutStudio;
 window.openLoadoutStudio=function(){if(originalOpenLoadout)originalOpenLoadout();markQuestProgress("loadout");};
 document.addEventListener("DOMContentLoaded",()=>{
+  [$("dailyClaimButton"),$("dailyDashboardClaimButton")].filter(Boolean).forEach(button=>{button.onclick=claimDailyReward;});
   restoreExplorerProfile();
   renderShop();readGunInventory();renderArmory();renderQuests();renderDailyReward();
   const splash=$("loadingCredit");
