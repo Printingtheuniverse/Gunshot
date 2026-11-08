@@ -1715,6 +1715,7 @@ function renderQuests(){
     const reward=document.createElement("strong");reward.textContent="+"+quest.reward+" ◉ CREDITS";
     const button=document.createElement("button");button.type="button";button.className="quest-claim";button.dataset.questId=quest.id;button.disabled=claimed||!done;
     button.textContent=claimed?"CLAIMED REWARD":done?"CLAIM REWARD":"IN PROGRESS";
+    if(done&&!claimed){button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();claimQuest(quest.id);});}
     row.append(reward,button);card.append(title,description,row);list.appendChild(card);
   });
 }
