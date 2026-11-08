@@ -1251,7 +1251,7 @@ function loop() {
       const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
       const moveSpeed = keys["shift"] ? speed * 1.8 : speed;
       const forward = (keys["w"] || keys["arrowup"] ? 1 : 0) - (keys["s"] || keys["arrowdown"] ? 1 : 0);
-      const strafe = (keys["d"] || keys["arrowright"] ? 1 : 0) - (keys["a"] || keys["arrowleft"] ? 1 : 0);
+      const strafe = (keys["a"] || keys["arrowleft"] ? 1 : 0) - (keys["d"] || keys["arrowright"] ? 1 : 0);
       if (forward || strafe) {
         const magnitude = Math.hypot(forward, strafe) || 1;
         const f = forward / magnitude, side = strafe / magnitude, angle = cameraYaw;
