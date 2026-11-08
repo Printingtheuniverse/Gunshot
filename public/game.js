@@ -1173,6 +1173,7 @@ function addDataCrystal(x, z, color = 0x8df5ff) {
   crystal.add(ring);
   crystal.position.set(x,0,z);
   crystal.userData.isDataCrystal = true;
+  crystal.visible = false;
   scene.add(crystal);
   collectibleCrystals.push(crystal);
 }
@@ -1186,6 +1187,7 @@ renderer.domElement.addEventListener("click", event => {
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
+  if (!$("matchTitle")?.textContent.startsWith("Crystal Hunt")) return;
   const hit = raycaster.intersectObjects(collectibleCrystals, true);
   if (!hit.length) return;
   let crystal = hit[0].object;
@@ -1330,7 +1332,8 @@ function loop() {
   }
 
   lastFrameTime = performance.now();
-  collectibleCrystals.forEach((crystal, i) => { crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.18; });
+  const crystalHuntActive = $("matchTitle")?.textContent.startsWith("Crystal Hunt") === true;
+  collectibleCrystals.forEach((crystal, i) => { crystal.visible = crystalHuntActive; crystal.rotation.y += 0.008; crystal.position.y = Math.sin(performance.now() * 0.0018 + i) * 0.18; });
   renderer.render(scene, camera);
 }
 
@@ -1349,6 +1352,7 @@ socket.on("matchStarted", data => {
   setMapTheme(data.map);
   setWeaponViewmodel();
   collectedCrystals = 0;
+  collectibleCrystals.forEach(crystal => { crystal.visible = data.mode === "Crystal Hunt"; });
   activeCheckpoint = 0;
   lastObjectiveScoreAt = 0;
   const objective = $("arenaObjective");
