@@ -124,6 +124,10 @@ function renderFrontierLeaderboard(rows) {
   title.className = "frontier-board-title";
   title.textContent = "LIVE FRONTIER RANKINGS";
   root.appendChild(title);
+  const spacer = document.createElement("div");
+  spacer.className = "frontier-board-spacer";
+  spacer.setAttribute("aria-hidden","true");
+  root.appendChild(spacer);
   const note = document.createElement("small");
   note.className = "frontier-board-note";
   note.textContent = "Session XP · resets when the game server restarts";
@@ -1663,21 +1667,26 @@ function readDaily(){
 }
 function renderDailyReward(){
   const saved=readDaily(),today=localDayKey();
-  const button=$("dailyClaimButton"),status=$("dailyRewardStatus"),streak=$("dailyStreak");
+  const buttons=[$("dailyClaimButton"),$("dailyDashboardClaimButton")].filter(Boolean);
+  const status=$("dailyRewardStatus"),streak=$("dailyStreak");
   if(streak)streak.textContent="CURRENT STREAK: "+(Number(saved.streak)||0)+" DAYS";
   const claimed=saved.lastClaim===today;
-  if(button){button.disabled=claimed;button.textContent=claimed?"CLAIMED TODAY":"CLAIM DAILY REWARD";}
-  if(status)status.textContent=claimed?"Today's reward has been collected. Come back tomorrow!":"Your daily reward is ready: 50–120 credits.";
+  buttons.forEach(button=>{button.disabled=claimed;button.textContent=claimed?"CLAIMED REWARD":"CLAIM REWARD";});
+  if(status)status.textContent=claimed?"Today's reward has already been claimed. Come back tomorrow!":"Your daily reward is ready: 50–120 credits.";
 }
 function claimDailyReward(){
   const saved=readDaily(),today=localDayKey();
-  if(saved.lastClaim===today){renderDailyReward();return;}
+  if(saved.lastClaim===today){
+    const status=$("dailyRewardStatus");
+    if(status)status.textContent="CLAIMED REWARD — today's credits have already been collected.";
+    renderDailyReward();return;
+  }
   const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
   const nextStreak=saved.lastClaim===localDayKey(yesterday)?Math.min(7,(Number(saved.streak)||0)+1):1;
   const reward=50+(nextStreak-1)*10;
   localStorage.setItem(DAILY_KEY,JSON.stringify({lastClaim:today,streak:nextStreak}));
   const wallet=readShop();wallet.credits+=reward;saveShop(wallet);
-  $("shopMessage").textContent="Daily reward collected: +"+reward+" credits!";
+  const message=$("shopMessage");if(message)message.textContent="Daily reward collected: +"+reward+" credits!";
   renderDailyReward();
 }
 
