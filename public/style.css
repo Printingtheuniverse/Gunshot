@@ -880,3 +880,8 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 
 /* Clear breathing room below the live leaderboard heading */
 .frontier-board-spacer{display:block;height:24px;min-height:24px;width:100%;}
+
+
+/* Requested breathing room in the Frontier leaderboard */
+.frontier-board-spacer{height:34px;min-height:34px}
+.command-score p strong{margin-left:auto;padding-left:14px}
