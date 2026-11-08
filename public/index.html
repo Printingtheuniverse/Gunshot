@@ -39,8 +39,8 @@
         <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1>RELOAD<span>-SHOT</span></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
         <aside class="command-right">
           <div class="command-profile"><span class="profile-emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
-          <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button onclick="claimDailyReward()">CLAIM REWARD</button></div></div>
-          <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
+          <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button id="dailyDashboardClaimButton" onclick="claimDailyReward()">CLAIM REWARD</button></div></div>
+          <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><div class="frontier-board-spacer" aria-hidden="true"></div><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
         </aside>
         <div class="command-map"><div><strong>NEW MAP: ORBITAL DOME</strong><small>Explore the ultimate arena!</small></div><button onclick="showServers()">PLAY NOW ›</button></div>
         <button class="command-quickmatch" onclick="showServers()"><span>◎</span><strong>QUICK MATCH</strong><small>Find an open arena</small></button>
@@ -349,6 +349,6 @@
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="game.js?v=20261107-reward-click-fix-v1"></script>
+<script src="game.js?v=20261107-daily-reward-label-v2"></script>
 </body>
 </html>
