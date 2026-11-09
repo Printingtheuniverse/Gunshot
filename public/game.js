@@ -1127,13 +1127,19 @@ function makeNameSprite(text) {
   const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
   );
-  sprite.scale.set(4.1, 0.9, 1);
+  sprite.scale.set(5.8, 1.28, 1);
   sprite.renderOrder = 10;
   return sprite;
 }
 
 function updatePlayers() {
   const liveIds = new Set();
+  const countLabel = $("arenaPlayerCount");
+  if (countLabel) countLabel.textContent = `${players.length} / 16`;
+  const squadLabel = $("arenaSquadStatus");
+  if (squadLabel) squadLabel.textContent = `SQUAD ${String((myTeam || 0) + 1).padStart(2,"0")}`;
+  const fieldLabel = $("arenaFieldStatus");
+  if (fieldLabel) fieldLabel.textContent = currentState === "playing" ? "LIVE SESSION" : "SYNCING";
 
   for (const p of players) {
     liveIds.add(p.id);
@@ -1152,7 +1158,7 @@ function updatePlayers() {
 
     if (!nameSprites.has(p.id)) {
       const label = makeNameSprite(p.name || "Player");
-      label.position.set(0, 3.25, 0);
+      label.position.set(0, 3.8, 0);
       model.add(label);
       nameSprites.set(p.id, label);
     }
