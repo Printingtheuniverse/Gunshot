@@ -274,7 +274,24 @@
       <div id="playerLeaderboard" class="player-leaderboard" aria-live="polite"><strong class="player-leaderboard-title">MATCH LEADERBOARD</strong><span class="player-leaderboard-empty">Waiting for explorers...</span></div>
       <div class="arena-frame"><canvas id="arena" width="1200" height="750" tabindex="0" aria-label="3D arena. Drag to look around. Camera recenters behind your explorer."></canvas></div>
       <div class="weapon-hud"><span class="weapon-status" id="arenaObjective">DATA CRYSTALS // 0 / 8</span><span class="player-health" id="playerHealth"><b>SUIT INTEGRITY</b><i><em></em></i><strong>100%</strong></span><span class="weapon-controls" id="abilityStatus">ABILITY // DASH</span></div>
-      <p class="help">Move: WASD / arrows · Jump: Space · Sprint: Shift · Ability: E · Camera: click arena to capture mouse, move mouse to look, Esc to release. Click crystals only in Crystal Hunt.</p>
+      <p class="help">Move: WASD / arrows · Jump: Space · Sprint: Shift · Ability: E · Camera: click arena to capture mouse, move mouse to look, Esc to release. <button class="tutorial-reopen" type="button" onclick="openGameTutorial()">HOW TO PLAY</button></p>
+      <div id="gameTutorial" class="tutorial-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+        <div class="tutorial-card">
+          <p class="tutorial-kicker">RELOAD-SHOT // FIELD BRIEFING</p>
+          <h2 id="tutorialTitle">WELCOME, EXPLORER</h2>
+          <p id="tutorialMode" class="tutorial-mode">Your first arena run starts here. Learn the controls, then jump in.</p>
+          <div class="tutorial-grid">
+            <div><b>W A S D</b><span>Move around the arena</span></div>
+            <div><b>SPACE</b><span>Jump over obstacles</span></div>
+            <div><b>SHIFT</b><span>Sprint faster</span></div>
+            <div><b>E</b><span>Use your selected ability</span></div>
+            <div><b>F</b><span>Fire your equipped blaster</span></div>
+            <div><b>MOUSE</b><span>Look around; press Esc to release</span></div>
+          </div>
+          <p class="tutorial-objective" id="tutorialObjective">Follow your game mode's objective shown above the arena.</p>
+          <button type="button" class="tutorial-start" onclick="closeGameTutorial()">GOT IT — LET'S PLAY</button>
+        </div>
+      </div>
       <section class="game-chat" aria-label="In-game chat">
         <div class="game-chat-heading"><strong>ARENA CHAT</strong><span>Room messages</span></div>
         <div id="chatMessages" class="chat-messages" aria-live="polite"><div class="chat-line chat-system">Welcome! Keep chat friendly.</div></div>
@@ -349,6 +366,6 @@
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="game.js?v=20261107-daily-reward-label-v2"></script>
+<script src="game.js?v=20261108-first-match-tutorial-v1"></script>
 </body>
 </html>
