@@ -1337,6 +1337,29 @@ function loop() {
   renderer.render(scene, camera);
 }
 
+const GAME_TUTORIAL_KEY = "reloadshot.tutorial.seen.v1";
+function openGameTutorial() {
+  const modal = $("gameTutorial");
+  if (!modal) return;
+  const mode = $("matchTitle")?.textContent.split(" — ")[0] || "your match";
+  const modeCopy = {
+    "Crystal Hunt": "Collect the glowing data crystals around the arena. The counter tracks your team's progress.",
+    "Zone Control": "Stand in the marked control zones and hold them for your team.",
+    "Checkpoint Rally": "Run through the checkpoints in order and follow the route.",
+    "Free Explore": "Explore the map, practice movement, and get comfortable with the arena."
+  };
+  const objective = modeCopy[mode] || "Learn the controls and explore the arena.";
+  $("tutorialMode").textContent = "FIELD OBJECTIVE // " + objective;
+  $("tutorialObjective").textContent = "YOUR MODE: " + mode.toUpperCase() + " — " + objective;
+  modal.classList.remove("hidden");
+}
+function closeGameTutorial() {
+  $("gameTutorial")?.classList.add("hidden");
+  try { localStorage.setItem(GAME_TUTORIAL_KEY, "1"); } catch {}
+}
+window.openGameTutorial = openGameTutorial;
+window.closeGameTutorial = closeGameTutorial;
+
 function start3DLoop() {
   if (animationStarted) return;
   animationStarted = true;
@@ -1350,6 +1373,9 @@ socket.on("matchStarted", data => {
   show("game");
   resizeArena();
   setMapTheme(data.map);
+  let tutorialSeen = false;
+  try { tutorialSeen = localStorage.getItem(GAME_TUTORIAL_KEY) === "1"; } catch {}
+  if (!tutorialSeen) openGameTutorial();
   setWeaponViewmodel();
   collectedCrystals = 0;
   collectibleCrystals.forEach(crystal => { crystal.visible = data.mode === "Crystal Hunt"; });
