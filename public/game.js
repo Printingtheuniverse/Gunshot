@@ -329,6 +329,12 @@ let lastPointerDownAt = 0;
 let jumpVelocity = 0;
 let abilityCooldown = 0;
 let abilityRequested = false;
+let vehicleActive = false;
+function updateVehicleHud() {
+  const label = $("vehicleStatus");
+  if (label) label.textContent = vehicleActive ? "MOUNTED · FAST TRAVEL ACTIVE · Press V to dismount" : "PARKED · Press V to mount";
+  if (vehicleGroup) vehicleGroup.visible = vehicleActive;
+}
 let lastFrameTime = performance.now();
 
 const scene = new THREE.Scene();
@@ -797,6 +803,21 @@ emergencyRing.position.y = 0.1;
 emergencyOperator.add(emergencyRing);
 emergencyOperator.visible = false;
 scene.add(emergencyOperator);
+const vehicleGroup = new THREE.Group();
+const vehicleHullMat = new THREE.MeshStandardMaterial({color:0x172d42,metalness:.82,roughness:.22,emissive:0x063c55,emissiveIntensity:.8});
+const vehicleGlowMat = new THREE.MeshStandardMaterial({color:0x38eaff,emissive:0x18cfff,emissiveIntensity:2.1,metalness:.3,roughness:.2});
+const vehicleHull = new THREE.Mesh(new THREE.BoxGeometry(1.35,.34,2.05),vehicleHullMat);
+vehicleHull.position.y=-.22; vehicleGroup.add(vehicleHull);
+const vehicleCanopy = new THREE.Mesh(new THREE.SphereGeometry(.48,16,10),new THREE.MeshStandardMaterial({color:0x8cefff,transparent:true,opacity:.62,metalness:.45,roughness:.12}));
+vehicleCanopy.scale.set(.85,.42,.9); vehicleCanopy.position.set(0,.02,-.18); vehicleGroup.add(vehicleCanopy);
+for (const side of [-1,1]) {
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(2.35,.12,.62),vehicleHullMat);
+  wing.position.set(side*.78,-.2,.2); wing.rotation.y=side*.12; vehicleGroup.add(wing);
+  const thruster = new THREE.Mesh(new THREE.CylinderGeometry(.17,.22,.65,12),vehicleGlowMat);
+  thruster.rotation.x=Math.PI/2; thruster.position.set(side*.78,-.32,.92); vehicleGroup.add(thruster);
+}
+vehicleGroup.visible=false; emergencyOperator.add(vehicleGroup);
+
 const collectibleCrystals = [];
 let collectedCrystals = 0;
 const controlZones = [];
@@ -1208,6 +1229,7 @@ document.addEventListener("keydown", e => {
   if (key === "f" && !e.repeat && currentState === "playing") socket.emit("shoot");
   if ((key === " " || e.code === "Space") && !e.repeat && currentState === "playing" && !["INPUT","TEXTAREA"].includes(e.target?.tagName)) { jumpRequested = true; e.preventDefault(); }
   if (key === "e" && !e.repeat && currentState === "playing") abilityRequested = true;
+  if (key === "v" && !e.repeat && currentState === "playing") { vehicleActive = !vehicleActive; updateVehicleHud(); }
   keys[key] = true;
   if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)) e.preventDefault();
 });
@@ -1251,7 +1273,7 @@ function loop() {
     if (me) {
       const speed = 3;
       const dt = Math.min(0.04, (performance.now() - lastFrameTime) / 1000 || 0.016);
-      const moveSpeed = keys["shift"] ? speed * 1.8 : speed;
+      const moveSpeed = (keys["shift"] ? speed * 1.8 : speed) * (vehicleActive ? 2.15 : 1);
       const forward = (keys["w"] || keys["arrowup"] ? 1 : 0) - (keys["s"] || keys["arrowdown"] ? 1 : 0);
       const strafe = (keys["a"] || keys["arrowleft"] ? 1 : 0) - (keys["d"] || keys["arrowright"] ? 1 : 0);
       if (forward || strafe) {
@@ -1281,6 +1303,7 @@ function loop() {
       jumpVelocity -= 20 * dt; jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt); if (jumpHeight === 0) jumpVelocity = 0;
       if (abilityCooldown > 0) abilityCooldown = Math.max(0, abilityCooldown - dt);
       const abilityHud = $("abilityStatus"); if (abilityHud) abilityHud.textContent = "ABILITY // " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " // " + abilityCooldown.toFixed(1) + "s" : " // READY");
+      const skillStatus = $("fieldSkillStatus"); if (skillStatus) skillStatus.textContent = "SELECTED: " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " · " + abilityCooldown.toFixed(1) + "s cooldown" : " · E READY");
       if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
       me.x = Math.max(15, Math.min(785, me.x));
       me.y = Math.max(15, Math.min(485, me.y));
@@ -1303,7 +1326,7 @@ function loop() {
     }
     // Detailed player creation can fail if any model asset is invalid. Keep a
     // simple, bright operator visible regardless, and keep the camera following it.
-    try { updatePlayers(); const localModel = playerObjects.get(playerId); if (localModel) localModel.position.y = jumpHeight; emergencyOperator.position.y = jumpHeight; } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
+    try { updatePlayers(); const localModel = playerObjects.get(playerId); if (localModel && vehicleGroup.parent !== localModel) { vehicleGroup.parent?.remove(vehicleGroup); localModel.add(vehicleGroup); } if (localModel) localModel.position.y = jumpHeight; emergencyOperator.position.y = jumpHeight; vehicleGroup.visible = vehicleActive; vehicleGroup.position.y = vehicleActive ? -0.15 + Math.sin(performance.now()*.004)*.07 : -0.22; } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
     const fallback = targetPlayer || { x: 400, y: 250 };
@@ -1377,6 +1400,7 @@ socket.on("matchStarted", data => {
   try { tutorialSeen = localStorage.getItem(GAME_TUTORIAL_KEY) === "1"; } catch {}
   if (!tutorialSeen) openGameTutorial();
   setWeaponViewmodel();
+  vehicleActive = false; updateVehicleHud();
   collectedCrystals = 0;
   collectibleCrystals.forEach(crystal => { crystal.visible = data.mode === "Crystal Hunt"; });
   activeCheckpoint = 0;
