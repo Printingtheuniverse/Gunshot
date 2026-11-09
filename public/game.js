@@ -362,7 +362,7 @@ function setMapTheme(mapName) {
   // not a small boxed room. These sit outside the central combat routes.
   const perimeterMat = new THREE.MeshStandardMaterial({color:0x203e57,metalness:0.78,roughness:0.24,emissive:0x0b4260,emissiveIntensity:0.65});
   const beaconMat = new THREE.MeshBasicMaterial({color:t.accent});
-  for (const [x,z,scale] of [[-66,-43,1],[0,-48,1.25],[66,-43,1],[-72,0,.9],[72,0,.9],[-66,43,1],[0,48,1.25],[66,43,1]]) {
+  for (const [x,z,scale] of [[-98,-64,1],[0,-70,1.25],[98,-64,1],[-108,0,.9],[108,0,.9],[-98,64,1],[0,70,1.25],[98,64,1]]) {
     add(new THREE.BoxGeometry(2.8,13*scale,2.8),perimeterMat,x,6.5*scale,z);
     add(new THREE.TorusGeometry(2.3*scale,.13,8,28),beaconMat,x,10.2*scale,z,1,1,1);
     add(new THREE.BoxGeometry(3.8,.24,3.8),perimeterMat,x,13*scale,z);
@@ -1305,8 +1305,8 @@ function loop() {
       const abilityHud = $("abilityStatus"); if (abilityHud) abilityHud.textContent = "ABILITY // " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " // " + abilityCooldown.toFixed(1) + "s" : " // READY");
       const skillStatus = $("fieldSkillStatus"); if (skillStatus) skillStatus.textContent = "SELECTED: " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " · " + abilityCooldown.toFixed(1) + "s cooldown" : " · E READY");
       if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
-      me.x = Math.max(15, Math.min(785, me.x));
-      me.y = Math.max(15, Math.min(485, me.y));
+      me.x = Math.max(0, Math.min(900, me.x));
+      me.y = Math.max(0, Math.min(600, me.y));
       const worldX = (me.x - 400) * 0.23;
       const worldZ = (me.y - 250) * 0.23;
       const now = performance.now();
