@@ -29,17 +29,18 @@
         <aside class="command-left">
           <button class="command-play" onclick="showServers()"><span>▶</span> PLAY</button>
           <button onclick="showServers()"><span>♟</span> LOBBY</button>
-          <button onclick="openLoadoutStudio()"><span>⚔</span> LOADOUT</button>
+          <button onclick="openLoadoutStudio()"><span>✦</span> STYLE LAB</button>
           <button onclick="openArmory()"><span>✧</span> ARMORY</button>
           <button onclick="openShop()"><span>🛒</span> SHOP</button>
           <button onclick="document.querySelector('.topbar').scrollIntoView({behavior:'smooth'})"><span>⚙</span> SETTINGS</button>
           <button onclick="openLeaderboard()"><span>🏆</span> LEADERBOARD</button>
         </aside>
-        <div class="command-operator" aria-hidden="true"><div class="operator-aura"></div><div class="operator-helmet"><i></i></div><div class="operator-body"><i></i><b></b></div><div class="operator-arm"></div><div class="operator-rifle"><i></i></div><div class="operator-leg leg-a"></div><div class="operator-leg leg-b"></div></div>
+        <div class="command-operator" aria-hidden="true"><div class="operator-aura"></div><div class="operator-helmet"><i></i></div><div class="operator-body"><i></i><b></b></div><div class="operator-arm"></div><div class="operator-leg leg-a"></div><div class="operator-leg leg-b"></div></div>
         <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1>RELOAD<span>-SHOT</span></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
         <aside class="command-right">
           <div class="command-profile"><span class="profile-emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
           <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button id="dailyDashboardClaimButton" onclick="claimDailyReward()">CLAIM REWARD</button></div></div>
+          <button class="command-missions" onclick="openQuests()"><span>✧</span><div><strong>DAILY CHALLENGES</strong><small>Explore · collect · race</small><b>VIEW MISSIONS →</b></div><i>03</i></button>
           <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><div class="frontier-board-spacer" aria-hidden="true"></div><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
         </aside>
         <div class="command-map"><div><strong>NEW MAP: ORBITAL DOME</strong><small>Explore the ultimate arena!</small></div><button onclick="showServers()">PLAY NOW ›</button></div>
