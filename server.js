@@ -247,8 +247,8 @@ io.on("connection", socket => {
     const player = getPlayer(room, socket.id);
     if (!room || !player || room.state !== "playing") return;
 
-    player.x = Math.max(15, Math.min(785, Number(data.x) || player.x));
-    player.y = Math.max(15, Math.min(485, Number(data.y) || player.y));
+    player.x = Math.max(0, Math.min(900, Number(data.x) || player.x));
+    player.y = Math.max(0, Math.min(600, Number(data.y) || player.y));
 
     io.to(room.id).emit("players", room.players.map(p => ({
       id: p.id, name: p.name, team: p.team, x: p.x, y: p.y, hp: p.hp, eliminations: p.eliminations || 0
