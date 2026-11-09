@@ -902,3 +902,12 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .tutorial-start{width:100%;margin-top:8px;padding:14px;border:0;border-radius:10px;background:linear-gradient(90deg,#00c9ef,#7b5cff);color:#04101d;font-weight:1000;letter-spacing:.08em;cursor:pointer}
 .tutorial-reopen{margin-left:8px;padding:4px 9px;border:1px solid #54cce8;border-radius:7px;background:transparent;color:#8beaff;font-weight:800;cursor:pointer}
 @media(max-width:520px){.tutorial-grid{grid-template-columns:1fr 1fr}.tutorial-grid>div{padding:10px}.tutorial-grid span{font-size:.78rem}}
+
+/* Explorer field skills and travel HUD */
+.field-systems-hud{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:8px 0 14px;padding:12px 15px;border:1px solid #315b70;border-radius:11px;background:linear-gradient(105deg,#081725,#102b3b);box-shadow:inset 3px 0 #7c69ff}
+.field-skill-list,.vehicle-status{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field-skill-list>b,.vehicle-status>b{font-size:10px;letter-spacing:1.4px;color:#75eaff}
+.field-skill-list span{font-size:11px;font-weight:900;letter-spacing:.7px;color:#e7f8ff}
+.field-skill-list small,.vehicle-status span{font-size:10px;color:#a8c4d6;line-height:1.4}
+.vehicle-status{padding-left:14px;border-left:1px solid #315b70}
+@media(max-width:600px){.field-systems-hud{align-items:flex-start;flex-direction:column}.vehicle-status{padding:9px 0 0;border-left:0;border-top:1px solid #315b70;width:100%}}
