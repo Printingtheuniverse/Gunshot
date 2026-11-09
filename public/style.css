@@ -885,3 +885,20 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 /* Requested breathing room in the Frontier leaderboard */
 .frontier-board-spacer{height:34px;min-height:34px}
 .command-score p strong{margin-left:auto;padding-left:14px}
+
+
+/* First-match field briefing */
+.tutorial-backdrop{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px;background:rgba(2,8,20,.82);backdrop-filter:blur(12px)}
+.tutorial-backdrop.hidden{display:none}
+.tutorial-card{width:min(620px,100%);padding:clamp(22px,4vw,36px);border:1px solid rgba(91,220,255,.55);border-radius:20px;background:linear-gradient(145deg,#10243a,#07111f 72%);box-shadow:0 0 55px rgba(0,190,255,.2);color:#eafaff}
+.tutorial-kicker{margin:0 0 8px;color:#65eaff;font-size:.72rem;font-weight:900;letter-spacing:.18em}
+.tutorial-card h2{margin:0;font-size:clamp(1.7rem,5vw,2.5rem);letter-spacing:.04em}
+.tutorial-mode{color:#b9d7e8;line-height:1.5}
+.tutorial-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 0}
+.tutorial-grid>div{display:flex;flex-direction:column;gap:5px;padding:13px;border:1px solid rgba(110,190,225,.2);border-radius:12px;background:rgba(24,61,86,.42)}
+.tutorial-grid b{color:#75eaff;font-size:.9rem;letter-spacing:.08em}
+.tutorial-grid span{color:#d1e5f1;font-size:.85rem}
+.tutorial-objective{padding:12px;border-left:3px solid #a78bfa;background:rgba(167,139,250,.1);color:#e4dcff;font-size:.9rem;line-height:1.45}
+.tutorial-start{width:100%;margin-top:8px;padding:14px;border:0;border-radius:10px;background:linear-gradient(90deg,#00c9ef,#7b5cff);color:#04101d;font-weight:1000;letter-spacing:.08em;cursor:pointer}
+.tutorial-reopen{margin-left:8px;padding:4px 9px;border:1px solid #54cce8;border-radius:7px;background:transparent;color:#8beaff;font-weight:800;cursor:pointer}
+@media(max-width:520px){.tutorial-grid{grid-template-columns:1fr 1fr}.tutorial-grid>div{padding:10px}.tutorial-grid span{font-size:.78rem}}
