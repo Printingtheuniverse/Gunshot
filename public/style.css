@@ -929,3 +929,56 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .field-skill-list span{font-size:13px}
 .field-skill-list small,.vehicle-status span{font-size:12px}
 @media(max-width:650px){.arena-command-strip{gap:4px;padding:8px}.arena-command-strip>div{padding:4px 6px}.arena-command-strip small{font-size:8px;letter-spacing:.8px}.arena-frame{height:70vh;min-height:460px}.field-systems-hud{padding:13px}}
+
+
+/* RELOAD-SHOT lobby refresh — cinematic hero, readable side panels, clear navigation */
+.command-center{height:clamp(620px,88vh,980px);min-height:620px;max-height:980px;margin:12px 0 18px;border-radius:18px;border-color:#387fc2;background:radial-gradient(ellipse at 52% 46%,#24538b 0,#0b2048 37%,#050d24 72%,#020713 100%);box-shadow:0 24px 75px #000b,inset 0 0 90px #1265bb35}
+.command-planet{width:min(60vw,760px);top:5%;opacity:.88}
+.command-title{top:4%;left:3.5%}
+.command-title h1{font-size:clamp(34px,4.8vw,68px);letter-spacing:-2.5px}
+.command-left{left:2.2%;top:25%;width:clamp(165px,18%,255px);gap:9px}
+.command-left button{min-height:48px;border-radius:9px;padding:12px 16px;background:linear-gradient(105deg,#071a35f5,#0b2b4ad9);border-color:#3778b2;font-size:clamp(11px,1.1vw,15px)}
+.command-left button span{color:#8beaff}
+.command-left .command-play{min-height:72px;border-radius:12px;background:linear-gradient(110deg,#0879c9,#21c7f2,#5749d9);border:2px solid #a8f5ff;color:#03182c;font-style:normal;font-size:clamp(23px,2.5vw,34px);box-shadow:0 0 30px #25c9ff80}
+.command-left .command-play span{color:#03182c}
+.command-operator{left:51%;bottom:8%;height:69%;width:clamp(245px,32%,430px);filter:drop-shadow(0 0 36px #168cffb0)}
+.operator-helmet{border-width:4px;box-shadow:inset -9px -5px 15px #02091b,0 0 28px #0af}
+.operator-body{filter:drop-shadow(0 0 12px #20caff45)}
+.command-right{right:2%;top:3%;width:clamp(205px,22%,305px);gap:12px}
+.command-profile,.command-reward,.command-score,.command-missions{border-radius:12px;border-color:#3b83bb;background:linear-gradient(140deg,#071a34f5,#061126f2);box-shadow:0 9px 28px #0009;padding:14px}
+.command-reward button{border-radius:8px;background:linear-gradient(90deg,#1b9de8,#7866f6);border-color:#9bdfff;color:#fff;font-style:normal}
+.command-missions{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:#effaff;cursor:pointer}
+.command-missions>span{display:grid;place-items:center;width:42px;height:42px;border-radius:10px;background:#173e65;color:#9ceaff;font-size:25px}
+.command-missions div{display:grid;gap:4px;min-width:0}
+.command-missions strong{font-size:12px;letter-spacing:.8px}
+.command-missions small{font-size:10px;color:#a9c8e8}
+.command-missions b{font-size:10px;color:#85eaff;letter-spacing:.6px}
+.command-missions>i{margin-left:auto;font-style:normal;font-size:20px;font-weight:1000;color:#c3aaff}
+.command-score{padding:12px 14px}
+.command-score p{padding:6px 2px}
+.command-map{left:2.2%;bottom:6%;width:clamp(230px,30%,410px);border-radius:12px;background:linear-gradient(120deg,#071b36f5,#08162ff5);border-color:#3e91d1}
+.command-quickmatch{right:2.2%;bottom:7%;border-radius:12px;background:linear-gradient(120deg,#0864a9,#202a79);border-color:#79e9ff}
+.command-online{left:2.2%;bottom:2.2%;letter-spacing:1px}
+.command-footer{bottom:2.2%;font-size:9px}
+.topbar{min-height:76px;border-radius:14px;border-color:#285477;background:linear-gradient(100deg,#061522f5,#0a2035f0)}
+.nav-button{border-radius:9px;padding:11px 15px}
+.nav-button.selected,.nav-button:hover{background:linear-gradient(120deg,#123f61,#25265b);border-color:#4e9bc6}
+.brand-mark{border-radius:11px;background:linear-gradient(140deg,#75efff,#2586ff 58%,#9b75ff)}
+@media(max-width:760px){
+ .command-center{height:auto;min-height:1040px;max-height:none}
+ .command-title{top:3%}
+ .command-operator{height:35%;width:49%;bottom:28%;left:52%}
+ .command-right{top:17%;width:45%}
+ .command-left{top:19%;width:43%}
+ .command-map{bottom:8%;width:94%}
+ .command-quickmatch{bottom:2%;right:3%;width:94%}
+ .command-online{display:none}
+ .command-missions{padding:8px}
+}
+@media(max-width:430px){
+ .command-center{min-height:1120px}
+ .command-right{top:18%;width:47%}
+ .command-operator{bottom:31%;height:30%;left:51%}
+ .command-map{bottom:11%}
+ .command-quickmatch{bottom:3%}
+}
