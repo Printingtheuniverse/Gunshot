@@ -986,3 +986,10 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 
 /* Distinct map identity in the match header */
 #matchTitle{letter-spacing:1.1px;text-shadow:0 0 18px #43cfff66}
+
+
+/* Explorer selection studio polish */
+.avatar-figure{filter:drop-shadow(0 0 22px #43d9ff70);transform:scale(1.08);transform-origin:center bottom}
+.character-dots .dot.active{box-shadow:0 0 12px #65eaff,0 0 22px #65eaff77}
+.character-card,.character-preview{border-color:#4b9bd0;box-shadow:0 12px 36px #0007,inset 0 0 24px #35baff12}
+.character-name,.character-description{text-shadow:0 0 14px #51dfff55}
