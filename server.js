@@ -183,8 +183,8 @@ io.on("connection", socket => {
     room.players.push({
       id: socket.id, name: clean, team: room.players.length % 4, ready: false,
       // Spawn everyone close to the arena center so all explorers are in view.
-      x: 600 + (Math.random() - 0.5) * 70,
-      y: 400 + (Math.random() - 0.5) * 70,
+      x: 600 + (Math.random() - 0.5) * 40,
+      y: 400 + (Math.random() - 0.5) * 40,
       hp: 100, eliminations: 0
     });
 
