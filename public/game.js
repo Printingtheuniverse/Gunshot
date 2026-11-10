@@ -977,6 +977,66 @@ function makePlayer(p) {
     }
     part(new THREE.BoxGeometry(0.42,0.08,0.08), glow, 0, 2.16, 0.29);
   }
+  // Seven signature explorer kits: purely cosmetic silhouettes, readable at arena distance.
+  const kitPalette = [
+    [0x63e6ff,0x167da8],[0xffbd65,0xa94e21],[0x8be0a2,0x277b59],
+    [0xb9a2ff,0x6044b8],[0xff91b9,0xa83c72],[0x9deaff,0x397ba9],[0xd0b6ff,0x5a438e]
+  ];
+  const kit = kitPalette[variant] || kitPalette[0];
+  const kitGlow = new THREE.MeshStandardMaterial({color:kit[0],emissive:kit[1],emissiveIntensity:1.45,metalness:0.28,roughness:0.22});
+  const kitShell = new THREE.MeshStandardMaterial({color:variant%2?0x26364b:0xd4e3ed,metalness:0.72,roughness:0.24});
+  if (variant === 0) {
+    // NOVA — twin scout fins and a compact crown beacon.
+    for(const side of [-1,1]){
+      part(new THREE.ConeGeometry(0.16,0.72,5),kitShell,side*0.62,1.95,-0.18).rotation.z=side*0.72;
+      part(new THREE.BoxGeometry(0.09,0.42,0.07),kitGlow,side*0.62,1.96,-0.12);
+    }
+    part(new THREE.TorusGeometry(0.28,0.035,8,24),kitGlow,0,2.53,-0.02).rotation.x=Math.PI/2;
+  } else if (variant === 1) {
+    // BOLT — broad shoulder guards and twin compact back modules.
+    for(const side of [-1,1]){
+      part(new THREE.BoxGeometry(0.25,0.58,0.28),kitShell,side*0.68,1.65,-0.22);
+      part(new THREE.CylinderGeometry(0.11,0.14,0.42,8),kitGlow,side*0.34,1.55,-0.58);
+    }
+    part(new THREE.BoxGeometry(0.58,0.12,0.1),kitGlow,0,1.98,-0.32);
+  } else if (variant === 2) {
+    // MOSS — rugged field pack with visible utility canisters.
+    part(new THREE.BoxGeometry(0.58,0.66,0.3),kitShell,0,1.53,-0.5);
+    for(const side of [-1,1]){
+      part(new THREE.CylinderGeometry(0.12,0.12,0.62,8),kitGlow,side*0.34,1.55,-0.62);
+      part(new THREE.BoxGeometry(0.2,0.16,0.2),kitShell,side*0.47,1.2,-0.32);
+    }
+  } else if (variant === 3) {
+    // ORBIT — floating sensor halo and orbital shoulder arcs.
+    part(new THREE.TorusGeometry(0.54,0.045,8,32),kitGlow,0,2.58,-0.02).rotation.x=Math.PI/2;
+    for(const side of [-1,1]){
+      part(new THREE.TorusGeometry(0.28,0.045,8,20),kitShell,side*0.58,1.77,0).rotation.y=side*0.4;
+      part(new THREE.SphereGeometry(0.1,12,8),kitGlow,side*0.58,2.08,0);
+    }
+  } else if (variant === 4) {
+    // EMBER — angular solar mantle panels and warm-lit shoulder plates.
+    for(const side of [-1,1]){
+      part(new THREE.BoxGeometry(0.24,0.74,0.08),kitShell,side*0.48,1.4,-0.5).rotation.z=side*0.22;
+      part(new THREE.SphereGeometry(0.12,12,8),kitGlow,side*0.65,1.78,0.1);
+    }
+    part(new THREE.OctahedronGeometry(0.22,1),kitGlow,0,2.5,-0.02);
+  } else if (variant === 5) {
+    // AURORA — broad frost fins and a luminous back crest.
+    for(const side of [-1,1]){
+      part(new THREE.ConeGeometry(0.2,0.9,5),kitShell,side*0.67,1.75,-0.2).rotation.z=side*0.85;
+      part(new THREE.BoxGeometry(0.08,0.48,0.07),kitGlow,side*0.67,1.77,-0.12);
+    }
+    part(new THREE.TorusGeometry(0.42,0.05,8,28),kitGlow,0,2.55,-0.08).rotation.x=Math.PI/2;
+  } else {
+    // CIPHER — sleek twin sensor antennae and a split stealth backpack.
+    for(const side of [-1,1]){
+      part(new THREE.CylinderGeometry(0.045,0.065,0.58,8),kitShell,side*0.25,2.48,-0.06);
+      part(new THREE.SphereGeometry(0.1,12,8),kitGlow,side*0.25,2.79,-0.06);
+      part(new THREE.BoxGeometry(0.22,0.64,0.22),kitShell,side*0.28,1.55,-0.48);
+      part(new THREE.BoxGeometry(0.07,0.46,0.05),kitGlow,side*0.28,1.55,-0.61);
+    }
+  }
+
   // Premium suit detailing: layered collar, segmented abdomen and shoulder insets.
   part(new THREE.TorusGeometry(0.31, 0.065, 10, 28), trim, 0, 1.91, 0).rotation.x = Math.PI / 2;
   part(new THREE.BoxGeometry(0.36, 0.12, 0.08), deepArmor, 0, 1.28, 0.225);
@@ -1149,7 +1209,7 @@ function makePlayer(p) {
   ring.position.y = 0.08;
   group.add(ring);
 
-  group.scale.setScalar(1.12);
+  group.scale.setScalar(1.2);
   scene.add(group);
   playerObjects.set(p.id, group);
   
