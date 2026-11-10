@@ -982,3 +982,7 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
  .command-map{bottom:11%}
  .command-quickmatch{bottom:3%}
 }
+
+
+/* Distinct map identity in the match header */
+#matchTitle{letter-spacing:1.1px;text-shadow:0 0 18px #43cfff66}
