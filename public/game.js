@@ -462,7 +462,7 @@ const starfield = new THREE.Points(starGeometry, starMaterial);
 scene.add(starfield);
 
 
-const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 260);
+const camera = new THREE.PerspectiveCamera(52, 1.6, 0.1, 420);
 camera.position.set(0, 31, 38);
 camera.lookAt(0, 0, 0);
 scene.add(camera);
@@ -514,10 +514,10 @@ const mainLight = new THREE.DirectionalLight(0xfff3df, 3.1);
 mainLight.position.set(-8, 18, 10);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
-mainLight.shadow.camera.left = -105;
-mainLight.shadow.camera.right = 105;
-mainLight.shadow.camera.top = 75;
-mainLight.shadow.camera.bottom = -75;
+mainLight.shadow.camera.left = -145;
+mainLight.shadow.camera.right = 145;
+mainLight.shadow.camera.top = 105;
+mainLight.shadow.camera.bottom = -105;
 mainLight.shadow.bias = -0.00015;
 mainLight.shadow.normalBias = 0.025;
 scene.add(mainLight);
@@ -539,7 +539,7 @@ redLight.position.set(15, 5, 8);
 scene.add(redLight);
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(240, 170),
+  new THREE.PlaneGeometry(300, 220),
   new THREE.MeshStandardMaterial({
     color: 0x53616b,
     metalness: 0.48,
@@ -571,7 +571,7 @@ for(let x=8;x<512;x+=128)for(let y=8;y<512;y+=128){
 }
 const floorTexture = new THREE.CanvasTexture(floorCanvas);
 floorTexture.wrapS=floorTexture.wrapT=THREE.RepeatWrapping;
-floorTexture.repeat.set(12,9);
+floorTexture.repeat.set(15,12);
 floorTexture.colorSpace=THREE.SRGBColorSpace;
 floorTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
 floor.material.map=floorTexture;
@@ -581,8 +581,8 @@ const terrainDetails = new THREE.Group();
 scene.add(terrainDetails);
 const panelMetal = new THREE.MeshStandardMaterial({color:0x617b8c,metalness:.78,roughness:.32});
 const panelGlow = new THREE.MeshStandardMaterial({color:0x6deaff,emissive:0x159fc9,emissiveIntensity:1.15,metalness:.38,roughness:.2});
-for(let x=-80;x<=80;x+=16){
-  for(let z=-48;z<=48;z+=16){
+for(let x=-128;x<=128;x+=16){
+  for(let z=-88;z<=88;z+=16){
     if(Math.abs(x)<7 && Math.abs(z)<7) continue;
     const plate=new THREE.Mesh(new THREE.BoxGeometry(7.4,.035,7.4),panelMetal);
     plate.position.set(x,.018,z); plate.receiveShadow=true; terrainDetails.add(plate);
@@ -593,7 +593,7 @@ for(let x=-80;x<=80;x+=16){
   }
 }
 
-const grid = new THREE.GridHelper(240, 96, 0x607f91, 0x344956);
+const grid = new THREE.GridHelper(300, 120, 0x607f91, 0x344956);
 grid.position.y = 0.025;
 scene.add(grid);
 
@@ -882,7 +882,7 @@ function makePlayer(p) {
   });
   // Stable per-player silhouette variants keep every explorer visually distinct.
   const identity = String(p.id || p.name || "scout");
-  const variant = p.id === playerId ? selectedCharacter : [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5;
+  const variant = p.id === playerId ? selectedCharacter : [...identity].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 7;
   // Shoulder plates
   part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, -0.53, 1.72, 0);
   part(new THREE.SphereGeometry(variant === 1 ? 0.31 : 0.27, 12, 8), armor, 0.53, 1.72, 0);
@@ -1095,6 +1095,7 @@ function makePlayer(p) {
   ring.position.y = 0.08;
   group.add(ring);
 
+  group.scale.setScalar(1.12);
   scene.add(group);
   playerObjects.set(p.id, group);
   
@@ -1127,7 +1128,7 @@ function makeNameSprite(text) {
   const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
   );
-  sprite.scale.set(5.8, 1.28, 1);
+  sprite.scale.set(7.1, 1.55, 1);
   sprite.renderOrder = 10;
   return sprite;
 }
@@ -1146,9 +1147,9 @@ function updatePlayers() {
     let model = playerObjects.get(p.id);
     if (!model) model = makePlayer(p);
 
-    // Server coordinates remain 800 x 500, mapped onto the 3D floor.
-    const x = (p.x - 400) * 0.23;
-    const z = (p.y - 250) * 0.23;
+    // Expanded server coordinates map onto the larger 3D world (1200 x 800).
+    const x = (p.x - 600) * 0.23;
+    const z = (p.y - 400) * 0.23;
     model.position.set(x, 0, z);
 
     const material = teamMaterials[p.team] || teamMaterials[0];
@@ -1158,7 +1159,7 @@ function updatePlayers() {
 
     if (!nameSprites.has(p.id)) {
       const label = makeNameSprite(p.name || "Player");
-      label.position.set(0, 3.8, 0);
+      label.position.set(0, 4.25, 0);
       model.add(label);
       nameSprites.set(p.id, label);
     }
@@ -1266,7 +1267,7 @@ function loop() {
     // Recover if the socket ID or player-list event arrived late.
     if (!playerId && socket.id) playerId = socket.id;
     if (!players.length && playerId) {
-      players = [{ id: playerId, name: name(), team: myTeam, x: 400, y: 250, hp: 100 }];
+      players = [{ id: playerId, name: name(), team: myTeam, x: 600, y: 400, hp: 100 }];
     }
     const me = players.find(p => p.id === playerId);
     const matchMode = $("matchTitle")?.textContent.split(" — ")[0] || "Crystal Hunt";
@@ -1290,7 +1291,7 @@ function loop() {
         const proposedX = me.x + dx * moveSpeed;
         const proposedY = me.y + dz * moveSpeed;
         const nextX = (proposedX - 400) * 0.23, nextZ = (proposedY - 250) * 0.23;
-        const currentX = (me.x - 400) * 0.23, currentZ = (me.y - 250) * 0.23;
+        const currentX = (me.x - 600) * 0.23, currentZ = (me.y - 400) * 0.23;
         const crates = [[-18,-10],[-8,8],[8,-8],[18,10],[-24,5],[24,-5],[0,-16],[0,16]];
         const blocked = (wx,wz) => crates.some(([cx,cz]) => Math.abs(wx-cx)<2.47 && Math.abs(wz-cz)<2.47);
         if (Math.abs(nextX)<88 && Math.abs(nextZ)<55 && !blocked(nextX,nextZ)) { me.x=proposedX; me.y=proposedY; }
@@ -1310,11 +1311,11 @@ function loop() {
       if (abilityCooldown > 0) abilityCooldown = Math.max(0, abilityCooldown - dt);
       const abilityHud = $("abilityStatus"); if (abilityHud) abilityHud.textContent = "ABILITY // " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " // " + abilityCooldown.toFixed(1) + "s" : " // READY");
       const skillStatus = $("fieldSkillStatus"); if (skillStatus) skillStatus.textContent = "SELECTED: " + selectedAbility.toUpperCase() + (abilityCooldown > 0 ? " · " + abilityCooldown.toFixed(1) + "s cooldown" : " · E READY");
-      if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-400)*0.075,1.1,(me.y-250)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
-      me.x = Math.max(0, Math.min(900, me.x));
-      me.y = Math.max(0, Math.min(600, me.y));
-      const worldX = (me.x - 400) * 0.23;
-      const worldZ = (me.y - 250) * 0.23;
+      if (abilityRequested && abilityCooldown <= 0) { abilityRequested = false; if (selectedAbility === "Dash") { if(keys["w"]||keys["arrowup"]) me.y -= 90; else if(keys["s"]||keys["arrowdown"]) me.y += 90; else if(keys["a"]||keys["arrowleft"]) me.x -= 90; else me.x += 90; } else if (selectedAbility === "Shield") { const model = playerObjects.get(playerId); if (model) { const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.35,16,12),new THREE.MeshBasicMaterial({color:0x75eaff,transparent:true,opacity:0.22,wireframe:true})); bubble.position.y=1.2; model.add(bubble); setTimeout(()=>{model.remove(bubble);bubble.geometry.dispose();bubble.material.dispose();},1800); } } else if (selectedAbility === "Scanner") { collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1.35)); setTimeout(() => collectibleCrystals.forEach(crystal => crystal.scale.setScalar(1)), 1200); } else if (selectedAbility === "Beacon") { const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x8df5ff,emissive:0x28cfff,emissiveIntensity:2})); beacon.position.set((me.x-600)*0.075,1.1,(me.y-400)*0.075); scene.add(beacon); setTimeout(()=>{scene.remove(beacon);beacon.geometry.dispose();beacon.material.dispose();},4000); } abilityCooldown = 4; }
+      me.x = Math.max(0, Math.min(1200, me.x));
+      me.y = Math.max(0, Math.min(800, me.y));
+      const worldX = (me.x - 600) * 0.23;
+      const worldZ = (me.y - 400) * 0.23;
       const now = performance.now();
       if (matchMode === "Zone Control" && now - lastObjectiveScoreAt > 5000) {
         const zone = controlZones.find(z => Math.hypot(worldX-z.position.x, worldZ-z.position.z) < 2.6);
@@ -1335,10 +1336,10 @@ function loop() {
     try { updatePlayers(); const localModel = playerObjects.get(playerId); if (localModel && vehicleGroup.parent !== localModel) { vehicleGroup.parent?.remove(vehicleGroup); localModel.add(vehicleGroup); } if (localModel) localModel.position.y = jumpHeight; emergencyOperator.position.y = jumpHeight; vehicleGroup.visible = vehicleActive; vehicleGroup.position.y = vehicleActive ? -0.15 + Math.sin(performance.now()*.004)*.07 : -0.22; } catch (error) { console.error("RELOAD-SHOT player model error:", error); }
     const targetPlayer = players.find(p => p.id === playerId) || players[0];
     const cameraTarget = targetPlayer ? playerObjects.get(targetPlayer.id) : null;
-    const fallback = targetPlayer || { x: 400, y: 250 };
+    const fallback = targetPlayer || { x: 600, y: 400 };
     const target = cameraTarget
       ? cameraTarget.position
-      : new THREE.Vector3((fallback.x - 400) * 0.23, jumpHeight, (fallback.y - 250) * 0.23);
+      : new THREE.Vector3((fallback.x - 600) * 0.23, jumpHeight, (fallback.y - 400) * 0.23);
     const localModel = playerObjects.get(playerId);
     if (localModel) {
       localModel.visible = true;
@@ -1424,7 +1425,7 @@ socket.on("matchStarted", data => {
   // authoritative players event replaces this temporary entry as soon as it
   // arrives, avoiding an empty arena if that event is delayed.
   if (!players.length && playerId) {
-    players = [{ id: playerId, name: name(), team: myTeam, x: 400, y: 250, hp: 100 }];
+    players = [{ id: playerId, name: name(), team: myTeam, x: 600, y: 400, hp: 100 }];
     updatePlayers();
   }
   start3DLoop();
