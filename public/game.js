@@ -369,6 +369,16 @@ function setMapTheme(mapName) {
   }
 
   if (mapName === "Glass Dunes") {
+    // Signature sandstone arch, mesas and glass spires make this map recognizable from spawn.
+    const duneStone = mat(0xb87943), duneLight = mat(0xffd28a,0x7a3d18);
+    add(new THREE.TorusGeometry(12,1.25,10,48,Math.PI*1.15),duneStone,0,8,-39,1.35,1.15,0.72).rotation.z=Math.PI;
+    for (const [x,z,h,r] of [[-48,-30,16,7],[48,-28,19,8],[-48,28,13,6],[48,30,17,7]]) {
+      add(new THREE.CylinderGeometry(r*.78,r,h,7),duneStone,x,h/2,z);
+      add(new THREE.ConeGeometry(r*1.2,4,7),mat(0xd99a58),x,h+2,z);
+    }
+    for (const [x,z,h] of [[-17,-34,9],[18,-30,12],[-34,8,7],[34,6,10]]) {
+      add(new THREE.OctahedronGeometry(1.8,0),duneLight,x,h/2,z,1.1,h/2,1.1);
+    }
     for (const [x,z] of [[-30,-16],[30,-12],[-25,15],[26,16]]) {
       add(new THREE.BoxGeometry(1.8,5.5,1.8),mat(0xb9854f),x,2.75,z);
       add(new THREE.BoxGeometry(5.4,.8,1.8),mat(0xe2b76d),x,5.2,z);
@@ -383,6 +393,19 @@ function setMapTheme(mapName) {
     }
     add(new THREE.SphereGeometry(5,24,16),new THREE.MeshBasicMaterial({color:0xffc477}),27,20,-38);
   } else if (mapName === "Skyline Ruins") {
+    // Broken elevated transit bridge and monumental gate frame the ruined city.
+    const ruinMetal=mat(0x586486,0x202b60), ruinGlow=mat(0x8ceaff,0x247cce);
+    for (const [x,z] of [[-48,-36],[-24,-36],[24,-36],[48,-36]]) {
+      add(new THREE.BoxGeometry(1.6,15,1.6),ruinMetal,x,7.5,z);
+      add(new THREE.BoxGeometry(2.8,.55,2.8),ruinGlow,x,15.2,z);
+    }
+    add(new THREE.BoxGeometry(54,.8,3.2),ruinMetal,0,12,-36);
+    add(new THREE.BoxGeometry(20,.45,3.5),ruinGlow,-17,12.55,-36);
+    add(new THREE.BoxGeometry(20,.45,3.5),ruinGlow,18,12.55,-36);
+    for(const [x,z] of [[-42,34],[42,34]]) {
+      add(new THREE.BoxGeometry(5,18,5),ruinMetal,x,9,z);
+      add(new THREE.TorusGeometry(4,.28,8,32),ruinGlow,x,18,z,1,1,1);
+    }
     for (const [x,z,h] of [[-30,-12,9],[-20,13,5],[23,-16,11],[31,12,7],[-4,-20,6],[8,18,9]]) {
       add(new THREE.BoxGeometry(4,h,4),mat(0x454d70),x,h/2,z);
       add(new THREE.BoxGeometry(5.4,.35,4.8),mat(0x9ba9e8,0x323e80),x,h,z);
@@ -391,14 +414,45 @@ function setMapTheme(mapName) {
     for (const [x,z] of [[-10,-7],[11,6],[-25,5],[24,-4]]) add(new THREE.BoxGeometry(8,.5,2),mat(0x747d9c),x,2.5,z);
     for (const [x,z] of [[-28,-17],[-20,14],[22,-16],[29,13],[-5,-19],[7,18]]) { add(new THREE.BoxGeometry(2.6,7,2.6),mat(0x666c83),x,3.5,z); add(new THREE.BoxGeometry(3.4,.45,3.4),mat(0xa5a9c3),x,7,z); }
     for (let i=0;i<10;i++) add(new THREE.TetrahedronGeometry(1.3),mat(0x777b91),((i*13)%55)-27,.7,((i*19)%38)-19,1.3,.8,1.1);
+  } else if (mapName === "Aurora Grove") {
+    // Aurora Grove gets its own tall bioluminescent forest and glowing ground pools.
+    const auroraTrunk=mat(0x315e60), auroraGlow=mat(0x8eeed2,0x238f9c);
+    for(let i=0;i<28;i++){
+      const x=((i*29)%112)-56, z=((i*37)%76)-38;
+      if(Math.abs(x)<10 && Math.abs(z)<10)continue;
+      const height=5+(i*7)%6;
+      add(new THREE.CylinderGeometry(.22,.48,height,8),auroraTrunk,x,height/2,z);
+      add(new THREE.SphereGeometry(1.8,14,10),mat(i%2?0x4dbd9d:0x8790db,0x235b73),x,height+.4,z,1.3,1.0,1.25);
+      add(new THREE.SphereGeometry(.28,10,8),new THREE.MeshBasicMaterial({color:i%2?0x8effdb:0xbca7ff}),x,height+2,z);
+    }
+    for(const [x,z] of [[-36,-22],[36,-20],[-34,24],[34,22]]){
+      add(new THREE.CylinderGeometry(5.5,6.5,.22,32),mat(0x176c75,0x0c4e73),x,.12,z);
+      add(new THREE.TorusGeometry(5.8,.16,8,36),new THREE.MeshBasicMaterial({color:0x8bfff0}),x,.24,z);
+    }
+    for(let i=0;i<18;i++){
+      const x=((i*13)%100)-50,z=((i*17)%68)-34;
+      if(Math.abs(x)<9&&Math.abs(z)<9)continue;
+      add(new THREE.ConeGeometry(.8,2.4,6),mat(0x5c8cbd,0x3d4cb0),x,1.2,z);
+    }
   } else {
+    // Luminous Gardens: crystalline flower beds, glowing monoliths and curved garden walks.
+    const gardenStone=mat(0x397a72,0x124b4b), gardenCrystal=mat(0x8effd9,0x37bfa3);
+    for(const [x,z,h] of [[-38,-28,12],[38,-28,15],[-40,28,10],[40,28,13],[-20,38,8],[22,38,11]]){
+      add(new THREE.OctahedronGeometry(2.1,1),gardenCrystal,x,h/2,z,1,h/1.7,1);
+      add(new THREE.CylinderGeometry(.7,1.2,h/2,7),gardenStone,x,h/4,z);
+      add(new THREE.TorusGeometry(2.6,.12,8,28),new THREE.MeshBasicMaterial({color:0x75ffd2}),x,h*.72,z,1,1,1);
+    }
+    for(const [x,z] of [[-28,-8],[-14,22],[14,-22],[28,8]]){
+      add(new THREE.TorusGeometry(5,.28,8,40,Math.PI*1.3),gardenStone,x,2.6,z,1,1.25,1);
+      add(new THREE.SphereGeometry(.5,12,8),new THREE.MeshBasicMaterial({color:0x9effdd}),x,4.2,z);
+    }
     for (let i=0;i<24;i++) {
       const x=((i*17)%68)-34, z=((i*23)%42)-21;
       if(Math.abs(x)<8 && Math.abs(z)<8) continue;
       add(new THREE.CylinderGeometry(.18,.32,3,7),mat(0x335e62),x,1.5,z);
       add(new THREE.SphereGeometry(1.6,12,9),mat(i%2?0x58bba4:0x8e83d8,i%2?0x2a967f:0x6352b5),x,3.5,z,1.1,.75,1.1);
     }
-    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=mapName==="Aurora Grove"?(i%2?0x6ac99a:0x718bcb):(i%2?0x3c9b77:0x5cba9d); add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,mapName==="Luminous Gardens"?color:0x000000),x,3.1,z,0.78,0.82,0.78); }
+    for (let i=0;i<16;i++) { const x=((i*19)%64)-32, z=((i*11)%40)-20; if(Math.abs(x)<7 && Math.abs(z)<7) continue; const color=i%2?0x3c9b77:0x5cba9d; add(new THREE.CylinderGeometry(.22,.42,2.4,7),mat(0x4a6b60),x,1.2,z); add(new THREE.IcosahedronGeometry(1.8,1),mat(color,color),x,3.1,z,0.78,0.82,0.78); }
     for (let i=0;i<12;i++) add(new THREE.SphereGeometry(.14,8,6),new THREE.MeshBasicMaterial({color:t.secondary}),((i*9)%54)-27,1.4+(i%4),((i*17)%36)-18);
   }
   mainLight.position.set(-8, mapName==="Glass Dunes"?25:18, 10); mainLight.intensity=mapName==="Glass Dunes"?3.8:3.1;
