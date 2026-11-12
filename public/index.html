@@ -13,7 +13,7 @@
   <main class="app">
     <section id="dashboard" class="screen active">
       <header class="topbar">
-        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark">RS</span><span class="brand-wordmark">RELOAD<span class="brand-light">-SHOT</span><small>YOUR GAME. YOUR IDENTITY.</small></span></a>
+        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark brand-crosshair" aria-label="RS crosshair emblem">RS</span><span class="brand-wordmark">RELOAD<span class="brand-light">-SHOT</span><small>YOUR GAME. YOUR IDENTITY.</small></span></a>
         <nav class="topnav" aria-label="Main navigation">
           <button class="nav-button selected" onclick="show('dashboard')">⌂ <span>HOME</span></button>
           <button class="nav-button" onclick="openLoadoutStudio()">✦ <span>STYLE LAB</span></button>
@@ -36,9 +36,9 @@
           <button onclick="openLeaderboard()"><span>🏆</span> LEADERBOARD</button>
         </aside>
         <div class="command-operator" aria-hidden="true"><div class="operator-aura"></div><div class="operator-helmet"><i></i></div><div class="operator-body"><i></i><b></b></div><div class="operator-arm"></div><div class="operator-leg leg-a"></div><div class="operator-leg leg-b"></div></div>
-        <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1>RELOAD<span>-SHOT</span></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
+        <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1 class="reload-shot-wordmark">RELOAD<span>-SHOT</span></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
         <aside class="command-right">
-          <div class="command-profile"><span class="profile-emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
+          <div class="command-profile"><span class="profile-emblem rs-emblem" aria-label="RS crosshair emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
           <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button id="dailyDashboardClaimButton" onclick="claimDailyReward()">CLAIM REWARD</button></div></div>
           <button class="command-missions" onclick="openQuests()"><span>✧</span><div><strong>DAILY CHALLENGES</strong><small>Explore · collect · race</small><b>VIEW MISSIONS →</b></div><i>03</i></button>
           <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><div class="frontier-board-spacer" aria-hidden="true"></div><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
