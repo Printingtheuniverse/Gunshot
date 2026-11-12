@@ -1036,3 +1036,16 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .avatar-figure .avatar-head,.avatar-figure .avatar-body,.avatar-figure .avatar-arm,.avatar-figure .avatar-leg{z-index:2}
 .avatar-figure .avatar-kit-back{z-index:1}
 .avatar-figure .avatar-kit-top,.avatar-figure .avatar-kit-fin{z-index:4}
+
+
+/* RELOAD-SHOT signature branding */
+.brand-mark.brand-crosshair,.profile-emblem.rs-emblem{position:relative;isolation:isolate;overflow:hidden}
+.brand-mark.brand-crosshair{border-radius:50%;border:2px solid #13d9ff;background:radial-gradient(circle,#061b2b 34%,#0b1429 36%,#09111f 68%);color:#e9fcff;text-shadow:0 0 9px #00d9ff;box-shadow:0 0 14px #00bfff88,inset 0 0 10px #a62cff66}
+.brand-mark.brand-crosshair:before,.profile-emblem.rs-emblem:before{content:"";position:absolute;inset:7px;border:2px solid #1acfff;border-radius:50%;box-shadow:0 0 8px #00cfff}
+.brand-mark.brand-crosshair:after,.profile-emblem.rs-emblem:after{content:"";position:absolute;left:50%;top:2px;bottom:2px;width:2px;background:linear-gradient(transparent,#15dfff 20%,#fff 50%,#b42cff 80%,transparent);transform:translateX(-50%);box-shadow:0 0 7px #00cfff}
+.brand-mark.brand-crosshair{font-size:16px;letter-spacing:-2px}
+.profile-emblem.rs-emblem{border-radius:50%;border:2px solid #16cfff;background:radial-gradient(circle,#0c1a31 35%,#090e1c 70%);color:#effcff;text-shadow:0 0 12px #00cfff;box-shadow:0 0 22px #00bfff77,inset 0 0 16px #a72cff55}
+.reload-shot-wordmark{font-weight:1000!important;letter-spacing:-.055em!important;text-transform:uppercase;text-shadow:0 0 22px #00bfff55,3px 4px 0 #080d1a}
+.reload-shot-wordmark span{background:linear-gradient(100deg,#e9f7ff 5%,#a8c8e9 45%,#d8b7ff 65%,#bd37ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important}
+.command-title h1.reload-shot-wordmark{filter:drop-shadow(0 0 16px #00bfff44)}
+@media(max-width:700px){.brand-mark.brand-crosshair{width:38px;height:38px}.reload-shot-wordmark{font-size:clamp(30px,8vw,54px)}}
