@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>RELOAD-SHOT — Drop In. Lock In. Reload.</title>
   <meta name="theme-color" content="#07111d">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%2300eaff'/%3E%3Cstop offset='1' stop-color='%237c3cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%2307111d'/%3E%3Crect x='2' y='2' width='60' height='60' rx='12' fill='none' stroke='url(%23g)' stroke-width='3'/%3E%3Ccircle cx='45' cy='19' r='10' fill='none' stroke='%2300eaff' stroke-width='2'/%3E%3Cpath d='M45 5v8m0 12v8M31 19h8m12 0h8' stroke='%2300eaff' stroke-width='2'/%3E%3Ctext x='8' y='47' font-family='Arial,sans-serif' font-size='27' font-weight='900' font-style='italic' fill='url(%23g)' stroke='%23dffcff' stroke-width='.5' paint-order='stroke'%3ERS%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="/brand-rs.svg">
   <meta name="description" content="RELOAD-SHOT — your game, your identity, your arena. Drop in, lock in, reload.">
-  <link rel="stylesheet" href="/style.css?v=reload-shot-ux-v3">
+  <link rel="stylesheet" href="/style.css?v=reload-shot-brand-v4">
 </head>
 <body>
   <main class="app">
     <section id="dashboard" class="screen active">
       <header class="topbar">
-        <a class="brand" href="#" onclick="show('dashboard');return false"><span class="brand-mark brand-crosshair" aria-label="RS crosshair emblem">RS</span><span class="brand-wordmark">RELOAD<span class="brand-light">-SHOT</span><small>YOUR GAME. YOUR IDENTITY.</small></span></a>
+        <a class="brand" href="#" onclick="show('dashboard');return false"><img class="brand-mark-image" src="/brand-rs.svg" alt="RELOAD SHOT RS emblem"><span class="brand-wordmark"><img class="brand-wordmark-image" src="/brand-wordmark.svg" alt="RELOAD SHOT"><small>YOUR GAME. YOUR IDENTITY.</small></span></a>
         <nav class="topnav" aria-label="Main navigation">
           <button class="nav-button selected" onclick="show('dashboard')">⌂ <span>HOME</span></button>
           <button class="nav-button" onclick="openLoadoutStudio()">✦ <span>STYLE LAB</span></button>
@@ -36,9 +36,9 @@
           <button onclick="openLeaderboard()"><span>🏆</span> LEADERBOARD</button>
         </aside>
         <div class="command-operator" aria-hidden="true"><div class="operator-aura"></div><div class="operator-helmet"><i></i></div><div class="operator-body"><i></i><b></b></div><div class="operator-arm"></div><div class="operator-leg leg-a"></div><div class="operator-leg leg-b"></div></div>
-        <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1 class="reload-shot-wordmark">RELOAD<span>-SHOT</span></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
+        <div class="command-title"><span>THE ULTIMATE 3D ARENA SHOOTER</span><h1 class="reload-shot-wordmark"><img src="/brand-wordmark.svg" alt="RELOAD SHOT"></h1><small>DROP IN. LOCK IN. RELOAD.</small></div>
         <aside class="command-right">
-          <div class="command-profile"><span class="profile-emblem rs-emblem" aria-label="RS crosshair emblem">RS</span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
+          <div class="command-profile"><span class="profile-emblem rs-emblem"><img src="/brand-rs.svg" alt="RS emblem"></span><div><strong id="commandPlayerName">ARENA EXPLORER</strong><small>LEVEL 1 · FRONTIER SCOUT</small><i><b></b></i><small>START YOUR JOURNEY</small></div><div class="dashboard-wallet"><span>◉</span><strong id="dashboardCredits">250</strong><small>CREDITS</small></div></div>
           <div class="command-reward"><span>🎁</span><div><strong>DAILY REWARDS</strong><small>Check your frontier missions</small><button id="dailyDashboardClaimButton" onclick="claimDailyReward()">CLAIM REWARD</button></div></div>
           <button class="command-missions" onclick="openQuests()"><span>✧</span><div><strong>DAILY CHALLENGES</strong><small>Explore · collect · race</small><b>VIEW MISSIONS →</b></div><i>03</i></button>
           <div class="command-score"><h3>🏆 FRONTIER LEADERBOARD</h3><p><b>✦</b> YOUR EXPLORER PROFILE <strong>LEVEL 1</strong></p><p><b>◎</b> MATCH RECORD <strong>BUILDING</strong></p><p><b>◇</b> SEASON RANK <strong>UNRANKED</strong></p><small>PLAY MATCHES TO BUILD YOUR SESSION RECORD</small><div id="frontierLeaderboard" class="frontier-board" aria-live="polite"><strong class="frontier-board-title">LIVE FRONTIER RANKINGS</strong><div class="frontier-board-spacer" aria-hidden="true"></div><small class="frontier-board-note">Session XP · resets when the game server restarts</small><span class="frontier-board-empty">Play a match to earn your first ranking points.</span></div></div>
@@ -372,6 +372,6 @@
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="game.js?v=20261108-first-match-tutorial-v1"></script>
+<script src="game.js?v=20261115-brand-refresh-v1"></script>
 </body>
 </html>
