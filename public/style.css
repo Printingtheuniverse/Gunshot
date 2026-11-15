@@ -1049,3 +1049,21 @@ body.panel-open{overflow:hidden}.panel-page{display:none!important}.panel-page.p
 .reload-shot-wordmark span{background:linear-gradient(100deg,#e9f7ff 5%,#a8c8e9 45%,#d8b7ff 65%,#bd37ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important}
 .command-title h1.reload-shot-wordmark{filter:drop-shadow(0 0 16px #00bfff44)}
 @media(max-width:700px){.brand-mark.brand-crosshair{width:38px;height:38px}.reload-shot-wordmark{font-size:clamp(30px,8vw,54px)}}
+
+
+/* RELOAD SHOT official neon identity refresh */
+.brand-mark-image{width:54px;height:54px;object-fit:contain;display:block;filter:drop-shadow(0 0 13px #00cfff66)}
+.brand-wordmark{display:flex;flex-direction:column;gap:2px}
+.brand-wordmark-image{display:block;width:176px;height:53px;object-fit:contain;object-position:left center}
+.brand-wordmark small{margin-top:-5px;letter-spacing:.19em;color:#8eb4d0;font-size:8px}
+.brand-mark.brand-crosshair{display:none}
+.reload-shot-wordmark{display:flex;justify-content:center;align-items:center;width:min(100%,610px);margin:0 auto}
+.reload-shot-wordmark img{display:block;width:100%;height:auto;max-height:178px;object-fit:contain;filter:drop-shadow(0 0 20px #00bfff55) drop-shadow(0 0 22px #ad26ff33)}
+.profile-emblem.rs-emblem{background:transparent;border:0;box-shadow:none;padding:0}
+.profile-emblem.rs-emblem img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 12px #00cfff66)}
+@media(max-width:700px){
+ .brand-mark-image{width:40px;height:40px}
+ .brand-wordmark-image{width:132px;height:42px}
+ .brand-wordmark small{font-size:6px}
+ .reload-shot-wordmark img{max-height:112px}
+}
