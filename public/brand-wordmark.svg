@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360">
+<defs><linearGradient id="silver" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".55" stop-color="#b8c9df"/><stop offset="1" stop-color="#647d9b"/></linearGradient><linearGradient id="violet" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7b25ff"/><stop offset=".55" stop-color="#ee38ff"/><stop offset="1" stop-color="#8e31ff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<text x="600" y="152" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="166" font-weight="900" font-style="italic" letter-spacing="-9" fill="url(#silver)" stroke="#101a2e" stroke-width="15" paint-order="stroke">RELOAD</text>
+<text x="600" y="302" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="176" font-weight="900" font-style="italic" letter-spacing="-4" fill="url(#violet)" stroke="#180b35" stroke-width="13" paint-order="stroke" filter="url(#glow)">SHOT</text>
+<path d="M600 12v66m-33-33h66" stroke="#00eaff" stroke-width="9" filter="url(#glow)"/>
+</svg>
