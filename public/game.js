@@ -523,14 +523,14 @@ scene.add(camera);
 // Reuse the canvas already present in index.html. Do not nest a canvas
 // inside another canvas; that creates an invisible/zero-sized render surface.
 const renderer = new THREE.WebGLRenderer({ canvas: arena, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.physicallyCorrectLights = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.12;
+renderer.toneMappingExposure = 1.2;
 renderer.domElement.style.cssText = "display:block;width:100%;height:100%;border-radius:10px;cursor:crosshair;touch-action:none;user-select:none";
 function resizeArena() {
   const width = Math.max(320, arena.clientWidth || arena.parentElement.clientWidth || 960);
@@ -1208,6 +1208,27 @@ function makePlayer(p) {
   ring.rotation.x = Math.PI / 2;
   ring.position.y = 0.08;
   group.add(ring);
+
+  // Upgrade every explorer with a premium backpack silhouette and visor lighting.
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.38,0.12,0.11),kitGlow);
+  visor.position.set(0,2.07,0.27); group.add(visor);
+  const pack = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.58,0.34),kitShell);
+  pack.position.set(0,1.48,-0.48); pack.castShadow=true; group.add(pack);
+  for (const side of [-1,1]) {
+    const sidePod = new THREE.Mesh(new THREE.CylinderGeometry(0.095,0.12,0.46,10),kitGlow);
+    sidePod.position.set(side*0.31,1.48,-0.54); group.add(sidePod);
+    const shoulderStripe = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.08,0.3),kitGlow);
+    shoulderStripe.position.set(side*0.57,1.74,0.06); group.add(shoulderStripe);
+  }
+  // Floating abstract energy-tool ornament (cosmetic only, no real-world analogue).
+  const energyTool = new THREE.Group();
+  const toolCore = new THREE.Mesh(new THREE.OctahedronGeometry(0.17,1),kitGlow);
+  toolCore.position.set(0.5,1.08,0.38); energyTool.add(toolCore);
+  const toolRing = new THREE.Mesh(new THREE.TorusGeometry(0.24,0.035,8,24),kitGlow);
+  toolRing.position.copy(toolCore.position); toolRing.rotation.x=Math.PI/2; energyTool.add(toolRing);
+  const toolShard = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.3,0.1),kitShell);
+  toolShard.position.set(0.5,1.08,0.5); toolShard.rotation.z=0.28; energyTool.add(toolShard);
+  group.add(energyTool); group.userData.energyTool=energyTool;
 
   group.scale.setScalar(1.2);
   scene.add(group);
